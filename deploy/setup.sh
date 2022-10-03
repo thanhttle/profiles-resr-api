@@ -25,7 +25,9 @@ sudo python3 -m venv $VIRTUALENV_BASE_PATH/profiles_api
 $VIRTUALENV_BASE_PATH/profiles_api/bin/pip install -r $PROJECT_BASE_PATH/profiles-rest-api/requirements.txt
 
 # Run migrations
-cd $PROJECT_BASE_PATH/profiles-rest-api/src
+cd $PROJECT_BASE_PATH
+$PROJECT_BASE_PATH/env/bin/python manage.py migrate
+$PROJECT_BASE_PATH/env/bin/python manage.py collectstatic --noinput
 
 # Setup Supervisor to run our uwsgi process.
 sudo cp $PROJECT_BASE_PATH/profiles-rest-api/deploy/supervisor_profiles_api.conf /etc/supervisor/conf.d/profiles_api.conf
