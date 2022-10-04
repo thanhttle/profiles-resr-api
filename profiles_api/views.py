@@ -56,15 +56,15 @@ class HelloApiView(APIView):
             )
 
     def put(self, request, pk=None):
-        ""Handle updating an object""
+        """"Handle updating an object"""
         return Response({'method': 'PUT'})
 
     def patch(self, request, pk=None):
-        ""Handle a partial update of an object
+        """Handle a partial update of an object"""
         return Response({'method': 'PATCH'})
 
     def delete(self, request, pk=None):
-        "Delete an object""
+        """Delete an object"""
         return Response({'method': 'DELETE'})
 
 
@@ -240,49 +240,3 @@ class One_Off_Fee_View(viewsets.ModelViewSet):
 				serializer.errors,
 				status=status.HTTP_400_BAD_REQUEST
 			)
-
-
-        """
-	def create(self, request):
-        Create a new hello message
-        serializer = self.serializer_class(data=request.data)
-
-        if serializer.is_valid():
-            city = serializer.validated_data.get("city")
-            area = serializer.validated_data.get("area")
-			bookdate = serializer.validated_data.get("bookdate")
-			starttime = serializer.validated_data.get("starttime")
-			duration = serializer.validated_data.get("duration")
-			owntool = serializer.validated_data.get("owntool")
-            feelistInput = serializer.validated_data.get("feelist")
-            feelist = json.loads(feelistInput)
-
-			base_rate = get_base_rate(city, feelist)
-			if base_rate == 0:
-				return Response(status=status.HTTP_400_BAD_REQUEST)
-
-			extra_fee = extra_fee_special_day(bookdate,starttime,duration,feelist)
-			total_fee = base_rate * duration * (1 + extra_fee["extra_fee_percent"])
-			extra_service_fee_details = extra_fee["extra_service_fee_details"]
-
-			if owntool == True:
-				total_fee += feelist["OwnTools"]
-				extra_service_fee_details["is_OwnTools"] = True
-
-			message = {
-				"city": "Ho Chi Minh",
-				"area": "Area06",
-				"bookdate": "2022-10-03",
-				"starttime": "18:00:00",
-				"duration": 3,
-				"owntool": owntool,
-				"feelist": {"BaseRateHCM":66500, "3h_slot":0.05, "2h_slot":0.26, "OutOfficeHours": 0.16, "Weekend":0.21, "Holiday": 0.32, "NewYear":2.0, "BeforeNewYear":1.0, "AfterNewYear":1.0, "FavoriteMaid":0, "OwnTools":30000, "Area01":0, "Area02":0, "Area03":0, "BaseRateDN":55000, "BaseRateHN":66500}
-			}
-
-			return Response({"Total Fee": total_fee, "Extra Service Fee Details": extra_service_fee_details})
-		else:
-			return Response(
-				serializer.errors,
-				status=status.HTTP_400_BAD_REQUEST
-			)
-"""
