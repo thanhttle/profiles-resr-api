@@ -69,3 +69,17 @@ class ProfileFeedItem(models.Model):
     def __str__(self):
         """Return the model as a string"""
         return self.status_text
+
+
+class One_Off_Fee(models.Model):
+	bookingID = models.CharField(max_length=20)
+	city = models.CharField(max_length=20,default='Ho Chi Minh')
+	area = models.CharField(max_length=10,default='Area01')
+	bookdate = models.DateField()
+	starttime = models.TimeField()
+	duration = models.IntegerField()
+	owntool = models.BooleanField(default=False)
+	feelist = models.CharField(max_length=500)
+
+	def __str__(self):
+		return self.bookingID
