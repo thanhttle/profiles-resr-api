@@ -237,6 +237,41 @@ def check_valid_input(city,area,servicename,duration,propertydetails):
     return error_messagge
 
 
+def get_estimated_duration(propertydetails):
+    housetype = propertydetails["housetype"]
+    numberoffloors = propertydetails["numberoffloors"]
+    numberoffbedroom = propertydetails["numberoffbedroom"]
+    numberoffbathroom = propertydetails["numberoffbathroom"]
+    totalarea = propertydetails["totalarea"]
+    withpets = propertydetails["withpets"]
+    ironingclothes = propertydetails["ironingclothes"]
+
+    estimatedduration = numberoffbedroom * 0.5
+    estimatedduration = estimatedduration + numberoffbathroom * 0.3
+    if housetype == "building/multi-storey house":
+        estimatedduration = estimatedduration + 0.5
+    if withpets:
+        estimatedduration = estimatedduration + 0.5
+    if ironingclothes:
+        estimatedduration = estimatedduration + 0.5
+
+    # Check min for estimatedduration
+    if estimatedduration < 4.0 and totalarea == "140 - 255 m2":
+        estimatedduration = 4.0
+    elif estimatedduration < 3.0 and totalarea == "90 - 140 m2":
+        estimatedduration = 3.0
+    elif estimatedduration < 3.0 and housetype == "villa":
+        estimatedduration = 3.0
+    elif estimatedduration < 3.0 and numberoffbedroom >= 3:
+        estimatedduration = 3.0
+    elif estimatedduration < 2.0:
+        estimatedduration = 2.0
+
+    # Check max for estimatedduration
+    if estimatedduration > 3.0 and (totalarea == "<50 m2" or totalarea == "90 - 140 m2"):
+        estimatedduration = 3.0
+
+    return int(estimatedduration)
 
 
 def extra_fee_special_day(bookdate, starttime, feelist):
@@ -292,7 +327,11 @@ class One_Off_Fee_View(viewsets.ModelViewSet):
             city_fee_list = _DEFAUT_FEE_LIST[city]
             service_fee_list = city_fee_list[servicename]
 
-            fee_details = get_base_rate(area,duration,service_fee_list)
+            if duration == 0:
+                estimatedduration = get_estimated_duration(propertydetails)
+                fee_details = get_base_rate(area,estimatedduration,service_fee_list)
+            else:
+                fee_details = get_base_rate(area,duration,service_fee_list)
             base_rate = fee_details["base_rate"]
             fee_detail = fee_details["fee_detail"]
             if base_rate == 0:
@@ -309,7 +348,10 @@ class One_Off_Fee_View(viewsets.ModelViewSet):
 
             extra_service_fee_details.update(fee_detail)
 
-            return Response({"Total Fee": total_fee, "Extra Service Fee Details": extra_service_fee_details})
+            if duration == 0:
+                return Response({"Total Fee": total_fee, "Estimated Duration": estimatedduration, "Extra Service Fee Details": extra_service_fee_details})
+            else:
+                return Response({"Total Fee": total_fee, "Extra Service Fee Details": extra_service_fee_details})
         else:
             return Response(
 				serializer.errors,
