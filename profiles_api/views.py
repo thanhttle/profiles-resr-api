@@ -326,12 +326,12 @@ class One_Off_Fee_View(viewsets.ModelViewSet):
                 return Response(content, status=status.HTTP_400_BAD_REQUEST)
             city_fee_list = _DEFAUT_FEE_LIST[city]
             service_fee_list = city_fee_list[servicename]
+            usedduration = duration
 
             if duration == 0:
                 estimatedduration = get_estimated_duration(propertydetails)
-                fee_details = get_base_rate(area,estimatedduration,service_fee_list)
-            else:
-                fee_details = get_base_rate(area,duration,service_fee_list)
+                usedduration = estimatedduration
+            fee_details = get_base_rate(area,usedduration,service_fee_list)
             base_rate = fee_details["base_rate"]
             fee_detail = fee_details["fee_detail"]
             if base_rate == 0:
@@ -339,7 +339,7 @@ class One_Off_Fee_View(viewsets.ModelViewSet):
                 return Response(content, status=status.HTTP_400_BAD_REQUEST)
 
             extra_fee = extra_fee_special_day(bookdate,starttime,service_fee_list)
-            total_fee = base_rate * duration * (1 + extra_fee["extra_fee_percent"])
+            total_fee = base_rate * usedduration * (1 + extra_fee["extra_fee_percent"])
             extra_service_fee_details = extra_fee["extra_service_fee_details"]
 
             if owntool == True:
