@@ -30,6 +30,8 @@ _CITY_LIST = ('001','079','048','031','092','001','002','004','006','008','010',
 '072','074','075','077','080','082','083','084','086','087','089','091','093',
 '095','094','096')
 _AREA_LIST = ('I','II','III')
+_HOUSE_TYPE_LIST = ("apartment/single-story house", "building/multi-storey house", "villa",  "office")
+_TOTAL_AREA_LIST = ("< 50m2", "50m2 - 90m2", "90m2 - 140m2", "140m2 - 255m2", "255m2 - 500m2", "500m2 - 1000m2")
 _DEFAUT_FEE_LIST = {
     "079": {
         "O_Basic":{
@@ -72,7 +74,7 @@ _DEFAUT_FEE_LIST = {
         }
     }
 }
-_Fee_List_Available = ("O_Basic_079","S_Basic_079")
+_FEE_LIST_AVAILABLE = ("O_Basic_079","S_Basic_079")
 _DEFAUT_SERVICE_FEE_DETAILS = {"is_OutOfficeHours":False, "is_Weekend":False, "is_Holiday":False, "is_NewYear":False, "is_BeforeNewYear":False, "is_AfterNewYear":False, "is_OwnTools":False}
 
 class HelloApiView(APIView):
@@ -230,10 +232,19 @@ def check_valid_input(city,area,servicename,duration,propertydetails):
     if area not in _AREA_LIST:
         error_messagge  = error_messagge + "INVALID area code; "
     fee_available = servicename + "_" + city
-    if fee_available not in _Fee_List_Available:
+    if fee_available not in _FEE_LIST_AVAILABLE:
         error_messagge  = error_messagge + "INVALID service code or Fee List for " + fee_available + " NOT yet availabble"
-    if duration == 0 and json.dumps(propertydetails) == "{}":
-        error_messagge  = error_messagge + "Both duration = 0 and propertydetails is empty; " + json.dumps(propertydetails)
+    if duration == 0:
+        if json.dumps(propertydetails) == "{}":
+            error_messagge  = error_messagge + "Both duration = 0 and propertydetails is empty; " + json.dumps(propertydetails)
+        else:
+            housetype = propertydetails["housetype"]
+            totalarea = propertydetails["totalarea"]
+            if housetype not in _HOUSE_TYPE_LIST:
+                error_messagge  = error_messagge + "INVALID house type in propertydetails; "
+            if totalarea not in _TOTAL_AREA_LIST:
+                error_messagge  = error_messagge + "INVALID total area in propertydetails; "
+
     return error_messagge
 
 
@@ -256,9 +267,13 @@ def get_estimated_duration(propertydetails):
         estimatedduration = estimatedduration + 0.5
 
     # Check min for estimatedduration
-    if estimatedduration < 4.0 and totalarea == "140 - 255 m2":
+    if estimatedduration < 12.0 and totalarea == "500m2 - 1000m2":
+        estimatedduration = 12.0
+    elif estimatedduration < 7.0 and totalarea == "255m2 - 500m2":
+        estimatedduration = 7.0
+    elif estimatedduration < 4.0 and totalarea == "140m2 - 255m2":
         estimatedduration = 4.0
-    elif estimatedduration < 3.0 and totalarea == "90 - 140 m2":
+    elif estimatedduration < 3.0 and totalarea == "90m2 - 140m2":
         estimatedduration = 3.0
     elif estimatedduration < 3.0 and housetype == "villa":
         estimatedduration = 3.0
@@ -268,7 +283,7 @@ def get_estimated_duration(propertydetails):
         estimatedduration = 2.0
 
     # Check max for estimatedduration
-    if estimatedduration > 3.0 and (totalarea == "<50 m2" or totalarea == "90 - 140 m2"):
+    if estimatedduration > 3.0 and (totalarea == "< 50m2" or totalarea == "50m2 - 90m2"):
         estimatedduration = 3.0
 
     return int(round(estimatedduration))
