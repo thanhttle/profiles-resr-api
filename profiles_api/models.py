@@ -73,7 +73,6 @@ class ProfileFeedItem(models.Model):
 
 
 class One_Off_Fee(models.Model):
-	bookingID = models.CharField(max_length=20)
 	bookdate = models.DateField()
 	starttime = models.TimeField()
 	duration = models.IntegerField()
@@ -85,4 +84,4 @@ class One_Off_Fee(models.Model):
 
 
 	def __str__(self):
-		return self.bookingID
+		return self.servicecode

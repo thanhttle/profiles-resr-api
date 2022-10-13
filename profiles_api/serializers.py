@@ -53,4 +53,4 @@ class ProfileFeedItemSerializer(serializers.ModelSerializer):
 class One_Off_Fee_Serializer(serializers.ModelSerializer):
 	class Meta:
 		model = models.One_Off_Fee
-		fields = ('id', 'bookingID', 'bookdate', 'starttime', 'duration', 'owntool', 'servicecode', 'propertydetails')
+		fields = ('id', 'bookdate', 'starttime', 'duration', 'owntool', 'servicecode', 'propertydetails')

@@ -271,7 +271,7 @@ def get_estimated_duration(propertydetails):
     if estimatedduration > 3.0 and (totalarea == "<50 m2" or totalarea == "90 - 140 m2"):
         estimatedduration = 3.0
 
-    return int(estimatedduration)
+    return int(round(estimatedduration))
 
 
 def extra_fee_special_day(bookdate, starttime, feelist):
