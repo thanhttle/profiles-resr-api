@@ -57,7 +57,6 @@ class UserProfile(AbstractBaseUser, PermissionsMixin):
 		return self.email
 
 
-
 class ProfileFeedItem(models.Model):
 	"""Profile status update"""
 	user_profile = models.ForeignKey(
@@ -73,15 +72,25 @@ class ProfileFeedItem(models.Model):
 
 
 class One_Off_Fee(models.Model):
+	"""Service Fee calculation"""
 	bookdate = models.DateField()
 	starttime = models.TimeField()
 	duration = models.IntegerField()
 	owntool = models.BooleanField(default=False)
+	ironingclothes = models.BooleanField(default=False)
 	servicecode = models.CharField(max_length=20,default="O_Basic_079_I")
 	propertydetails = jsonfield.JSONField()
 
-	#feelist = models.CharField(max_length=500)
+	def __str__(self):
+		"""Return the model as a string"""
+		return self.bookingID
 
+
+class Service_Fee_List(models.Model):
+	"""Service Fee List Record"""
+	fee_list = jsonfield.JSONField()
+	created_on = models.DateTimeField(auto_now_add=True)
 
 	def __str__(self):
-		return self.servicecode
+		"""Return the model as a string"""
+		return self.ID

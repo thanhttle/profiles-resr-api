@@ -40,7 +40,6 @@ class UserProfileSerializer(serializers.ModelSerializer):
         return super().update(instance, validated_data)
 
 
-
 class ProfileFeedItemSerializer(serializers.ModelSerializer):
     """Serializes profile feed items"""
 
@@ -53,4 +52,13 @@ class ProfileFeedItemSerializer(serializers.ModelSerializer):
 class One_Off_Fee_Serializer(serializers.ModelSerializer):
 	class Meta:
 		model = models.One_Off_Fee
-		fields = ('id', 'bookdate', 'starttime', 'duration', 'owntool', 'servicecode', 'propertydetails')
+		fields = ('id', 'bookdate', 'starttime', 'duration', 'owntool', 'ironingclothes', 'servicecode', 'propertydetails')
+
+
+class Service_Fee_List_Serializer(serializers.ModelSerializer):
+    """Serializes Service_Fee_List"""
+
+    class Meta:
+        model = models.Service_Fee_List
+        fields = ('id', 'fee_list', 'created_on')
+        extra_kwargs = {'feename': {'read_only': True}}

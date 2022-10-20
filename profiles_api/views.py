@@ -17,6 +17,8 @@ import jsonfield
 import datetime
 from datetime import date
 from datetime import time
+import jsonschema
+from jsonschema import validate
 
 _LUNAR_NEW_YEAR_DAYS_2022 = ("2022-01-31","2022-02-01","2022-02-02","2022-02-03","2022-02-04","2022-02-05")
 _BEFORE_LUNAR_NEW_YEAR_DAYS_2022 = ("2022-01-30","2022-01-29","2022-01-28")
@@ -30,8 +32,12 @@ _CITY_LIST = ('001','079','048','031','092','001','002','004','006','008','010',
 '072','074','075','077','080','082','083','084','086','087','089','091','093',
 '095','094','096')
 _AREA_LIST = ('I','II','III')
+_PRODUCT_LIST = ('Shopping','PestControl','DeepConstruction','Elderly','Patient','Child','HomeBasic',
+'Spiderman','PC','OfficeBasic','AC','Sofa','DeepHome','Basic')
+_SERVICE_TYPE_LIST = ('O','S','Q')
 _HOUSE_TYPE_LIST = ("apartment/single-story house", "building/multi-storey house", "villa",  "office")
 _TOTAL_AREA_LIST = ("< 50m2", "50m2 - 90m2", "90m2 - 140m2", "140m2 - 255m2", "255m2 - 500m2", "500m2 - 1000m2")
+_FEE_LIST_JSON_KEY = ("name", "value", "from", "to")
 _DEFAUT_FEE_LIST = {
     "079": {
         "O_Basic":{
@@ -140,9 +146,7 @@ class HelloViewSet(viewsets.ViewSet):
         if serializer.is_valid():
             name = serializer.validated_data.get('name')
             message = f'HelloHello {name}!'
-            fee_detail = {}
-            fee_detail["is_AfterNewYear"] = True
-            return Response({'message': message,"extra_service_fee_details":fee_detail})
+            return Response({'message': message})
         else:
             return Response(
                 serializer.errors,
@@ -193,7 +197,7 @@ class UserProfileFeedViewSet(viewsets.ModelViewSet):
         serializer.save(user_profile=self.request.user)
 
 
-# One_Off_Fee calculation
+# Service Fee calculation
 def get_base_rate(area, duration, feelist):
     fee_detail = {}
     base_rate = 0
@@ -248,16 +252,26 @@ def check_valid_input(city,area,servicename,duration,propertydetails):
     return error_messagge
 
 
-def get_estimated_duration(propertydetails):
+def get_estimated_duration(ironingclothes, propertydetails):
     housetype = propertydetails["housetype"]
     numberoffloors = propertydetails["numberoffloors"]
-    numberoffbedroom = propertydetails["numberoffbedroom"]
-    numberoffbathroom = propertydetails["numberoffbathroom"]
+    if propertydetails.get("numberoffbedroom") == None:
+        numberoffbedroom = 0
+    else:
+        numberoffbedroom = propertydetails["numberoffbedroom"]
+    if propertydetails.get("numberoffofficeroom") == None:
+        numberoffofficeroom = 0
+    else:
+        numberoffofficeroom = propertydetails["numberoffofficeroom"]
+    if propertydetails.get("numberoffbathroom") == None:
+        numberoffbathroom = 0
+    else:
+        numberoffbathroom = propertydetails["numberoffbathroom"]
     totalarea = propertydetails["totalarea"]
     withpets = propertydetails["withpets"]
-    ironingclothes = propertydetails["ironingclothes"]
 
     estimatedduration = numberoffbedroom * 0.5
+    estimatedduration = estimatedduration + numberoffofficeroom * 0.5
     estimatedduration = estimatedduration + numberoffbathroom * 0.3
     if housetype == "building/multi-storey house":
         estimatedduration = estimatedduration + 0.5
@@ -329,6 +343,7 @@ class One_Off_Fee_View(viewsets.ModelViewSet):
             starttime = serializer.validated_data.get("starttime")
             duration = serializer.validated_data.get("duration")
             owntool = serializer.validated_data.get("owntool")
+            ironingclothes = serializer.validated_data.get("ironingclothes")
             propertydetails = serializer.validated_data.get("propertydetails")
 
             servicecodelist = servicecode.split("_")
@@ -344,7 +359,7 @@ class One_Off_Fee_View(viewsets.ModelViewSet):
             usedduration = duration
 
             if duration == 0:
-                estimatedduration = get_estimated_duration(propertydetails)
+                estimatedduration = get_estimated_duration(ironingclothes, propertydetails)
                 usedduration = estimatedduration
             fee_details = get_base_rate(area,usedduration,service_fee_list)
             base_rate = fee_details["base_rate"]
@@ -354,19 +369,109 @@ class One_Off_Fee_View(viewsets.ModelViewSet):
                 return Response(content, status=status.HTTP_400_BAD_REQUEST)
 
             extra_fee = extra_fee_special_day(bookdate,starttime,service_fee_list)
-            total_fee = base_rate * usedduration * (1 + extra_fee["extra_fee_percent"])
+            final_rate = base_rate * (1 + extra_fee["extra_fee_percent"])
+            total_fee = final_rate * usedduration
             extra_service_fee_details = extra_fee["extra_service_fee_details"]
 
+            fee_details_response = {}
             if owntool == True:
                 total_fee += service_fee_list["OwnTools"]
                 extra_service_fee_details["is_OwnTools"] = True
+                fee_details_response = {"Total Fee": int(total_fee),"OwnTools Fee":service_fee_list["OwnTools"]}
+            else:
+                fee_details_response = {"Total Fee": int(total_fee)}
+
+            if ironingclothes == True:
+                ironingclothes_fee = final_rate * 0.5
+                ironingclothes_fee_response = {"Ironing Clothes Fee": int(ironingclothes_fee)}
+                fee_details_response.update(ironingclothes_fee_response)
 
             extra_service_fee_details.update(fee_detail)
+            extra_service_fee_response = {"Extra Service Fee Details": extra_service_fee_details}
 
+            if duration == 0:
+                estimatedduration_response = {"Estimated Duration": estimatedduration}
+                fee_details_response.update(estimatedduration_response)
+
+            fee_details_response.update(extra_service_fee_response)
+            return Response(fee_details_response)
+
+            """
             if duration == 0:
                 return Response({"Total Fee": total_fee, "Estimated Duration": estimatedduration, "Extra Service Fee Details": extra_service_fee_details})
             else:
                 return Response({"Total Fee": total_fee, "Extra Service Fee Details": extra_service_fee_details})
+            """
+        else:
+            return Response(
+				serializer.errors,
+				status=status.HTTP_400_BAD_REQUEST
+			)
+
+
+# Service_Fee_List
+def find_key(key,dict):
+    if dict["name"] == key:
+        return True
+    else:
+        return False
+
+# Describe what kind of json you expect.
+FeeListSchema = {
+    "type": "object",
+    "properties": {
+        "name": {"type": "string"},
+        "value": {"type": "number"},
+        "from": {"type": "string"},
+    },
+}
+
+def validate_Json(jsonData):
+    try:
+        validate(instance=jsonData, schema=FeeListSchema)
+    except jsonschema.exceptions.ValidationError as err:
+        return False
+    return True
+
+
+def validate_Json_key(jsondata):
+    for x in jsondata.keys():
+        if x not in _FEE_LIST_JSON_KEY:
+            return False
+    return True
+
+
+def check_fee_list_duplication(fee_data,feedatalist):
+    for thisdict in feedatalist:
+        if thisdict["fee_list"]["name"] == fee_data["name"] and thisdict["fee_list"]["to"] == None:
+            return True
+    return False
+
+
+class Service_Fee_List_ViewSet(viewsets.ModelViewSet):
+    """Handles creating, reading Service Fee List Items"""
+    authentication_classes = (TokenAuthentication,)
+    serializer_class = serializers.Service_Fee_List_Serializer
+    queryset = models.Service_Fee_List.objects.all()
+
+    def create(self,request):
+        """Create a fee list """
+        serializer = self.serializer_class(data=request.data)
+
+        if serializer.is_valid():
+            fee_list = serializer.validated_data.get("fee_list")
+            #feedatalist = list(models.Service_Fee_List.objects.values())
+            feedatalist = models.Service_Fee_List.objects.values()
+            if not validate_Json(fee_list) or not validate_Json_key(fee_list):
+                content = {'error message': 'invalid fee_list json'}
+                return Response(content, status=status.HTTP_400_BAD_REQUEST)
+
+            if check_fee_list_duplication(fee_list,feedatalist):
+                content = {'error message': 'Fee data exist. Please use PATCH() method to update "to" key.'}
+                return Response(content, status=status.HTTP_400_BAD_REQUEST)
+
+
+            serializer.save()
         else:
             return Response(
 				serializer.errors,

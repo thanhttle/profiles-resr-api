@@ -10,6 +10,7 @@ router.register('hello-viewset', views.HelloViewSet, base_name='hello-viewset')
 router.register('profile', views.UserProfileViewSet)
 router.register('feed', views.UserProfileFeedViewSet)
 router.register('Service_Fee', views.One_Off_Fee_View)
+router.register('Fee_List', views.Service_Fee_List_ViewSet)
 
 
 urlpatterns = [
