@@ -26,7 +26,7 @@ _AFTER_LUNAR_NEW_YEAR_DAYS_2022 = ("2022-02-06","2022-02-07","2022-02-08")
 _OTHER_NATIONAL_HOLIDAY_DAYS_2022 = ("2022-01-01","2022-01-02","2022-01-03","2022-04-10","2022-04-11","2022-04-30","2022-05-01","2022-05-02","2022-05-03","2022-09-01","2022-09-02")
 _OTHER_NATIONAL_HOLIDAY_NAMES = ("International New Year's Day","New Year's Day Holiday","Day off for International New Year's Day","Hung Kings Festival","Day off for Hung Kings Festival","Reunification Day","International Labor Day","Independence Day Holiday","Independence Day")
 _CITY_LIST = ('001','079','048','031','092','001','002','004','006','008','010',
-'011','012','014','015','017','019','019','020','022','024','025','026','027',
+'011','012','014','015','017','019','020','022','024','025','026','027',
 '030','033','034','035','036','037','038','040','042','044','045','046','049',
 '051','052','054','056','058','060','062','064','064','066','067','068','070',
 '072','074','075','077','080','082','083','084','086','087','089','091','093',
@@ -59,7 +59,45 @@ _DEFAUT_FEE_LIST = {
             "FavMaid":0,
             "OwnTools":30000
         },
-       "S_Basic":{
+        "S_Basic":{
+            "I_P4h":66500,
+            "I_P3h":69800,
+            "I_P2h":83800,
+            "II_P4h":69800,
+            "II_P3h":73200,
+            "II_P2h":87100,
+            "III_P4h":73200,
+            "III_P3h":76500,
+            "III_P2h":90400,
+            "OOH": 0.16,
+            "WKD":0.21,
+            "HOL": 0.32,
+            "LNY":2.0,
+            "BLNY":1.0,
+            "ALNY":1.0,
+            "FavMaid":0,
+            "OwnTools":30000
+        },
+        "O_DeepHome":{
+            "I_P4h":66500,
+            "I_P3h":69800,
+            "I_P2h":83800,
+            "II_P4h":69800,
+            "II_P3h":73200,
+            "II_P2h":87100,
+            "III_P4h":73200,
+            "III_P3h":76500,
+            "III_P2h":90400,
+            "OOH": 0.16,
+            "WKD":0.21,
+            "HOL": 0.32,
+            "LNY":2.0,
+            "BLNY":1.0,
+            "ALNY":1.0,
+            "FavMaid":0,
+            "OwnTools":30000
+        },
+        "O_Sofa":{
             "I_P4h":66500,
             "I_P3h":69800,
             "I_P2h":83800,
@@ -80,7 +118,7 @@ _DEFAUT_FEE_LIST = {
         }
     }
 }
-_FEE_LIST_AVAILABLE = ("O_Basic_079","S_Basic_079")
+_FEE_LIST_AVAILABLE = ("O_Basic_079","S_Basic_079","O_DeepHome_079","O_Sofa_079")
 _DEFAUT_SERVICE_FEE_DETAILS = {"is_OutOfficeHours":False, "is_Weekend":False, "is_Holiday":False, "is_NewYear":False, "is_BeforeNewYear":False, "is_AfterNewYear":False, "is_OwnTools":False}
 
 class HelloApiView(APIView):
@@ -259,6 +297,16 @@ def get_estimated_duration(ironingclothes, propertydetails):
         numberoffbedroom = 0
     else:
         numberoffbedroom = propertydetails["numberoffbedroom"]
+
+    if propertydetails.get("numberofflivingroom") == None:
+        numberofflivingroom = 0
+    else:
+        numberofflivingroom = propertydetails["numberofflivingroom"]
+    if propertydetails.get("numberoffkitchen") == None:
+        numberoffkitchen = 0
+    else:
+        numberoffkitchen = propertydetails["numberoffkitchen"]
+
     if propertydetails.get("numberoffofficeroom") == None:
         numberoffofficeroom = 0
     else:
@@ -271,6 +319,8 @@ def get_estimated_duration(ironingclothes, propertydetails):
     withpets = propertydetails["withpets"]
 
     estimatedduration = numberoffbedroom * 0.5
+    estimatedduration = estimatedduration + numberofflivingroom * 0.5
+    estimatedduration = estimatedduration + numberoffkitchen * 0.5
     estimatedduration = estimatedduration + numberoffofficeroom * 0.5
     estimatedduration = estimatedduration + numberoffbathroom * 0.3
     if housetype == "building/multi-storey house":
@@ -396,12 +446,6 @@ class One_Off_Fee_View(viewsets.ModelViewSet):
             fee_details_response.update(extra_service_fee_response)
             return Response(fee_details_response)
 
-            """
-            if duration == 0:
-                return Response({"Total Fee": total_fee, "Estimated Duration": estimatedduration, "Extra Service Fee Details": extra_service_fee_details})
-            else:
-                return Response({"Total Fee": total_fee, "Extra Service Fee Details": extra_service_fee_details})
-            """
         else:
             return Response(
 				serializer.errors,
@@ -441,11 +485,30 @@ def validate_Json_key(jsondata):
     return True
 
 
+def compare_dates(old_day, new_day):
+    olds = str(old_day).split('-')
+    oldday = date(int(olds[0]), int(olds[1]), int(olds[2]))
+    news = str(new_day).split('-')
+    newday = date(int(news[0]), int(news[1]), int(news[2]))
+    return newday < oldday
+
+
 def check_fee_list_duplication(fee_data,feedatalist):
-    for thisdict in feedatalist:
-        if thisdict["fee_list"]["name"] == fee_data["name"] and thisdict["fee_list"]["to"] == None:
-            return True
-    return False
+    #feedatalist.reverse()
+    error_msg = ""
+    error_found = False
+    for thisdict in reversed(feedatalist):
+        if thisdict["fee_list"]["name"] == fee_data["name"]:
+            if thisdict["fee_list"]["to"] == None:
+                error_msg = error_msg + 'Duplicate Fee Name! Please use PATCH() method to update "to" key of ' + thisdict["fee_list"]["name"]
+                error_msg = error_msg + ' in database before insert new one. '
+                error_found = True
+                return error_found, error_msg
+            elif compare_dates(thisdict["fee_list"]["to"],fee_data["from"]):
+                error_msg = "Duplicate Fee Name " + thisdict["fee_list"]["name"] + '! New "from" day ' + fee_data["from"] + ' must be later than old "to" day ' + thisdict["fee_list"]["to"] + '.'
+                error_found = True
+                return error_found, error_msg
+    return error_found, error_msg
 
 
 class Service_Fee_List_ViewSet(viewsets.ModelViewSet):
@@ -466,12 +529,14 @@ class Service_Fee_List_ViewSet(viewsets.ModelViewSet):
                 content = {'error message': 'invalid fee_list json'}
                 return Response(content, status=status.HTTP_400_BAD_REQUEST)
 
-            if check_fee_list_duplication(fee_list,feedatalist):
-                content = {'error message': 'Fee data exist. Please use PATCH() method to update "to" key.'}
-                return Response(content, status=status.HTTP_400_BAD_REQUEST)
+            fee_list_duplication, error_msg = check_fee_list_duplication(fee_list,feedatalist)
+            if fee_list_duplication:
+                #content = {'error message': 'Fee data exist. Please use PATCH() method to update "to" key.'}
+                return Response(error_msg, status=status.HTTP_400_BAD_REQUEST)
 
 
             serializer.save()
+            #return Response(serializer.save(),status=status.HTTP_201_CREATED)
         else:
             return Response(
 				serializer.errors,
