@@ -37,6 +37,7 @@ _PRODUCT_LIST = ('Shopping','PestControl','DeepConstruction','Elderly','Patient'
 _SERVICE_TYPE_LIST = ('O','S','Q')
 _HOUSE_TYPE_LIST = ("apartment/single-story house", "building/multi-storey house", "villa",  "office")
 _TOTAL_AREA_LIST = ("< 50m2", "50m2 - 90m2", "90m2 - 140m2", "140m2 - 255m2", "255m2 - 500m2", "500m2 - 1000m2")
+_SOFA_MATERIAL_LIST = ("Cotton/Felt","Leather")
 _FEE_LIST_JSON_KEY = ("name", "value", "from", "to")
 _DEFAUT_FEE_LIST = {
     "079": {
@@ -280,76 +281,209 @@ def check_valid_input(city,area,servicename,duration,propertydetails):
         if json.dumps(propertydetails) == "{}":
             error_messagge  = error_messagge + "Both duration = 0 and propertydetails is empty; " + json.dumps(propertydetails)
         else:
-            housetype = propertydetails["housetype"]
-            totalarea = propertydetails["totalarea"]
-            if housetype not in _HOUSE_TYPE_LIST:
-                error_messagge  = error_messagge + "INVALID house type in propertydetails; "
-            if totalarea not in _TOTAL_AREA_LIST:
-                error_messagge  = error_messagge + "INVALID total area in propertydetails; "
-
+            if servicename.find("Basic") != -1 or servicename.find("DeepHome") != -1:
+                if propertydetails["housetype"] == None:
+                    housetype = "None"
+                else:
+                    housetype = propertydetails["housetype"]
+                if propertydetails["totalarea"] == None:
+                    totalarea = "None"
+                else:
+                    totalarea = propertydetails["totalarea"]
+                if housetype not in _HOUSE_TYPE_LIST:
+                    error_messagge  = error_messagge + "INVALID house type in propertydetails; "
+                if totalarea not in _TOTAL_AREA_LIST:
+                    error_messagge  = error_messagge + "INVALID total area in propertydetails; "
+            elif servicename.find("Sofa") != -1:
+                if propertydetails.get("withpets") == None:
+                    withpets = False
+                else:
+                    withpets = propertydetails.get("withpets")
+                sofa_service_recognized = 5;
+                if propertydetails.get("sofacleaning") == None:
+                    if propertydetails.get("mattresscleaning") == None:
+                        if propertydetails.get("carpetcleaning") == None:
+                            if propertydetails.get("curtainsdrycleaning") == None:
+                                if propertydetails.get("curtainswaterwashing") == None:
+                                    error_messagge  = error_messagge + "Details for ServideCode " + servicename + " is empty in propertydetails; "
+                else:
+                    sofacleaning = propertydetails.get("sofacleaning")
+                    if sofacleaning.get("material") != None:
+                        sofamaterial = sofacleaning.get("material")
+                        if sofamaterial not in _SOFA_MATERIAL_LIST:
+                            error_messagge  = error_messagge + "INVALID sofa material in propertydetails; "
     return error_messagge
 
 
 def get_estimated_duration(ironingclothes, propertydetails):
-    housetype = propertydetails["housetype"]
-    numberoffloors = propertydetails["numberoffloors"]
-    if propertydetails.get("numberoffbedroom") == None:
-        numberoffbedroom = 0
-    else:
-        numberoffbedroom = propertydetails["numberoffbedroom"]
+    estimatedduration = 0.0;
 
-    if propertydetails.get("numberofflivingroom") == None:
-        numberofflivingroom = 0
-    else:
-        numberofflivingroom = propertydetails["numberofflivingroom"]
-    if propertydetails.get("numberoffkitchen") == None:
-        numberoffkitchen = 0
-    else:
-        numberoffkitchen = propertydetails["numberoffkitchen"]
+    if propertydetails.get("housetype") != None:
+        """Estimation for Cleaning Service"""
+        housetype = propertydetails.get("housetype")
 
-    if propertydetails.get("numberoffofficeroom") == None:
-        numberoffofficeroom = 0
-    else:
-        numberoffofficeroom = propertydetails["numberoffofficeroom"]
-    if propertydetails.get("numberoffbathroom") == None:
-        numberoffbathroom = 0
-    else:
-        numberoffbathroom = propertydetails["numberoffbathroom"]
-    totalarea = propertydetails["totalarea"]
-    withpets = propertydetails["withpets"]
+        if propertydetails.get("numberoffloors") == None:
+            numberoffloors = 1
+        else:
+            numberoffloors = propertydetails.get("numberoffloors")
 
-    estimatedduration = numberoffbedroom * 0.5
-    estimatedduration = estimatedduration + numberofflivingroom * 0.5
-    estimatedduration = estimatedduration + numberoffkitchen * 0.5
-    estimatedduration = estimatedduration + numberoffofficeroom * 0.5
-    estimatedduration = estimatedduration + numberoffbathroom * 0.3
-    if housetype == "building/multi-storey house":
-        estimatedduration = estimatedduration + 0.5
-    if withpets:
-        estimatedduration = estimatedduration + 0.5
-    if ironingclothes:
-        estimatedduration = estimatedduration + 0.5
+        if propertydetails.get("numberoffbedroom") == None:
+            numberoffbedroom = 0
+        else:
+            numberoffbedroom = propertydetails.get("numberoffbedroom")
 
-    # Check min for estimatedduration
-    if estimatedduration < 12.0 and totalarea == "500m2 - 1000m2":
-        estimatedduration = 12.0
-    elif estimatedduration < 7.0 and totalarea == "255m2 - 500m2":
-        estimatedduration = 7.0
-    elif estimatedduration < 4.0 and totalarea == "140m2 - 255m2":
-        estimatedduration = 4.0
-    elif estimatedduration < 3.0 and totalarea == "90m2 - 140m2":
-        estimatedduration = 3.0
-    elif estimatedduration < 3.0 and housetype == "villa":
-        estimatedduration = 3.0
-    elif estimatedduration < 3.0 and numberoffbedroom >= 3:
-        estimatedduration = 3.0
-    elif estimatedduration < 2.0:
+        if propertydetails.get("numberofflivingroom") == None:
+            numberofflivingroom = 0
+        else:
+            numberofflivingroom = propertydetails.get("numberofflivingroom")
+
+        if propertydetails.get("numberoffkitchen") == None:
+            numberoffkitchen = 0
+        else:
+            numberoffkitchen = propertydetails.get("numberoffkitchen")
+
+        if propertydetails.get("numberoffofficeroom") == None:
+            numberoffofficeroom = 0
+        else:
+            numberoffofficeroom = propertydetails.get("numberoffofficeroom")
+
+        if propertydetails.get("numberoffbathroom") == None:
+            numberoffbathroom = 0
+        else:
+            numberoffbathroom = propertydetails.get("numberoffbathroom")
+
+        if propertydetails.get("totalarea") == None:
+            totalarea = "None"
+        else:
+            totalarea = propertydetails.get("totalarea")
+
+        withpets = propertydetails["withpets"]
+        if propertydetails.get("withpets") == None:
+            withpets = False
+        else:
+            withpets = propertydetails.get("withpets")
+
+        estimatedduration = estimatedduration + numberoffbedroom * 0.5
+        estimatedduration = estimatedduration + numberofflivingroom * 0.5
+        estimatedduration = estimatedduration + numberoffkitchen * 0.5
+        estimatedduration = estimatedduration + numberoffofficeroom * 0.5
+        estimatedduration = estimatedduration + numberoffbathroom * 0.3
+        if housetype == "building/multi-storey house":
+            estimatedduration = estimatedduration + 0.5
+        if withpets:
+            estimatedduration = estimatedduration + 0.5
+        if ironingclothes:
+            estimatedduration = estimatedduration + 0.5
+
+        # Check min for estimatedduration
+        if estimatedduration < 12.0 and totalarea == "500m2 - 1000m2":
+            estimatedduration = 12.0
+        elif estimatedduration < 7.0 and totalarea == "255m2 - 500m2":
+            estimatedduration = 7.0
+        elif estimatedduration < 4.0 and totalarea == "140m2 - 255m2":
+            estimatedduration = 4.0
+        elif estimatedduration < 3.0 and totalarea == "90m2 - 140m2":
+            estimatedduration = 3.0
+        elif estimatedduration < 3.0 and housetype == "villa":
+            estimatedduration = 3.0
+        elif estimatedduration < 3.0 and numberoffbedroom >= 3:
+            estimatedduration = 3.0
+        elif estimatedduration < 2.0:
+            estimatedduration = 2.0
+
+        # Check max for estimatedduration
+        if estimatedduration > 3.0 and (totalarea == "< 50m2" or totalarea == "50m2 - 90m2"):
+            estimatedduration = 3.0
+
+    if propertydetails.get("sofacleaning") != None:
+        sofacleaning = propertydetails.get("sofacleaning")
+        if sofacleaning.get("material") != None:
+            sofamaterial = sofacleaning.get("material")
+            if sofacleaning.get("1-seatsofa") == None:
+                one_seatsofa = 0
+            else:
+                one_seatsofa = sofacleaning.get("1-seatsofa")
+            if sofacleaning.get("2-seatsofa") == None:
+                two_seatsofa = 0
+            else:
+                two_seatsofa = sofacleaning.get("2-seatsofa")
+            if sofacleaning.get("3-seatsofa") == None:
+                three_seatsofa = 0
+            else:
+                three_seatsofa = sofacleaning.get("3-seatsofa")
+            if sofamaterial == "Cotton/Felt":
+                estimatedduration = estimatedduration + one_seatsofa / 3.0
+                estimatedduration = estimatedduration + two_seatsofa * 0.5
+                estimatedduration = estimatedduration + 2.0 * three_seatsofa / 3
+            elif sofamaterial == "Leather":
+                estimatedduration = estimatedduration + one_seatsofa * 0.5
+                estimatedduration = estimatedduration + 2.0 * two_seatsofa / 3
+                estimatedduration = estimatedduration + 5.0 * three_seatsofa / 6
+
+    if propertydetails.get("mattresscleaning") != None:
+        mattresscleaning = propertydetails.get("mattresscleaning")
+        if mattresscleaning.get("< 1.5m") == None:
+            less_than_onefive = 0
+        else:
+            less_than_onefive = mattresscleaning.get("< 1.5m")
+        if mattresscleaning.get("1.5m - 1.8m") == None:
+            onefive_to_oneeight = 0
+        else:
+            onefive_to_oneeight = mattresscleaning.get("1.5m - 1.8m")
+        if mattresscleaning.get("> 1.8m") == None:
+            more_than_oneeight = 0
+        else:
+            more_than_oneeight = mattresscleaning.get("> 1.8m")
+        estimatedduration = estimatedduration + less_than_onefive * 0.5
+        estimatedduration = estimatedduration + 2.0 * onefive_to_oneeight / 3
+        estimatedduration = estimatedduration + 5.0 * more_than_oneeight / 6
+
+    if propertydetails.get("carpetcleaning") != None:
+        carpetcleaning = propertydetails.get("carpetcleaning")
+        if carpetcleaning.get("< 1.5m") == None:
+            less_than_onefive = 0
+        else:
+            less_than_onefive = carpetcleaning.get("< 1.5m")
+        if carpetcleaning.get("1.5m - 1.8m") == None:
+            onefive_to_oneeight = 0
+        else:
+            onefive_to_oneeight = carpetcleaning.get("1.5m - 1.8m")
+        estimatedduration = estimatedduration + less_than_onefive * 0.5
+        estimatedduration = estimatedduration + 2.0 * onefive_to_oneeight / 3
+
+    if propertydetails.get("curtainsdrycleaning") != None:
+        curtainsdrycleaning = propertydetails.get("curtainsdrycleaning")
+        if curtainsdrycleaning.get("numberoffbedroom") == None:
+            numberoffbedroom = 0
+        else:
+            numberoffbedroom = curtainsdrycleaning.get("numberoffbedroom")
+        if curtainsdrycleaning.get("numberofflivingroom") == None:
+            numberofflivingroom = 0
+        else:
+            numberofflivingroom = curtainsdrycleaning.get("numberofflivingroom")
+        estimatedduration = estimatedduration + numberoffbedroom * 0.5
+        estimatedduration = estimatedduration + numberofflivingroom * 0.5
+
+    if propertydetails.get("curtainswaterwashing") != None:
+        curtainswaterwashing = propertydetails.get("curtainswaterwashing")
+        if curtainswaterwashing.get("< 10kg") == None:
+            less_than_ten = 0
+        else:
+            less_than_ten = curtainswaterwashing.get("< 10kg")
+        if curtainswaterwashing.get("10kg – 15kg") == None:
+            ten_to_fifteen = 0
+        else:
+            ten_to_fifteen = curtainswaterwashing.get("10kg – 15kg")
+        if curtainswaterwashing.get("> 15kg") == None:
+            more_thhan_fifteen = 0
+        else:
+            more_thhan_fifteen = curtainswaterwashing.get("> 15kg")
+        estimatedduration = estimatedduration + less_than_ten * 0.5
+        estimatedduration = estimatedduration + 2.0 * ten_to_fifteen / 3
+        estimatedduration = estimatedduration + 5.0 * more_thhan_fifteen / 6
+
+    if estimatedduration < 2.0:
         estimatedduration = 2.0
-
-    # Check max for estimatedduration
-    if estimatedduration > 3.0 and (totalarea == "< 50m2" or totalarea == "50m2 - 90m2"):
-        estimatedduration = 3.0
-
     return int(round(estimatedduration))
 
 
@@ -410,12 +544,15 @@ class One_Off_Fee_View(viewsets.ModelViewSet):
 
             if duration == 0:
                 estimatedduration = get_estimated_duration(ironingclothes, propertydetails)
+                if estimatedduration == 0:
+                    content = {'error message': 'could not estimate duration'}
+                    return Response(content, status=status.HTTP_400_BAD_REQUEST)
                 usedduration = estimatedduration
             fee_details = get_base_rate(area,usedduration,service_fee_list)
             base_rate = fee_details["base_rate"]
             fee_detail = fee_details["fee_detail"]
             if base_rate == 0:
-                content = {'error message': 'could not get base rate'}
+                content = {'error message': 'could not get base rate' + str(estimatedduration)}
                 return Response(content, status=status.HTTP_400_BAD_REQUEST)
 
             extra_fee = extra_fee_special_day(bookdate,starttime,service_fee_list)
