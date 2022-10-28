@@ -37,7 +37,6 @@ _PRODUCT_LIST = ('Shopping','PestControl','DeepConstruction','Elderly','Patient'
 _SERVICE_TYPE_LIST = ('O','S','Q')
 _HOUSE_TYPE_LIST = ("apartment/single-story house", "building/multi-storey house", "villa",  "office")
 _TOTAL_AREA_LIST = ("< 50m2", "50m2 - 90m2", "90m2 - 140m2", "140m2 - 255m2", "255m2 - 500m2", "500m2 - 1000m2")
-_SOFA_MATERIAL_LIST = ("Cotton/Felt","Leather")
 _FEE_LIST_JSON_KEY = ("name", "value", "from", "to")
 _DEFAUT_FEE_LIST = {
     "079": {
@@ -300,18 +299,13 @@ def check_valid_input(city,area,servicename,duration,propertydetails):
                 else:
                     withpets = propertydetails.get("withpets")
                 sofa_service_recognized = 5;
-                if propertydetails.get("sofacleaning") == None:
-                    if propertydetails.get("mattresscleaning") == None:
-                        if propertydetails.get("carpetcleaning") == None:
-                            if propertydetails.get("curtainsdrycleaning") == None:
-                                if propertydetails.get("curtainswaterwashing") == None:
-                                    error_messagge  = error_messagge + "Details for ServideCode " + servicename + " is empty in propertydetails; "
-                else:
-                    sofacleaning = propertydetails.get("sofacleaning")
-                    if sofacleaning.get("material") != None:
-                        sofamaterial = sofacleaning.get("material")
-                        if sofamaterial not in _SOFA_MATERIAL_LIST:
-                            error_messagge  = error_messagge + "INVALID sofa material in propertydetails; "
+                if propertydetails.get("cottonsofacleaning") == None:
+                    if propertydetails.get("leathersofacleaning") == None:
+                        if propertydetails.get("mattresscleaning") == None:
+                            if propertydetails.get("carpetcleaning") == None:
+                                if propertydetails.get("curtainsdrycleaning") == None:
+                                    if propertydetails.get("curtainswaterwashing") == None:
+                                        error_messagge  = error_messagge + "Details for ServideCode " + servicename + " is empty in propertydetails; "
     return error_messagge
 
 
@@ -395,30 +389,41 @@ def get_estimated_duration(ironingclothes, propertydetails):
         if estimatedduration > 3.0 and (totalarea == "< 50m2" or totalarea == "50m2 - 90m2"):
             estimatedduration = 3.0
 
-    if propertydetails.get("sofacleaning") != None:
-        sofacleaning = propertydetails.get("sofacleaning")
-        if sofacleaning.get("material") != None:
-            sofamaterial = sofacleaning.get("material")
-            if sofacleaning.get("1-seatsofa") == None:
-                one_seatsofa = 0
-            else:
-                one_seatsofa = sofacleaning.get("1-seatsofa")
-            if sofacleaning.get("2-seatsofa") == None:
-                two_seatsofa = 0
-            else:
-                two_seatsofa = sofacleaning.get("2-seatsofa")
-            if sofacleaning.get("3-seatsofa") == None:
-                three_seatsofa = 0
-            else:
-                three_seatsofa = sofacleaning.get("3-seatsofa")
-            if sofamaterial == "Cotton/Felt":
-                estimatedduration = estimatedduration + one_seatsofa / 3.0
-                estimatedduration = estimatedduration + two_seatsofa * 0.5
-                estimatedduration = estimatedduration + 2.0 * three_seatsofa / 3
-            elif sofamaterial == "Leather":
-                estimatedduration = estimatedduration + one_seatsofa * 0.5
-                estimatedduration = estimatedduration + 2.0 * two_seatsofa / 3
-                estimatedduration = estimatedduration + 5.0 * three_seatsofa / 6
+    if propertydetails.get("cottonsofacleaning") != None:
+        cottonsofacleaning = propertydetails.get("cottonsofacleaning")
+        if cottonsofacleaning.get("1-seatsofa") == None:
+            one_seatsofa = 0
+        else:
+            one_seatsofa = cottonsofacleaning.get("1-seatsofa")
+        if cottonsofacleaning.get("2-seatsofa") == None:
+            two_seatsofa = 0
+        else:
+            two_seatsofa = cottonsofacleaning.get("2-seatsofa")
+        if cottonsofacleaning.get("3-seatsofa") == None:
+            three_seatsofa = 0
+        else:
+            three_seatsofa = cottonsofacleaning.get("3-seatsofa")
+        estimatedduration = estimatedduration + one_seatsofa / 3.0
+        estimatedduration = estimatedduration + two_seatsofa * 0.5
+        estimatedduration = estimatedduration + 2.0 * three_seatsofa / 3
+
+    if propertydetails.get("leathersofacleaning") != None:
+        leathersofacleaning = propertydetails.get("leathersofacleaning")
+        if leathersofacleaning.get("1-seatsofa") == None:
+            one_seatsofa = 0
+        else:
+            one_seatsofa = leathersofacleaning.get("1-seatsofa")
+        if leathersofacleaning.get("2-seatsofa") == None:
+            two_seatsofa = 0
+        else:
+            two_seatsofa = leathersofacleaning.get("2-seatsofa")
+        if leathersofacleaning.get("3-seatsofa") == None:
+            three_seatsofa = 0
+        else:
+            three_seatsofa = leathersofacleaning.get("3-seatsofa")
+        estimatedduration = estimatedduration + one_seatsofa * 0.5
+        estimatedduration = estimatedduration + 2.0 * two_seatsofa / 3
+        estimatedduration = estimatedduration + 5.0 * three_seatsofa / 6
 
     if propertydetails.get("mattresscleaning") != None:
         mattresscleaning = propertydetails.get("mattresscleaning")
@@ -466,21 +471,15 @@ def get_estimated_duration(ironingclothes, propertydetails):
 
     if propertydetails.get("curtainswaterwashing") != None:
         curtainswaterwashing = propertydetails.get("curtainswaterwashing")
-        if curtainswaterwashing.get("< 10kg") == None:
-            less_than_ten = 0
+        if curtainswaterwashing == "< 10kg":
+            estimate = 2
+        elif curtainswaterwashing == "10kg – 15kg":
+            estimate = 3
+        elif curtainswaterwashing == "> 15kg":
+            estimate = 4
         else:
-            less_than_ten = curtainswaterwashing.get("< 10kg")
-        if curtainswaterwashing.get("10kg – 15kg") == None:
-            ten_to_fifteen = 0
-        else:
-            ten_to_fifteen = curtainswaterwashing.get("10kg – 15kg")
-        if curtainswaterwashing.get("> 15kg") == None:
-            more_thhan_fifteen = 0
-        else:
-            more_thhan_fifteen = curtainswaterwashing.get("> 15kg")
-        estimatedduration = estimatedduration + less_than_ten * 0.5
-        estimatedduration = estimatedduration + 2.0 * ten_to_fifteen / 3
-        estimatedduration = estimatedduration + 5.0 * more_thhan_fifteen / 6
+            estimate = 0
+        estimatedduration = estimatedduration + estimate
 
     if estimatedduration < 2.0:
         estimatedduration = 2.0
