@@ -298,14 +298,24 @@ def check_valid_input(city,area,servicename,duration,propertydetails):
                     withpets = False
                 else:
                     withpets = propertydetails.get("withpets")
-                sofa_service_recognized = 5;
-                if propertydetails.get("cottonsofacleaning") == None:
-                    if propertydetails.get("leathersofacleaning") == None:
-                        if propertydetails.get("mattresscleaning") == None:
-                            if propertydetails.get("carpetcleaning") == None:
-                                if propertydetails.get("curtainsdrycleaning") == None:
-                                    if propertydetails.get("curtainswaterwashing") == None:
+                if propertydetails.get("curtainswaterwashing") == None:
+                    if propertydetails.get("cottonsofacleaning") == None:
+                        if propertydetails.get("leathersofacleaning") == None:
+                            if propertydetails.get("mattresscleaning") == None:
+                                if propertydetails.get("carpetcleaning") == None:
+                                    if propertydetails.get("curtainsdrycleaning") == None:
                                         error_messagge  = error_messagge + "Details for ServideCode " + servicename + " is empty in propertydetails; "
+                else:
+                    curtainswaterwashing = propertydetails.get("curtainswaterwashing")
+                    if curtainswaterwashing != "< 10kg" and curtainswaterwashing != "10kg – 15kg":
+                        str_value = curtainswaterwashing.strip("kg")
+                        try:
+                            num = int(str_value)
+                            if num <= 15:
+                                error_messagge  = error_messagge + "curtainswaterwashing: number must be > 15kg"
+                        except ValueError as ex:
+                            error_messagge  = error_messagge + "curtainswaterwashing " + str(curtainswaterwashing) + ": " + str(ex)
+
     return error_messagge
 
 
@@ -475,10 +485,9 @@ def get_estimated_duration(ironingclothes, propertydetails):
             estimate = 2
         elif curtainswaterwashing == "10kg – 15kg":
             estimate = 3
-        elif curtainswaterwashing == "> 15kg":
-            estimate = 4
         else:
-            estimate = 0
+            num = int(curtainswaterwashing.strip("kg"))
+            estimate = 4 + (num - 15)/5
         estimatedduration = estimatedduration + estimate
 
     if estimatedduration < 2.0:
