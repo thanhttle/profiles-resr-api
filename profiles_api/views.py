@@ -20,6 +20,8 @@ from datetime import time
 import jsonschema
 from jsonschema import validate
 
+import math
+
 _LUNAR_NEW_YEAR_DAYS_2022 = ("2022-01-31","2022-02-01","2022-02-02","2022-02-03","2022-02-04","2022-02-05")
 _BEFORE_LUNAR_NEW_YEAR_DAYS_2022 = ("2022-01-30","2022-01-29","2022-01-28")
 _AFTER_LUNAR_NEW_YEAR_DAYS_2022 = ("2022-02-06","2022-02-07","2022-02-08")
@@ -121,12 +123,13 @@ _DEFAUT_FEE_LIST = {
 _FEE_LIST_AVAILABLE = ("O_Basic_079","S_Basic_079","O_DeepHome_079","O_Sofa_079")
 _DEFAUT_SERVICE_FEE_DETAILS = {"is_OutOfficeHours":False, "is_Weekend":False, "is_Holiday":False, "is_NewYear":False, "is_BeforeNewYear":False, "is_AfterNewYear":False, "is_OwnTools":False}
 
+"""
 class HelloApiView(APIView):
-    """Test API View"""
+    Test API View
     serializer_class = serializers.HelloSerializer
 
     def get(self, request, format=None):
-        """Returns a list of APIView features"""
+        Returns a list of APIView features
         an_apiview = [
             'Uses HTTP methods as function (get, post, patch, put, delete)',
             'Is similar to a traditional Django View',
@@ -137,7 +140,7 @@ class HelloApiView(APIView):
         return Response({'message': 'Hello!', 'an_apiview': an_apiview})
 
     def post(self, request):
-        """Create a hello message with our name"""
+        Create a hello message with our name
         serializer = self.serializer_class(data=request.data)
 
         if serializer.is_valid():
@@ -151,24 +154,24 @@ class HelloApiView(APIView):
             )
 
     def put(self, request, pk=None):
-        """"Handle updating an object"""
+        Handle updating an object
         return Response({'method': 'PUT'})
 
     def patch(self, request, pk=None):
-        """Handle a partial update of an object"""
+        Handle a partial update of an object
         return Response({'method': 'PATCH'})
 
     def delete(self, request, pk=None):
-        """Delete an object"""
+        Delete an object
         return Response({'method': 'DELETE'})
 
 
 class HelloViewSet(viewsets.ViewSet):
-    """Test API ViewSet"""
+    Test API ViewSet
     serializer_class = serializers.HelloSerializer
 
     def list(self, request):
-        """Return a hello message"""
+        Return a hello message
         a_viewset = [
             'Uses actions (list, create,retrieve, update, partial_update)',
             'Automatically maps to URLs using Routers',
@@ -178,7 +181,7 @@ class HelloViewSet(viewsets.ViewSet):
         return Response({'message': 'Hello!', 'a_viewset': a_viewset})
 
     def create(self, request):
-        """Create a new hello message"""
+        Create a new hello message
         serializer = self.serializer_class(data=request.data)
 
         if serializer.is_valid():
@@ -192,21 +195,21 @@ class HelloViewSet(viewsets.ViewSet):
             )
 
     def retrieve(self, request, pk=None):
-        """Handle getting an object by its ID"""
+        Handle getting an object by its ID
         return Response({'http_method': 'GET'})
 
     def update(self, request, pk=None):
-        """Handle updating an object"""
+        Handle updating an object
         return Response({'http_method': 'PUT'})
 
     def partial_update(self, request, pk=None):
-        """Handle updating part of an object"""
+        Handle updating part of an object
         return Response({'http_method': 'PATCH'})
 
     def destroy(self, request, pk=None):
-        """Handle removing an object"""
+        Handle removing an object
         return Response({'http_method': 'DELETE'})
-
+"""
 
 class UserProfileViewSet(viewsets.ModelViewSet):
     """Handle creating and updating profiles"""
@@ -492,7 +495,8 @@ def get_estimated_duration(ironingclothes, propertydetails):
 
     if estimatedduration < 2.0:
         estimatedduration = 2.0
-    return int(round(estimatedduration))
+
+    return math.ceil(estimatedduration)
 
 
 def extra_fee_special_day(bookdate, starttime, feelist):
@@ -687,3 +691,17 @@ class Service_Fee_List_ViewSet(viewsets.ModelViewSet):
 				serializer.errors,
 				status=status.HTTP_400_BAD_REQUEST
 			)
+
+    def update(self, request, pk=None):
+        """Handle updating an object"""
+        content = {'error message': 'http_method PUT is NOT allowed'}
+        return Response(content, status=status.HTTP_400_BAD_REQUEST)
+
+
+    def partial_update(self, request, pk):
+        """Handle updating part of an object"""
+        #fee_item = get_object_or_404(Car, id=kwargs.get('pk'))
+        fee_items = models.Service_Fee_List.objects.values()
+        #fee_item = fee_items.get('id':)
+        content = {'error message': str(pk) + " "  + str(self)}
+        return Response(content, status=status.HTTP_400_BAD_REQUEST)
