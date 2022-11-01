@@ -364,20 +364,12 @@ def get_estimated_duration(ironingclothes, propertydetails):
         else:
             totalarea = propertydetails.get("totalarea")
 
-        withpets = propertydetails["withpets"]
-        if propertydetails.get("withpets") == None:
-            withpets = False
-        else:
-            withpets = propertydetails.get("withpets")
-
         estimatedduration = estimatedduration + numberoffbedroom * 0.5
         estimatedduration = estimatedduration + numberofflivingroom * 0.5
         estimatedduration = estimatedduration + numberoffkitchen * 0.5
         estimatedduration = estimatedduration + numberoffofficeroom * 0.5
         estimatedduration = estimatedduration + numberoffbathroom * 0.3
         if housetype == "building/multi-storey house":
-            estimatedduration = estimatedduration + 0.5
-        if withpets:
             estimatedduration = estimatedduration + 0.5
         if ironingclothes:
             estimatedduration = estimatedduration + 0.5
@@ -395,8 +387,6 @@ def get_estimated_duration(ironingclothes, propertydetails):
             estimatedduration = 3.0
         elif estimatedduration < 3.0 and numberoffbedroom >= 3:
             estimatedduration = 3.0
-        elif estimatedduration < 2.0:
-            estimatedduration = 2.0
 
         # Check max for estimatedduration
         if estimatedduration > 3.0 and (totalarea == "< 50m2" or totalarea == "50m2 - 90m2"):
@@ -493,6 +483,15 @@ def get_estimated_duration(ironingclothes, propertydetails):
             estimate = 4 + (num - 15)/5
         estimatedduration = estimatedduration + estimate
 
+    # Add 0.5 hours if withpets
+    if propertydetails.get("withpets") == None:
+        withpets = False
+    else:
+        withpets = propertydetails.get("withpets")
+    if withpets:
+        estimatedduration = estimatedduration + 0.5
+
+    # Minimum serbvice is 2 hours
     if estimatedduration < 2.0:
         estimatedduration = 2.0
 
