@@ -13,7 +13,7 @@ from profiles_api import models
 from profiles_api import permissions
 from profiles_api import service_fee_calculation as sfc
 from profiles_api import test_service_fee_calculation as test_sfc
-
+from profiles_api import service_fee_list_calculation as sflc
 
 class UserProfileViewSet(viewsets.ModelViewSet):
     """Handle creating and updating profiles"""
@@ -210,11 +210,11 @@ class Service_Fee_List_ViewSet(viewsets.ModelViewSet):
             fee_list = serializer.validated_data.get("fee_list")
             #feedatalist = list(models.Service_Fee_List.objects.values())
             feedatalist = models.Service_Fee_List.objects.values()
-            if not sfc.validate_Json(fee_list) or not sfc.validate_Json_key(fee_list):
+            if not sflc.validate_Json(fee_list) or not sflc.validate_Json_key(fee_list):
                 content = {'error message': 'invalid fee_list json'}
                 return Response(content, status=status.HTTP_400_BAD_REQUEST)
 
-            fee_list_duplication, error_msg = sfc.check_fee_list_duplication(fee_list,feedatalist)
+            fee_list_duplication, error_msg = sflc.check_fee_list_duplication(fee_list,feedatalist)
             if fee_list_duplication:
                 #content = {'error message': 'Fee data exist. Please use PATCH() method to update "to" key.'}
                 return Response(error_msg, status=status.HTTP_400_BAD_REQUEST)
