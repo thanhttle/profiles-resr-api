@@ -49,6 +49,12 @@ class ProfileFeedItemSerializer(serializers.ModelSerializer):
         extra_kwargs = {'user_profile': {'read_only': True}}
 
 
+class Test_One_Off_Fee_Serializer(serializers.ModelSerializer):
+	class Meta:
+		model = models.Test_One_Off_Fee
+		fields = ('id', 'bookdate', 'starttime', 'duration', 'owntool', 'ironingclothes', 'servicecode', 'propertydetails')
+
+
 class One_Off_Fee_Serializer(serializers.ModelSerializer):
 	class Meta:
 		model = models.One_Off_Fee

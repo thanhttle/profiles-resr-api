@@ -71,6 +71,21 @@ class ProfileFeedItem(models.Model):
 		return self.status_text
 
 
+class Test_One_Off_Fee(models.Model):
+	"""Service Fee calculation for Testing purposes"""
+	bookdate = models.DateField()
+	starttime = models.TimeField()
+	duration = models.IntegerField()
+	owntool = models.BooleanField(default=False)
+	ironingclothes = models.BooleanField(default=False)
+	servicecode = models.CharField(max_length=20)
+	propertydetails = jsonfield.JSONField()
+
+	def __str__(self):
+		"""Return the model as a string"""
+		return self.servicecode
+
+
 class One_Off_Fee(models.Model):
 	"""Service Fee calculation"""
 	bookdate = models.DateField()
@@ -83,7 +98,7 @@ class One_Off_Fee(models.Model):
 
 	def __str__(self):
 		"""Return the model as a string"""
-		return self.bookingID
+		return self.servicecode
 
 
 class Service_Fee_List(models.Model):

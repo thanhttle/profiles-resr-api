@@ -10,6 +10,7 @@ router = DefaultRouter()
 router.register('profile', views.UserProfileViewSet)
 router.register('feed', views.UserProfileFeedViewSet)
 router.register('Service_Fee', views.One_Off_Fee_View)
+router.register('Test_Service_Fee', views.Test_One_Off_Fee_View)
 router.register('Fee_List', views.Service_Fee_List_ViewSet)
 
 #path('hello-view/', views.HelloApiView.as_view()),
