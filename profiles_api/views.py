@@ -58,12 +58,10 @@ class Test_One_Off_Fee_View(viewsets.ModelViewSet):
             owntool = serializer.validated_data.get("owntool")
             ironingclothes = serializer.validated_data.get("ironingclothes")
             propertydetails = serializer.validated_data.get("propertydetails")
+            subscription_schedule_details = serializer.validated_data.get("subscription_schedule_details")
 
-            servicecodelist = servicecode.split("_")
-            city = servicecodelist[2]
-            area = servicecodelist[3]
-            servicename = servicecodelist[0] + "_" + servicecodelist[1]
-            error_messagge = test_sfc.check_valid_input(city,area,servicename,duration,propertydetails)
+            servicename, city, area = test_sfc.get_servicecode_details(servicecode)
+            error_messagge = test_sfc.check_valid_input(city,area,servicename,duration,propertydetails,subscription_schedule_details)
             if len(error_messagge) > 0:
                 content = {'error message': error_messagge}
                 return Response(content, status=status.HTTP_400_BAD_REQUEST)
@@ -72,44 +70,23 @@ class Test_One_Off_Fee_View(viewsets.ModelViewSet):
             usedduration = duration
 
             if duration == 0:
-                estimatedduration = test_sfc.get_estimated_duration(ironingclothes, propertydetails)
+                estimatedduration = test_sfc.get_estimated_duration(ironingclothes, propertydetails, servicename)
                 if estimatedduration == 0:
                     content = {'error message': 'could not estimate duration'}
                     return Response(content, status=status.HTTP_400_BAD_REQUEST)
                 usedduration = estimatedduration
-            fee_details = test_sfc.get_base_rate(area,usedduration,service_fee_list)
-            base_rate = fee_details["base_rate"]
-            fee_detail = fee_details["fee_detail"]
+            base_rate, fee_detail = test_sfc.get_base_rate(area,usedduration,service_fee_list)
             if base_rate == 0:
                 content = {'error message': 'could not get base rate' + str(estimatedduration)}
                 return Response(content, status=status.HTTP_400_BAD_REQUEST)
 
-            extra_fee = test_sfc.extra_fee_special_day(bookdate,starttime,service_fee_list)
-            final_rate = base_rate * (1 + extra_fee["extra_fee_percent"])
-            total_fee = final_rate * usedduration
-            extra_service_fee_details = extra_fee["extra_service_fee_details"]
+            if servicename == "O_Basic" or servicename == "O_Sofa" or servicename == "O_DeepHome":
+                fee_details_response = test_sfc.get_O_Basic_fee_details_response(bookdate,starttime,service_fee_list,base_rate,duration,estimatedduration,usedduration,owntool,ironingclothes,fee_detail)
+            elif servicename == "S_Basic":
+                fee_details_response = test_sfc.get_S_Basic_fee_details_response(subscription_schedule_details,service_fee_list,base_rate,duration,estimatedduration,usedduration,owntool,ironingclothes,fee_detail)
+            else :
+                fee_details_response = {}
 
-            fee_details_response = {}
-            if owntool == True:
-                total_fee += service_fee_list["OwnTools"]
-                extra_service_fee_details["is_OwnTools"] = True
-                fee_details_response = {"Total Fee": int(total_fee),"OwnTools Fee":service_fee_list["OwnTools"]}
-            else:
-                fee_details_response = {"Total Fee": int(total_fee)}
-
-            if ironingclothes == True:
-                ironingclothes_fee = final_rate * 0.5
-                ironingclothes_fee_response = {"Ironing Clothes Fee": int(ironingclothes_fee)}
-                fee_details_response.update(ironingclothes_fee_response)
-
-            extra_service_fee_details.update(fee_detail)
-            extra_service_fee_response = {"Extra Service Fee Details": extra_service_fee_details}
-
-            if duration == 0:
-                estimatedduration_response = {"Estimated Duration": estimatedduration}
-                fee_details_response.update(estimatedduration_response)
-
-            fee_details_response.update(extra_service_fee_response)
             return Response(fee_details_response)
 
         else:

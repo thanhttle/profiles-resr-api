@@ -153,7 +153,7 @@ def check_valid_input(city,area,servicename,duration,propertydetails):
         if json.dumps(propertydetails) == "{}":
             error_messagge  = error_messagge + "Both duration = 0 and propertydetails is empty; " + json.dumps(propertydetails)
         else:
-            if servicename.find("Basic") != -1 or servicename.find("DeepHome") != -1:
+            if servicename == "O_Basic" or servicename == "S_Basic" or  servicename == "O_DeepHome":
                 if propertydetails["housetype"] == None:
                     housetype = "None"
                 else:

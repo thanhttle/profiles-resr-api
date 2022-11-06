@@ -1,7 +1,7 @@
 import json
 import jsonfield
 import datetime
-from datetime import date
+from datetime import date, timedelta
 from datetime import time
 import jsonschema
 from jsonschema import validate
@@ -25,7 +25,6 @@ _PRODUCT_LIST = ('Shopping','PestControl','DeepConstruction','Elderly','Patient'
 _SERVICE_TYPE_LIST = ('O','S','Q')
 _HOUSE_TYPE_LIST = ("apartment/single-story house", "building/multi-storey house", "villa",  "office")
 _TOTAL_AREA_LIST = ("< 50m2", "50m2 - 90m2", "90m2 - 140m2", "140m2 - 255m2", "255m2 - 500m2", "500m2 - 1000m2")
-_FEE_LIST_JSON_KEY = ("name", "value", "from", "to")
 _DEFAUT_FEE_LIST = {
     "079": {
         "O_Basic":{
@@ -108,6 +107,16 @@ _DEFAUT_FEE_LIST = {
 }
 _FEE_LIST_AVAILABLE = ("O_Basic_079","S_Basic_079","O_DeepHome_079","O_Sofa_079")
 _DEFAUT_SERVICE_FEE_DETAILS = {"is_OutOfficeHours":False, "is_Weekend":False, "is_Holiday":False, "is_NewYear":False, "is_BeforeNewYear":False, "is_AfterNewYear":False, "is_OwnTools":False}
+_WORK_DAY_LIST = ("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday")
+
+
+def get_servicecode_details(servicecode):
+    servicecodelist = servicecode.split("_")
+    city = servicecodelist[2]
+    area = servicecodelist[3]
+    servicename = servicecodelist[0] + "_" + servicecodelist[1]
+    return servicename, city, area
+
 
 # Service Fee calculation
 def get_base_rate(area, duration, feelist):
@@ -125,7 +134,8 @@ def get_base_rate(area, duration, feelist):
         return {"base_rate": 0,"fee_detail": fee_detail}
     base_rate = feelist[basename]
 
-    return {"base_rate": base_rate,"fee_detail": fee_detail}
+    #return {"base_rate": base_rate,"fee_detail": fee_detail}
+    return base_rate, fee_detail
 
 
 def is_weekend(bookdate):
@@ -141,7 +151,7 @@ def is_OutOfWorkingHour(starttime):
 	return time_formated < time(8,0,0) or time_formated >= time(17,0,0)
 
 
-def check_valid_input(city,area,servicename,duration,propertydetails):
+def check_valid_input(city,area,servicename,duration,propertydetails,subscription_schedule_details):
     error_messagge = ""
     if city not in _CITY_LIST:
         error_messagge  = error_messagge + "INVALID city code; "
@@ -151,10 +161,10 @@ def check_valid_input(city,area,servicename,duration,propertydetails):
     if fee_available not in _FEE_LIST_AVAILABLE:
         error_messagge  = error_messagge + "INVALID service code or Fee List for " + fee_available + " NOT yet availabble"
     if duration == 0:
-        if json.dumps(propertydetails) == "{}":
-            error_messagge  = error_messagge + "Both duration = 0 and propertydetails is empty; " + json.dumps(propertydetails)
-        else:
-            if servicename.find("Basic") != -1 or servicename.find("DeepHome") != -1:
+        if servicename == "O_Basic" or servicename == "S_Basic":
+            if propertydetails == None or json.dumps(propertydetails) == "{}":
+                error_messagge  = error_messagge + "Both duration = 0 and propertydetails is " + json.dumps(propertydetails) + "; "
+            else:
                 if propertydetails["housetype"] == None:
                     housetype = "None"
                 else:
@@ -167,37 +177,60 @@ def check_valid_input(city,area,servicename,duration,propertydetails):
                     error_messagge  = error_messagge + "INVALID house type in propertydetails; "
                 if totalarea not in _TOTAL_AREA_LIST:
                     error_messagge  = error_messagge + "INVALID total area in propertydetails; "
-            elif servicename.find("Sofa") != -1:
-                if propertydetails.get("withpets") == None:
-                    withpets = False
-                else:
-                    withpets = propertydetails.get("withpets")
-                if propertydetails.get("curtainswaterwashing") == None:
-                    if propertydetails.get("cottonsofacleaning") == None:
-                        if propertydetails.get("leathersofacleaning") == None:
-                            if propertydetails.get("mattresscleaning") == None:
-                                if propertydetails.get("carpetcleaning") == None:
-                                    if propertydetails.get("curtainsdrycleaning") == None:
-                                        error_messagge  = error_messagge + "Details for ServideCode " + servicename + " is empty in propertydetails; "
-                else:
-                    curtainswaterwashing = propertydetails.get("curtainswaterwashing")
-                    if curtainswaterwashing != "< 10kg" and curtainswaterwashing != "10kg – 15kg":
-                        str_value = curtainswaterwashing.strip("kg")
-                        try:
-                            num = int(str_value)
-                            if num <= 15:
-                                error_messagge  = error_messagge + "curtainswaterwashing: number must be > 15kg"
-                        except ValueError as ex:
-                            error_messagge  = error_messagge + "curtainswaterwashing " + str(curtainswaterwashing) + ": " + str(ex)
+
+                if servicename == "S_Basic":
+                    if subscription_schedule_details == None or json.dumps(subscription_schedule_details) == "{}":
+                        error_messagge  = error_messagge + "Subscription Service requires subscription_schedule_details. It's " + json.dumps(subscription_schedule_details)  + "; "
+                    elif subscription_schedule_details.get("workingdays") == None:
+                        error_messagge  = error_messagge + "subscription_schedule_details: working_ays empty;  "
+                    elif subscription_schedule_details.get("workingtime") == None:
+                        error_messagge  = error_messagge + "subscription_schedule_details: workingtime empty;  "
+                    elif subscription_schedule_details.get("workingduration") == None:
+                        error_messagge  = error_messagge + "subscription_schedule_details: workingduration empty;  "
+                    elif subscription_schedule_details.get("startdate") == None:
+                        error_messagge  = error_messagge + "subscription_schedule_details: startdate empty;  "
+                    elif subscription_schedule_details.get("enddate") == None:
+                        error_messagge  = error_messagge + "subscription_schedule_details: enddate empty;  "
+                    workingdays = subscription_schedule_details.get("workingdays")
+                    for wday in workingdays:
+                        if wday not in _WORK_DAY_LIST:
+                            error_messagge  = error_messagge + "subscription_schedule_details: workingdays INVALID;  "
+                    #error_messagge  = error_messagge + "VALID"
+
+        elif servicename == "O_Sofa":
+            if propertydetails.get("withpets") == None:
+                withpets = False
+            else:
+                withpets = propertydetails.get("withpets")
+            if propertydetails.get("curtainswaterwashing") == None:
+                if propertydetails.get("cottonsofacleaning") == None:
+                    if propertydetails.get("leathersofacleaning") == None:
+                        if propertydetails.get("mattresscleaning") == None:
+                            if propertydetails.get("carpetcleaning") == None:
+                                if propertydetails.get("curtainsdrycleaning") == None:
+                                    error_messagge  = error_messagge + "Details for ServideCode " + servicename + " is empty in propertydetails; "
+            else:
+                curtainswaterwashing = propertydetails.get("curtainswaterwashing")
+                if curtainswaterwashing != "< 10kg" and curtainswaterwashing != "10kg – 15kg":
+                    str_value = curtainswaterwashing.strip("kg")
+                    try:
+                        num = int(str_value)
+                        if num <= 15:
+                            error_messagge  = error_messagge + "curtainswaterwashing: number must be > 15kg"
+                    except ValueError as ex:
+                        error_messagge  = error_messagge + "curtainswaterwashing " + str(curtainswaterwashing) + ": " + str(ex)
+
+        elif servicename == "O_DeepHome":
+            error_messagge  = error_messagge + "Estimation for DeepHome Service is currently unavailable"
 
     return error_messagge
 
 
-def get_estimated_duration(ironingclothes, propertydetails):
-    estimatedduration = 0.0;
+def get_estimated_duration_for_cleaning(ironingclothes, propertydetails):
+    """Estimation for Cleaning Service"""
+    estimatedduration = 0.0
 
     if propertydetails.get("housetype") != None:
-        """Estimation for Cleaning Service"""
         housetype = propertydetails.get("housetype")
 
         if propertydetails.get("numberoffloors") == None:
@@ -263,6 +296,24 @@ def get_estimated_duration(ironingclothes, propertydetails):
         if estimatedduration > 3.0 and (totalarea == "< 50m2" or totalarea == "50m2 - 90m2"):
             estimatedduration = 3.0
 
+    # Add 0.5 hours if withpets
+    if propertydetails.get("withpets") == None:
+        withpets = False
+    else:
+        withpets = propertydetails.get("withpets")
+    if withpets:
+        estimatedduration = estimatedduration + 0.5
+
+    # Minimum serbvice is 2 hours
+    if estimatedduration < 2.0:
+        estimatedduration = 2.0
+
+    return math.ceil(estimatedduration)
+
+
+def get_estimated_duration_cottonsofacleaning(propertydetails):
+    estimatedduration = 0.0
+
     if propertydetails.get("cottonsofacleaning") != None:
         cottonsofacleaning = propertydetails.get("cottonsofacleaning")
         if cottonsofacleaning.get("1-seatsofa") == None:
@@ -280,6 +331,12 @@ def get_estimated_duration(ironingclothes, propertydetails):
         estimatedduration = estimatedduration + one_seatsofa / 3.0
         estimatedduration = estimatedduration + two_seatsofa * 0.5
         estimatedduration = estimatedduration + 2.0 * three_seatsofa / 3
+
+    return estimatedduration
+
+
+def get_estimated_duration_leathersofacleaning(propertydetails):
+    estimatedduration = 0.0
 
     if propertydetails.get("leathersofacleaning") != None:
         leathersofacleaning = propertydetails.get("leathersofacleaning")
@@ -299,6 +356,12 @@ def get_estimated_duration(ironingclothes, propertydetails):
         estimatedduration = estimatedduration + 2.0 * two_seatsofa / 3
         estimatedduration = estimatedduration + 5.0 * three_seatsofa / 6
 
+    return estimatedduration
+
+
+def get_estimated_duration_mattresscleaning(propertydetails):
+    estimatedduration = 0.0
+
     if propertydetails.get("mattresscleaning") != None:
         mattresscleaning = propertydetails.get("mattresscleaning")
         if mattresscleaning.get("< 1.5m") == None:
@@ -317,6 +380,12 @@ def get_estimated_duration(ironingclothes, propertydetails):
         estimatedduration = estimatedduration + 2.0 * onefive_to_oneeight / 3
         estimatedduration = estimatedduration + 5.0 * more_than_oneeight / 6
 
+    return estimatedduration
+
+
+def get_estimated_duration_carpetcleaning(propertydetails):
+    estimatedduration = 0.0
+
     if propertydetails.get("carpetcleaning") != None:
         carpetcleaning = propertydetails.get("carpetcleaning")
         if carpetcleaning.get("< 1.5m") == None:
@@ -329,6 +398,12 @@ def get_estimated_duration(ironingclothes, propertydetails):
             onefive_to_oneeight = carpetcleaning.get("1.5m - 1.8m")
         estimatedduration = estimatedduration + less_than_onefive * 0.5
         estimatedduration = estimatedduration + 2.0 * onefive_to_oneeight / 3
+
+    return estimatedduration
+
+
+def get_estimated_duration_curtainsdrycleaning(propertydetails):
+    estimatedduration = 0.0
 
     if propertydetails.get("curtainsdrycleaning") != None:
         curtainsdrycleaning = propertydetails.get("curtainsdrycleaning")
@@ -343,6 +418,12 @@ def get_estimated_duration(ironingclothes, propertydetails):
         estimatedduration = estimatedduration + numberoffbedroom * 0.5
         estimatedduration = estimatedduration + numberofflivingroom * 0.5
 
+    return estimatedduration
+
+
+def get_estimated_duration_curtainswaterwashing(propertydetails):
+    estimatedduration = 0.0
+
     if propertydetails.get("curtainswaterwashing") != None:
         curtainswaterwashing = propertydetails.get("curtainswaterwashing")
         if curtainswaterwashing == "< 10kg":
@@ -353,6 +434,19 @@ def get_estimated_duration(ironingclothes, propertydetails):
             num = int(curtainswaterwashing.strip("kg"))
             estimate = 4 + (num - 15)/5
         estimatedduration = estimatedduration + estimate
+
+    return estimatedduration
+
+
+def get_estimated_duration_sofacleaning(propertydetails):
+    estimatedduration = 0.0;
+
+    estimatedduration = estimatedduration + get_estimated_duration_cottonsofacleaning(propertydetails)
+    estimatedduration = estimatedduration + get_estimated_duration_leathersofacleaning(propertydetails)
+    estimatedduration = estimatedduration + get_estimated_duration_mattresscleaning(propertydetails)
+    estimatedduration = estimatedduration + get_estimated_duration_carpetcleaning(propertydetails)
+    estimatedduration = estimatedduration + get_estimated_duration_curtainsdrycleaning(propertydetails)
+    estimatedduration = estimatedduration + get_estimated_duration_curtainswaterwashing(propertydetails)
 
     # Add 0.5 hours if withpets
     if propertydetails.get("withpets") == None:
@@ -369,27 +463,223 @@ def get_estimated_duration(ironingclothes, propertydetails):
     return math.ceil(estimatedduration)
 
 
-def extra_fee_special_day(bookdate, starttime, feelist):
-	"""Calculates additional fee based on date & time of booking"""
-	fee_detail = {}
-	extra_fee = 0.0
-	if bookdate in _LUNAR_NEW_YEAR_DAYS_2022:
-		fee_detail["is_NewYear"] = True
-		extra_fee += feelist["LNY"]
-	elif bookdate in _BEFORE_LUNAR_NEW_YEAR_DAYS_2022:
-		fee_detail["is_BeforeNewYear"] = True
-		extra_fee += feelist["BLNY"]
-	elif bookdate in _AFTER_LUNAR_NEW_YEAR_DAYS_2022:
-		fee_detail["is_AfterNewYear"] = True
-		extra_fee += feelist["ALNY"]
-	elif bookdate in _OTHER_NATIONAL_HOLIDAY_DAYS_2022:
-		fee_detail["is_Holiday"] = True
-		extra_fee += feelist["HOL"]
-	elif is_weekend(bookdate):
-		fee_detail["is_Weekend"] = True
-		extra_fee += feelist["WKD"]
-	elif is_OutOfWorkingHour(starttime):
-		fee_detail["is_OutOfficeHours"] = True
-		extra_fee += feelist["OOH"]
+def get_estimated_duration(ironingclothes, propertydetails, servicename):
+    estimatedduration = 0.0
 
-	return {"extra_fee_percent": extra_fee,"extra_service_fee_details":fee_detail}
+    if servicename == "O_Basic" or servicename == "S_Basic":
+         estimatedduration  = get_estimated_duration_for_cleaning(ironingclothes, propertydetails)
+    elif servicename == "O_Sofa":
+        estimatedduration = get_estimated_duration_sofacleaning(propertydetails)
+    elif servicename == "O_DeepHome":
+        estimatedduration = 0.0
+
+    return math.ceil(estimatedduration)
+
+
+def extra_fee_special_day(bookdate, starttime, feelist):
+    """Calculates additional fee based on date & time of booking"""
+
+    fee_detail = {}
+    extra_fee = 0.0
+    if bookdate in _LUNAR_NEW_YEAR_DAYS_2022:
+        fee_detail["is_NewYear"] = True
+        extra_fee += feelist["LNY"]
+        index = 1
+    elif bookdate in _BEFORE_LUNAR_NEW_YEAR_DAYS_2022:
+        fee_detail["is_BeforeNewYear"] = True
+        extra_fee += feelist["BLNY"]
+        index = 2
+    elif bookdate in _AFTER_LUNAR_NEW_YEAR_DAYS_2022:
+        fee_detail["is_AfterNewYear"] = True
+        extra_fee += feelist["ALNY"]
+        index = 3
+    elif bookdate in _OTHER_NATIONAL_HOLIDAY_DAYS_2022:
+        fee_detail["is_Holiday"] = True
+        extra_fee += feelist["HOL"]
+        index = 4
+    elif is_weekend(bookdate):
+        fee_detail["is_Weekend"] = True
+        extra_fee += feelist["WKD"]
+        index = 5
+    elif is_OutOfWorkingHour(starttime):
+        fee_detail["is_OutOfficeHours"] = True
+        extra_fee += feelist["OOH"]
+        index = 6
+    else:
+        index = 0
+
+    return extra_fee, fee_detail, index
+
+
+def  get_Oneday_Basic_fee_details(bookdate,starttime,service_fee_list,base_rate,duration,estimatedduration,usedduration,owntool,ironingclothes,fee_detail):
+    """Get fee of the service"""
+    extra_fee_percent, extra_service_fee_details, index = extra_fee_special_day(bookdate,starttime,service_fee_list)
+    final_rate = base_rate * (1 + extra_fee_percent)
+    total_fee = final_rate * usedduration
+
+    if owntool == True:
+        total_fee += service_fee_list["OwnTools"]
+
+    return int(total_fee), index, final_rate
+
+
+def  get_O_Basic_fee_details_response(bookdate,starttime,service_fee_list,base_rate,duration,estimatedduration,usedduration,owntool,ironingclothes,fee_detail):
+    """Get fee details of the service"""
+    extra_fee_percent, extra_service_fee_details, index = extra_fee_special_day(bookdate,starttime,service_fee_list)
+    final_rate = base_rate * (1 + extra_fee_percent)
+    total_fee = final_rate * usedduration
+
+    fee_details_response = {}
+    if owntool == True:
+        total_fee += service_fee_list["OwnTools"]
+        extra_service_fee_details["is_OwnTools"] = True
+        fee_details_response = {"Total Fee": int(total_fee),"OwnTools Fee":service_fee_list["OwnTools"]}
+    else:
+        fee_details_response = {"Total Fee": int(total_fee)}
+
+    if ironingclothes == True:
+        ironingclothes_fee = final_rate * 0.5
+        ironingclothes_fee_response = {"Ironing Clothes Fee": int(ironingclothes_fee)}
+        fee_details_response.update(ironingclothes_fee_response)
+
+    extra_service_fee_details.update(fee_detail)
+    extra_service_fee_response = {"Extra Service Fee Details": extra_service_fee_details}
+
+    if duration == 0:
+        estimatedduration_response = {"Estimated Duration": estimatedduration}
+        fee_details_response.update(estimatedduration_response)
+
+    fee_details_response.update(extra_service_fee_response)
+    return fee_details_response
+
+
+def get_formated_day(dateTimeInstance):
+	dateTimeInstance_List = str(dateTimeInstance).split('-')
+	formated_day = date(int(dateTimeInstance_List[0]), int(dateTimeInstance_List[1]), int(dateTimeInstance_List[2]))
+	return formated_day
+
+
+def get_weekday_value(workingdays):
+    workingdays_weekday_value = []
+    for wday in workingdays:
+        for i in range(7):
+            if wday == _WORK_DAY_LIST[i]:
+                workingdays_weekday_value.append(i)
+                break
+    return workingdays_weekday_value
+
+
+def get_number_of_day_before_next_weekday(workingdays_weekday_value):
+    number_of_day_before_next_weekday = []
+    list_len = len(workingdays_weekday_value)
+    for i in range(list_len):
+        if i + 1 < list_len:
+            number_of_day = workingdays_weekday_value[i+1] - workingdays_weekday_value[i]
+        else:
+            number_of_day = 7 + workingdays_weekday_value[0] - workingdays_weekday_value[i]
+        number_of_day_before_next_weekday.append(number_of_day)
+    return number_of_day_before_next_weekday
+
+
+def get_first_working_date(startdate_formatted,workingdays_weekday_value):
+    startdate_formatted_weekday = startdate_formatted.weekday()
+    next = True
+    while next:
+        for i in range(len(workingdays_weekday_value)):
+            if startdate_formatted_weekday  < workingdays_weekday_value[i]:
+                index = i
+                actual_start_date = startdate_formatted + timedelta(days=workingdays_weekday_value[i] - startdate_formatted_weekday)
+                next = False
+                break
+            elif startdate_formatted_weekday  == workingdays_weekday_value[i]:
+                index = i
+                actual_start_date = startdate_formatted
+                next = False
+                break
+            elif startdate_formatted_weekday  > workingdays_weekday_value[i]:
+                continue
+        startdate_formatted_weekday = startdate_formatted_weekday - 7
+
+    return index, actual_start_date
+
+
+def  get_S_Basic_fee_details_response(subscription_schedule_details,service_fee_list,base_rate,duration,estimatedduration,usedduration,owntool,ironingclothes,fee_detail):
+    """Get fee details of the subscription service"""
+    fee_details_response = {}
+    workingdays = subscription_schedule_details.get("workingdays")
+    workingtime = subscription_schedule_details.get("workingtime")
+    workingduration = subscription_schedule_details.get("workingduration")
+    startdate = subscription_schedule_details.get("startdate")
+    enddate = subscription_schedule_details.get("enddate")
+
+    workingdays_weekday_value = get_weekday_value(workingdays)
+    number_of_day_before_next_weekday = get_number_of_day_before_next_weekday(workingdays_weekday_value)
+    startdate_formatted  = get_formated_day(startdate)
+    startdate_formatted_weekday = startdate_formatted.weekday()
+    enddate_formatted  = get_formated_day(enddate)
+
+    start_date_index, actual_start_date = get_first_working_date(startdate_formatted,workingdays_weekday_value)
+    list_len = len(number_of_day_before_next_weekday)
+    process_index = start_date_index
+    process_date = actual_start_date
+    total_fee = 0
+    count = 0
+    component_fee = [0,0,0,0,0,0,0]
+    component_count = [0,0,0,0,0,0,0]
+    while process_date <= enddate_formatted:
+        oneday_fee, index, final_rate = get_Oneday_Basic_fee_details(process_date,workingtime,service_fee_list,base_rate,duration,estimatedduration,usedduration,owntool,ironingclothes,fee_detail)
+        total_fee = total_fee + oneday_fee
+        count = count + 1
+        component_fee[index] += oneday_fee
+        component_count[index] += 1
+        process_date = process_date + timedelta(days=number_of_day_before_next_weekday[process_index])
+        process_index = process_index + 1
+        if process_index == list_len:
+            process_index = 0
+
+    total_fee_response = {"Total Fee": total_fee}
+    fee_details_response.update(total_fee_response)
+    total_workdays_response = {"Total Number of Work Days": count}
+    fee_details_response.update(total_workdays_response)
+    if duration == 0:
+        estimatedduration_response = {"Estimated Duration per session": estimatedduration}
+        fee_details_response.update(estimatedduration_response)
+    if owntool == True:
+        total_owntool_fee = count * service_fee_list["OwnTools"]
+        total_owntool_response = {"Total OwnTools Fee": total_owntool_fee}
+        fee_details_response.update(total_owntool_response)
+    if ironingclothes == True:
+        ironingclothes_fee = count * final_rate * 0.5
+        ironingclothes_fee_response = {"Ironing Clothes Fee": int(ironingclothes_fee)}
+        fee_details_response.update(ironingclothes_fee_response)
+
+
+
+    """
+    extra_fee_percent, extra_service_fee_details , index = extra_fee_special_day(bookdate,starttime,service_fee_list)
+    final_rate = base_rate * (1 + extra_fee_percent)
+    total_fee = final_rate * usedduration
+
+
+    if owntool == True:
+        total_fee += service_fee_list["OwnTools"]
+        extra_service_fee_details["is_OwnTools"] = True
+        fee_details_response = {"Total Fee": int(total_fee),"OwnTools Fee":service_fee_list["OwnTools"]}
+    else:
+        fee_details_response = {"Total Fee": int(total_fee)}
+
+    if ironingclothes == True:
+        ironingclothes_fee = final_rate * 0.5
+        ironingclothes_fee_response = {"Ironing Clothes Fee": int(ironingclothes_fee)}
+        fee_details_response.update(ironingclothes_fee_response)
+
+    extra_service_fee_details.update(fee_detail)
+    extra_service_fee_response = {"Extra Service Fee Details": extra_service_fee_details}
+
+    if duration == 0:
+        estimatedduration_response = {"Estimated Duration": estimatedduration}
+        fee_details_response.update(estimatedduration_response)
+
+    fee_details_response.update(extra_service_fee_response)
+    """
+    return fee_details_response
