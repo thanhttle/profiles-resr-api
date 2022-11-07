@@ -652,6 +652,35 @@ def  get_S_Basic_fee_details_response(subscription_schedule_details,service_fee_
         ironingclothes_fee = count * final_rate * 0.5
         ironingclothes_fee_response = {"Ironing Clothes Fee": int(ironingclothes_fee)}
         fee_details_response.update(ironingclothes_fee_response)
+    if count > 0:
+        details_fee_type = {}
+        for i in range(7):
+            if component_count[i] > 0:
+                if i == 0:
+                    normal_fee_response = {"Normal Fee":{"Total Days": component_count[0], "Sub Total Fee":component_fee[0]}}
+                    details_fee_type.update(normal_fee_response)
+                elif i == 1:
+                    LNY_fee_response = {"Lunar New Year Fee":{"Total Days": component_count[1], "Sub Total Fee":component_fee[1]}}
+                    details_fee_type.update(LNY_fee_response)
+                elif i == 2:
+                    BLNY_fee_response = {"Right Before Lunar New Year Fee":{"Total Days": component_count[2], "Sub Total Fee":component_fee[2]}}
+                    details_fee_type.update(BLNY_fee_response)
+                elif i == 3:
+                    ALNY_fee_response = {"Right After Lunar New Year Fee":{"Total Days": component_count[3], "Sub Total Fee":component_fee[3]}}
+                    details_fee_type.update(ALNY_fee_response)
+                elif i == 4:
+                    HOL_fee_response = {"Nation Holidays Fee":{"Total Days": component_count[4], "Sub Total Fee":component_fee[4]}}
+                    details_fee_type.update(HOL_fee_response)
+                elif i == 5:
+                    WKD_fee_response = {"Weekend Fee":{"Total Days": component_count[5], "Sub Total Fee":component_fee[5]}}
+                    details_fee_type.update(WKD_fee_response)
+                elif i == 6:
+                    OOH_fee_response = {"Out Of Office Hour Fee":{"Total Days": component_count[6], "Sub Total Fee":component_fee[6]}}
+                    details_fee_type.update(OOH_fee_response)
+        details_fee_type_response = {"Detailed Fees":details_fee_type}
+        fee_details_response.update(details_fee_type_response)
+        component_fee_detail = {"component_fee_detail":str(component_fee),"component_count_detail":str(component_count)}
+        fee_details_response.update(component_fee_detail)
 
 
 
