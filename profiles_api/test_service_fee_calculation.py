@@ -624,7 +624,7 @@ def get_estimated_duration(ironingclothes, propertydetails,subscription_schedule
     if servicename == "O_Basic":
         estimatedduration  = get_estimated_duration_for_cleaning(ironingclothes, propertydetails)
     elif servicename == "S_Basic":
-        if propertydetails != None:
+        if propertydetails != None and json.dumps(propertydetails) != "{}":
             estimatedduration  = get_estimated_duration_for_cleaning(ironingclothes, propertydetails)
         elif subscription_schedule_details != None:
             estimatedduration = subscription_schedule_details.get("workingduration")
@@ -847,7 +847,7 @@ def  get_S_Basic_fee_details_response(subscription_schedule_details,service_fee_
     total_workdays_response = {"Total Number of Work Days": count}
     fee_details_response.update(total_workdays_response)
     if duration == 0:
-        estimatedduration_response = {"Estimated Duration per session": estimatedduration}
+        estimatedduration_response = {"Duration per session": estimatedduration}
         fee_details_response.update(estimatedduration_response)
     if owntool == True:
         total_owntool_fee = count * service_fee_list["OwnTools"]
