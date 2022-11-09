@@ -78,6 +78,7 @@ class Test_One_Off_Fee(models.Model):
 	duration = models.IntegerField()
 	owntool = models.BooleanField(default=False)
 	ironingclothes = models.BooleanField(default=False)
+	urgentbooking = models.BooleanField(default=False)
 	servicecode = models.CharField(max_length=20)
 	propertydetails = jsonfield.JSONField()
 	subscription_schedule_details = jsonfield.JSONField()

@@ -57,6 +57,7 @@ class Test_One_Off_Fee_View(viewsets.ModelViewSet):
             duration = serializer.validated_data.get("duration")
             owntool = serializer.validated_data.get("owntool")
             ironingclothes = serializer.validated_data.get("ironingclothes")
+            urgentbooking = serializer.validated_data.get("urgentbooking")
             propertydetails = serializer.validated_data.get("propertydetails")
             subscription_schedule_details = serializer.validated_data.get("subscription_schedule_details")
 
@@ -69,6 +70,10 @@ class Test_One_Off_Fee_View(viewsets.ModelViewSet):
             service_fee_list = city_fee_list[servicename]
             usedduration = duration
 
+            if servicename == "O_Sofa":
+                fee_details_response = test_sfc.get_estimated_fee_sofacleaning(bookdate,starttime,propertydetails,urgentbooking,service_fee_list)
+                return Response(fee_details_response)
+
             if duration == 0:
                 estimatedduration = test_sfc.get_estimated_duration(ironingclothes, propertydetails, servicename)
                 if estimatedduration == 0:
@@ -80,10 +85,13 @@ class Test_One_Off_Fee_View(viewsets.ModelViewSet):
                 content = {'error message': 'could not get base rate' + str(estimatedduration)}
                 return Response(content, status=status.HTTP_400_BAD_REQUEST)
 
-            if servicename == "O_Basic" or servicename == "O_Sofa" or servicename == "O_DeepHome":
-                fee_details_response = test_sfc.get_O_Basic_fee_details_response(bookdate,starttime,service_fee_list,base_rate,duration,estimatedduration,usedduration,owntool,ironingclothes,fee_detail)
+            if servicename == "O_Basic":
+                fee_details_response = test_sfc.get_O_Basic_fee_details_response(bookdate,starttime,service_fee_list,base_rate,duration,estimatedduration,usedduration,owntool,ironingclothes,urgentbooking,fee_detail)
             elif servicename == "S_Basic":
-                fee_details_response = test_sfc.get_S_Basic_fee_details_response(subscription_schedule_details,service_fee_list,base_rate,duration,estimatedduration,usedduration,owntool,ironingclothes,fee_detail)
+                fee_details_response = test_sfc.get_S_Basic_fee_details_response(subscription_schedule_details,service_fee_list,base_rate,duration,estimatedduration,usedduration,owntool,ironingclothes,urgentbooking,fee_detail)
+            elif servicename == "O_DeepHome":
+                #fee_details_response  = {"owntool":str(owntool),"ironingclothes":str(ironingclothes),"fee_detail":str(fee_detail)}
+                fee_details_response = test_sfc.get_O_DeepHome_fee_details_response(bookdate,starttime,service_fee_list,base_rate,duration,estimatedduration,usedduration,owntool,ironingclothes,urgentbooking,fee_detail)
             else :
                 fee_details_response = {}
 

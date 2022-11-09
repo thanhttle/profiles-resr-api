@@ -43,8 +43,8 @@ _DEFAUT_FEE_LIST = {
             "LNY":2.0,
             "BLNY":1.0,
             "ALNY":1.0,
-            "FavMaid":0,
-            "OwnTools":30000
+            "OwnTools":30000,
+            "Urgent":20000
         },
         "S_Basic":{
             "I_P4h":66500,
@@ -62,46 +62,38 @@ _DEFAUT_FEE_LIST = {
             "LNY":2.0,
             "BLNY":1.0,
             "ALNY":1.0,
-            "FavMaid":0,
-            "OwnTools":30000
+            "OwnTools":30000,
+            "Urgent":20000
         },
         "O_DeepHome":{
-            "I_P4h":66500,
-            "I_P3h":69800,
-            "I_P2h":83800,
-            "II_P4h":69800,
-            "II_P3h":73200,
-            "II_P2h":87100,
-            "III_P4h":73200,
-            "III_P3h":76500,
-            "III_P2h":90400,
-            "OOH": 0.16,
-            "WKD":0.21,
-            "HOL": 0.32,
-            "LNY":2.0,
-            "BLNY":1.0,
-            "ALNY":1.0,
-            "FavMaid":0,
-            "OwnTools":30000
+            "I_P4h":90000,
+            "II_P4h":85000,
+            "III_P4h":100000,
+            "OOH":0.2,
+            "WKD":0.2,
+            "HOL":2,
+            "LNY":3,
+            "BLNY":1.65,
+            "ALNY":1.2,
+            "Urgent":20000
         },
         "O_Sofa":{
-            "I_P4h":66500,
-            "I_P3h":69800,
-            "I_P2h":83800,
-            "II_P4h":69800,
-            "II_P3h":73200,
-            "II_P2h":87100,
-            "III_P4h":73200,
-            "III_P3h":76500,
-            "III_P2h":90400,
-            "OOH": 0.16,
-            "WKD":0.21,
-            "HOL": 0.32,
-            "LNY":2.0,
-            "BLNY":1.0,
-            "ALNY":1.0,
-            "FavMaid":0,
-            "OwnTools":30000
+            "Cotton1-Seat":370000,
+            "Cotton2-Seat":440000,
+            "Cotton3-Seat":580000,
+            "CottonStool":50000,
+            "Leather1-Seat":420000,
+            "Leather2-Seat":480000,
+            "Leather3-Seat":620000,
+            "LeatherRecliner":290000,
+            "LeatherStool":60000,
+            "OOH":0.2,
+            "WKD":0.2,
+            "HOL":2,
+            "LNY":3,
+            "BLNY":1.65,
+            "ALNY":1.2,
+            "Urgent":20000
         }
     }
 }
@@ -148,7 +140,7 @@ def is_weekend(bookdate):
 def is_OutOfWorkingHour(starttime):
 	timelist = str(starttime).split(":")
 	time_formated = time(int(timelist[0]),int(timelist[1]),int(timelist[2]))
-	return time_formated < time(8,0,0) or time_formated >= time(17,0,0)
+	return time_formated < time(8,0,0) or time_formated >= time(18,0,0)
 
 
 def check_valid_input(city,area,servicename,duration,propertydetails,subscription_schedule_details):
@@ -161,7 +153,7 @@ def check_valid_input(city,area,servicename,duration,propertydetails,subscriptio
     if fee_available not in _FEE_LIST_AVAILABLE:
         error_messagge  = error_messagge + "INVALID service code or Fee List for " + fee_available + " NOT yet availabble"
     if duration == 0:
-        if servicename == "O_Basic" or servicename == "S_Basic":
+        if servicename == "O_Basic" or servicename == "S_Basic" or servicename == "O_DeepHome":
             if propertydetails == None or json.dumps(propertydetails) == "{}":
                 error_messagge  = error_messagge + "Both duration = 0 and propertydetails is " + json.dumps(propertydetails) + "; "
             else:
@@ -202,13 +194,10 @@ def check_valid_input(city,area,servicename,duration,propertydetails,subscriptio
                 withpets = False
             else:
                 withpets = propertydetails.get("withpets")
+            number_of_services = 6
+
             if propertydetails.get("curtainswaterwashing") == None:
-                if propertydetails.get("cottonsofacleaning") == None:
-                    if propertydetails.get("leathersofacleaning") == None:
-                        if propertydetails.get("mattresscleaning") == None:
-                            if propertydetails.get("carpetcleaning") == None:
-                                if propertydetails.get("curtainsdrycleaning") == None:
-                                    error_messagge  = error_messagge + "Details for ServideCode " + servicename + " is empty in propertydetails; "
+                number_of_services -= 1
             else:
                 curtainswaterwashing = propertydetails.get("curtainswaterwashing")
                 if curtainswaterwashing != "< 10kg" and curtainswaterwashing != "10kg – 15kg":
@@ -219,9 +208,46 @@ def check_valid_input(city,area,servicename,duration,propertydetails,subscriptio
                             error_messagge  = error_messagge + "curtainswaterwashing: number must be > 15kg"
                     except ValueError as ex:
                         error_messagge  = error_messagge + "curtainswaterwashing " + str(curtainswaterwashing) + ": " + str(ex)
+                error_messagge  = error_messagge + "curtainswaterwashing: currently unavailable"
 
-        elif servicename == "O_DeepHome":
-            error_messagge  = error_messagge + "Estimation for DeepHome Service is currently unavailable"
+            if propertydetails.get("cottonsofacleaning") == None:
+                number_of_services -= 1
+            else:
+                cottonsofacleaning = propertydetails.get("cottonsofacleaning")
+                if cottonsofacleaning.get("1-seatsofa") == None:
+                    if cottonsofacleaning.get("2-seatsofa") == None:
+                        if cottonsofacleaning.get("3-seatsofa") == None:
+                            if cottonsofacleaning.get("stool") == None:
+                                error_messagge  = error_messagge + "Details for cottonsofacleaning is empty in propertydetails; "
+
+            if propertydetails.get("leathersofacleaning") == None:
+                number_of_services -= 1
+            else:
+                leathersofacleaning = propertydetails.get("leathersofacleaning")
+                if leathersofacleaning.get("1-seatsofa") == None:
+                    if leathersofacleaning.get("2-seatsofa") == None:
+                        if leathersofacleaning.get("3-seatsofa") == None:
+                            if leathersofacleaning.get("recliner") == None:
+                                if leathersofacleaning.get("stool") == None:
+                                    error_messagge  = error_messagge + "Details for leathersofacleaning is empty in propertydetails; "
+
+            if propertydetails.get("mattresscleaning") == None:
+                number_of_services -= 1
+            else:
+                error_messagge  = error_messagge + "mattresscleaning: currently unavailable; "
+
+            if propertydetails.get("carpetcleaning") == None:
+                number_of_services -= 1
+            else:
+                error_messagge  = error_messagge + "carpetcleaning: currently unavailable; "
+
+            if propertydetails.get("curtainsdrycleaning") == None:
+                number_of_services -= 1
+            else:
+                error_messagge  = error_messagge + "curtainsdrycleaning: currently unavailable; "
+
+            if number_of_services <= 0:
+                error_messagge  = error_messagge + "Details for ServideCode " + servicename + " is empty in propertydetails; "
 
     return error_messagge
 
@@ -310,57 +336,154 @@ def get_estimated_duration_for_cleaning(ironingclothes, propertydetails):
 
     return math.ceil(estimatedduration)
 
-
-def get_estimated_duration_cottonsofacleaning(propertydetails):
+def get_estimated_duration_for_DeepHome(ironingclothes, propertydetails):
+    """Estimation for Cleaning Service"""
     estimatedduration = 0.0
+
+    if propertydetails.get("housetype") != None:
+
+        housetype = propertydetails.get("housetype")
+
+        if propertydetails.get("numberoffloors") == None:
+            numberoffloors = 1
+        else:
+            numberoffloors = propertydetails.get("numberoffloors")
+
+        if propertydetails.get("numberoffbedroom") == None:
+            numberoffbedroom = 0
+        else:
+            numberoffbedroom = propertydetails.get("numberoffbedroom")
+
+        if propertydetails.get("numberofflivingroom") == None:
+            numberofflivingroom = 0
+        else:
+            numberofflivingroom = propertydetails.get("numberofflivingroom")
+
+        if propertydetails.get("numberoffkitchen") == None:
+            numberoffkitchen = 0
+        else:
+            numberoffkitchen = propertydetails.get("numberoffkitchen")
+
+        if propertydetails.get("numberoffofficeroom") == None:
+            numberoffofficeroom = 0
+        else:
+            numberoffofficeroom = propertydetails.get("numberoffofficeroom")
+
+        if propertydetails.get("numberoffbathroom") == None:
+            numberoffbathroom = 0
+        else:
+            numberoffbathroom = propertydetails.get("numberoffbathroom")
+
+        if propertydetails.get("totalarea") == None:
+            totalarea = "None"
+        else:
+            totalarea = propertydetails.get("totalarea")
+
+        # Check min for estimatedduration
+        if estimatedduration < 64.0 and totalarea == "500m2 - 1000m2":
+            estimatedduration = 64.0
+        elif estimatedduration < 32.0 and totalarea == "255m2 - 500m2":
+            estimatedduration = 32.0
+        elif estimatedduration < 16.0 and totalarea == "140m2 - 255m2":
+            estimatedduration = 16.0
+        elif estimatedduration < 12.0 and totalarea == "90m2 - 140m2":
+            estimatedduration = 12.0
+        elif estimatedduration < 10.0 and totalarea == "50m2 - 90m2":
+            estimatedduration = 10.0
+        elif estimatedduration < 8.0 and totalarea == "< 50m2":
+            estimatedduration = 8.0
+
+    # Minimum serbvice is 2 hours
+    if estimatedduration < 8.0:
+        estimatedduration = 8.0
+
+    return math.ceil(estimatedduration)
+
+
+def get_estimated_fee_cottonsofacleaning(propertydetails,feelist,adjust_rate):
+    estimatedfee = 0.0
+    details_response = {}
+    fee_details_response = {}
 
     if propertydetails.get("cottonsofacleaning") != None:
         cottonsofacleaning = propertydetails.get("cottonsofacleaning")
-        if cottonsofacleaning.get("1-seatsofa") == None:
-            one_seatsofa = 0
-        else:
+        if cottonsofacleaning.get("1-seatsofa") != None:
             one_seatsofa = cottonsofacleaning.get("1-seatsofa")
-        if cottonsofacleaning.get("2-seatsofa") == None:
-            two_seatsofa = 0
-        else:
+            one_seatsofa_fee =  int(one_seatsofa * feelist["Cotton1-Seat"] * adjust_rate)
+            estimatedfee = estimatedfee + one_seatsofa_fee
+            one_seatsofa_response = {"1-Seat Cotton Sofa":one_seatsofa_fee}
+            details_response.update(one_seatsofa_response)
+        if cottonsofacleaning.get("2-seatsofa") != None:
             two_seatsofa = cottonsofacleaning.get("2-seatsofa")
-        if cottonsofacleaning.get("3-seatsofa") == None:
-            three_seatsofa = 0
-        else:
+            two_seatsofa_fee =  int(two_seatsofa * feelist["Cotton2-Seat"] * adjust_rate)
+            estimatedfee = estimatedfee + two_seatsofa_fee
+            two_seatsofa_response = {"2-Seat Cotton Sofa":two_seatsofa_fee}
+            details_response.update(two_seatsofa_response)
+        if cottonsofacleaning.get("3-seatsofa") != None:
             three_seatsofa = cottonsofacleaning.get("3-seatsofa")
-        estimatedduration = estimatedduration + one_seatsofa / 3.0
-        estimatedduration = estimatedduration + two_seatsofa * 0.5
-        estimatedduration = estimatedduration + 2.0 * three_seatsofa / 3
+            three_seatsofa_fee =  int(three_seatsofa * feelist["Cotton3-Seat"] * adjust_rate)
+            estimatedfee = estimatedfee + three_seatsofa_fee
+            three_seatsofa_response = {"3-Seat Cotton Sofa":three_seatsofa_fee}
+            details_response.update(three_seatsofa_response)
+        if cottonsofacleaning.get("stool") != None:
+            stool = cottonsofacleaning.get("stool")
+            stool_fee =  int(stool * feelist["CottonStool"] * adjust_rate)
+            estimatedfee = estimatedfee + stool_fee
+            stool_response = {"Cotton Stool":stool_fee}
+            details_response.update(stool_response)
 
-    return estimatedduration
+        if estimatedfee > 0:
+            fee_details_response = {"Cotton Sofa":{"Cleaning Fee":int(estimatedfee),"Details":details_response}}
+    return estimatedfee, fee_details_response
 
 
-def get_estimated_duration_leathersofacleaning(propertydetails):
-    estimatedduration = 0.0
+def get_estimated_fee_leathersofacleaning(propertydetails,feelist,adjust_rate):
+    estimatedfee = 0.0
+    details_response = {}
+    fee_details_response = {}
 
     if propertydetails.get("leathersofacleaning") != None:
         leathersofacleaning = propertydetails.get("leathersofacleaning")
-        if leathersofacleaning.get("1-seatsofa") == None:
-            one_seatsofa = 0
-        else:
+        if leathersofacleaning.get("1-seatsofa") != None:
             one_seatsofa = leathersofacleaning.get("1-seatsofa")
-        if leathersofacleaning.get("2-seatsofa") == None:
-            two_seatsofa = 0
-        else:
+            one_seatsofa_fee =  int(one_seatsofa * feelist["Leather1-Seat"] * adjust_rate)
+            estimatedfee = estimatedfee + one_seatsofa_fee
+            one_seatsofa_response = {"1-Seat Cotton Sofa":one_seatsofa_fee}
+            details_response.update(one_seatsofa_response)
+        if leathersofacleaning.get("2-seatsofa") != None:
             two_seatsofa = leathersofacleaning.get("2-seatsofa")
-        if leathersofacleaning.get("3-seatsofa") == None:
-            three_seatsofa = 0
-        else:
+            two_seatsofa_fee =  int(two_seatsofa * feelist["Leather2-Seat"] * adjust_rate)
+            estimatedfee = estimatedfee + two_seatsofa_fee
+            two_seatsofa_response = {"2-Seat Cotton Sofa":two_seatsofa_fee}
+            details_response.update(two_seatsofa_response)
+        if leathersofacleaning.get("3-seatsofa") != None:
             three_seatsofa = leathersofacleaning.get("3-seatsofa")
-        estimatedduration = estimatedduration + one_seatsofa * 0.5
-        estimatedduration = estimatedduration + 2.0 * two_seatsofa / 3
-        estimatedduration = estimatedduration + 5.0 * three_seatsofa / 6
+            three_seatsofa_fee =  int(three_seatsofa * feelist["Leather3-Seat"] *  adjust_rate)
+            estimatedfee = estimatedfee + three_seatsofa_fee
+            three_seatsofa_response = {"3-Seat Cotton Sofa":three_seatsofa_fee}
+            details_response.update(three_seatsofa_response)
+        if leathersofacleaning.get("recliner") != None:
+            recliner = leathersofacleaning.get("recliner")
+            recliner_fee =  int(recliner * feelist["LeatherStool"] * adjust_rate)
+            estimatedfee = estimatedfee + recliner_fee
+            recliner_response = {"Cotton Recliner":recliner_fee}
+            details_response.update(recliner_response)
+        if leathersofacleaning.get("stool") != None:
+            stool = leathersofacleaning.get("stool")
+            stool_fee =  int(stool * feelist["LeatherStool"] * adjust_rate)
+            estimatedfee = estimatedfee + stool_fee
+            stool_response = {"Cotton Stool":stool_fee}
+            details_response.update(stool_response)
 
-    return estimatedduration
+        if estimatedfee > 0:
+            fee_details_response = {"Leather Sofa":{"Cleaning Fee":int(estimatedfee),"Details":details_response}}
+    return estimatedfee, fee_details_response
 
 
-def get_estimated_duration_mattresscleaning(propertydetails):
-    estimatedduration = 0.0
+def get_estimated_fee_mattresscleaning(propertydetails,feelist):
+    estimatedfee = 0.0
+    details_response = {}
+    fee_details_response = {}
 
     if propertydetails.get("mattresscleaning") != None:
         mattresscleaning = propertydetails.get("mattresscleaning")
@@ -376,15 +499,14 @@ def get_estimated_duration_mattresscleaning(propertydetails):
             more_than_oneeight = 0
         else:
             more_than_oneeight = mattresscleaning.get("> 1.8m")
-        estimatedduration = estimatedduration + less_than_onefive * 0.5
-        estimatedduration = estimatedduration + 2.0 * onefive_to_oneeight / 3
-        estimatedduration = estimatedduration + 5.0 * more_than_oneeight / 6
 
-    return estimatedduration
+    return estimatedfee, fee_details_response
 
 
-def get_estimated_duration_carpetcleaning(propertydetails):
-    estimatedduration = 0.0
+def get_estimated_fee_carpetcleaning(propertydetails,feelist):
+    estimatedfee = 0.0
+    details_response = {}
+    fee_details_response = {}
 
     if propertydetails.get("carpetcleaning") != None:
         carpetcleaning = propertydetails.get("carpetcleaning")
@@ -396,14 +518,14 @@ def get_estimated_duration_carpetcleaning(propertydetails):
             onefive_to_oneeight = 0
         else:
             onefive_to_oneeight = carpetcleaning.get("1.5m - 1.8m")
-        estimatedduration = estimatedduration + less_than_onefive * 0.5
-        estimatedduration = estimatedduration + 2.0 * onefive_to_oneeight / 3
 
-    return estimatedduration
+    return estimatedfee, fee_details_response
 
 
-def get_estimated_duration_curtainsdrycleaning(propertydetails):
-    estimatedduration = 0.0
+def get_estimated_fee_curtainsdrycleaning(propertydetails,feelist):
+    estimatedfee = 0.0
+    details_response = {}
+    fee_details_response = {}
 
     if propertydetails.get("curtainsdrycleaning") != None:
         curtainsdrycleaning = propertydetails.get("curtainsdrycleaning")
@@ -415,14 +537,14 @@ def get_estimated_duration_curtainsdrycleaning(propertydetails):
             numberofflivingroom = 0
         else:
             numberofflivingroom = curtainsdrycleaning.get("numberofflivingroom")
-        estimatedduration = estimatedduration + numberoffbedroom * 0.5
-        estimatedduration = estimatedduration + numberofflivingroom * 0.5
 
-    return estimatedduration
+    return estimatedfee, fee_details_response
 
 
-def get_estimated_duration_curtainswaterwashing(propertydetails):
-    estimatedduration = 0.0
+def get_estimated_fee_curtainswaterwashing(propertydetails,feelist):
+    estimatedfee = 0.0
+    details_response = {}
+    fee_details_response = {}
 
     if propertydetails.get("curtainswaterwashing") != None:
         curtainswaterwashing = propertydetails.get("curtainswaterwashing")
@@ -433,34 +555,67 @@ def get_estimated_duration_curtainswaterwashing(propertydetails):
         else:
             num = int(curtainswaterwashing.strip("kg"))
             estimate = 4 + (num - 15)/5
-        estimatedduration = estimatedduration + estimate
 
-    return estimatedduration
+    return estimatedfee, fee_details_response
 
 
-def get_estimated_duration_sofacleaning(propertydetails):
-    estimatedduration = 0.0;
+def get_estimated_fee_sofacleaning(bookdate,starttime,propertydetails,urgentbooking,feelist):
+    estimatedfee = 0.0;
+    fee_details_response = {"Total Fee": int(estimatedfee)}
 
-    estimatedduration = estimatedduration + get_estimated_duration_cottonsofacleaning(propertydetails)
-    estimatedduration = estimatedduration + get_estimated_duration_leathersofacleaning(propertydetails)
-    estimatedduration = estimatedduration + get_estimated_duration_mattresscleaning(propertydetails)
-    estimatedduration = estimatedduration + get_estimated_duration_carpetcleaning(propertydetails)
-    estimatedduration = estimatedduration + get_estimated_duration_curtainsdrycleaning(propertydetails)
-    estimatedduration = estimatedduration + get_estimated_duration_curtainswaterwashing(propertydetails)
+    extra_fee_percent, extra_service_fee_details, index = extra_fee_special_day(bookdate,starttime,feelist)
+    adjust_rate = 1 + extra_fee_percent
 
-    # Add 0.5 hours if withpets
-    if propertydetails.get("withpets") == None:
-        withpets = False
-    else:
-        withpets = propertydetails.get("withpets")
-    if withpets:
-        estimatedduration = estimatedduration + 0.5
+    if urgentbooking:
+        urgentbooking_fee = feelist["Urgent"]
+        estimatedfee += urgentbooking_fee
+        urgentbooking_fee_response = {"Urgent Booking Fee": int(urgentbooking_fee)}
+        fee_details_response.update(urgentbooking_fee_response)
+
+    cotton_sofa_fee, cotton_sofa_response = get_estimated_fee_cottonsofacleaning(propertydetails,feelist,adjust_rate)
+    if cotton_sofa_fee > 0:
+        estimatedfee = estimatedfee + cotton_sofa_fee
+        fee_details_response.update(cotton_sofa_response)
+
+    leather_sofa_fee, leather_sofa_response = get_estimated_fee_leathersofacleaning(propertydetails,feelist,adjust_rate)
+    if leather_sofa_fee > 0:
+        estimatedfee = estimatedfee + leather_sofa_fee
+        fee_details_response.update(leather_sofa_response)
+
+    mattress_fee, mattress_response = get_estimated_fee_mattresscleaning(propertydetails,feelist)
+    if mattress_fee > 0:
+        estimatedfee = estimatedfee + mattress_fee
+        fee_details_response.update(mattress_response)
+
+    carpet_fee, carpet_response = get_estimated_fee_carpetcleaning(propertydetails,feelist)
+    if carpet_fee > 0:
+        estimatedfee = estimatedfee + carpet_fee
+        fee_details_response.update(carpet_response)
+
+    curtainsdrycleaning_fee, curtainsdrycleaning_response = get_estimated_fee_curtainsdrycleaning(propertydetails,feelist)
+    if curtainsdrycleaning_fee > 0:
+        estimatedfee = estimatedfee + curtainsdrycleaning_fee
+        fee_details_response.update(curtainsdrycleaning_response)
+
+    curtainswaterwashing_fee, curtainswaterwashing_response = get_estimated_fee_curtainswaterwashing(propertydetails,feelist)
+    if curtainswaterwashing_fee > 0:
+        estimatedfee = estimatedfee + curtainswaterwashing_fee
+        fee_details_response.update(curtainswaterwashing_response)
 
     # Minimum serbvice is 2 hours
-    if estimatedduration < 2.0:
-        estimatedduration = 2.0
+    if estimatedfee < 500000:
+        estimatedfee = 500000
+        minimum_response = {"Minimum Fee Applied": True}
+        fee_details_response.update(minimum_response)
 
-    return math.ceil(estimatedduration)
+    total_fee_response = {"Total Fee": int(estimatedfee)}
+    fee_details_response.update(total_fee_response)
+
+    if extra_fee_percent > 0.0:
+        extra_service_fee_response = {"Extra Service Fee Details": extra_service_fee_details}
+        fee_details_response.update(extra_service_fee_response)
+
+    return fee_details_response
 
 
 def get_estimated_duration(ironingclothes, propertydetails, servicename):
@@ -468,10 +623,8 @@ def get_estimated_duration(ironingclothes, propertydetails, servicename):
 
     if servicename == "O_Basic" or servicename == "S_Basic":
          estimatedduration  = get_estimated_duration_for_cleaning(ironingclothes, propertydetails)
-    elif servicename == "O_Sofa":
-        estimatedduration = get_estimated_duration_sofacleaning(propertydetails)
     elif servicename == "O_DeepHome":
-        estimatedduration = 0.0
+        estimatedduration = get_estimated_duration_for_DeepHome(ironingclothes, propertydetails)
 
     return math.ceil(estimatedduration)
 
@@ -523,7 +676,7 @@ def  get_Oneday_Basic_fee_details(bookdate,starttime,service_fee_list,base_rate,
     return int(total_fee), index, final_rate
 
 
-def  get_O_Basic_fee_details_response(bookdate,starttime,service_fee_list,base_rate,duration,estimatedduration,usedduration,owntool,ironingclothes,fee_detail):
+def  get_O_Basic_fee_details_response(bookdate,starttime,service_fee_list,base_rate,duration,estimatedduration,usedduration,owntool,ironingclothes,urgentbooking,fee_detail):
     """Get fee details of the service"""
     extra_fee_percent, extra_service_fee_details, index = extra_fee_special_day(bookdate,starttime,service_fee_list)
     final_rate = base_rate * (1 + extra_fee_percent)
@@ -537,6 +690,12 @@ def  get_O_Basic_fee_details_response(bookdate,starttime,service_fee_list,base_r
     else:
         fee_details_response = {"Total Fee": int(total_fee)}
 
+    if urgentbooking:
+        urgentbooking_fee = service_fee_list["Urgent"]
+        total_fee += urgentbooking_fee
+        urgentbooking_fee_response = {"Total Fee": int(total_fee),"Urgent Booking Fee": int(urgentbooking_fee)}
+        fee_details_response.update(urgentbooking_fee_response)
+
     if ironingclothes == True:
         ironingclothes_fee = final_rate * 0.5
         ironingclothes_fee_response = {"Ironing Clothes Fee": int(ironingclothes_fee)}
@@ -547,6 +706,39 @@ def  get_O_Basic_fee_details_response(bookdate,starttime,service_fee_list,base_r
 
     if duration == 0:
         estimatedduration_response = {"Estimated Duration": estimatedduration}
+        fee_details_response.update(estimatedduration_response)
+
+    fee_details_response.update(extra_service_fee_response)
+    return fee_details_response
+
+
+def  get_O_DeepHome_fee_details_response(bookdate,starttime,service_fee_list,base_rate,duration,estimatedduration,usedduration,owntool,ironingclothes,urgentbooking,fee_detail):
+    """Get fee details of the DeepHome service"""
+    extra_fee_percent, extra_service_fee_details, index = extra_fee_special_day(bookdate,starttime,service_fee_list)
+    final_rate = base_rate * (1 + extra_fee_percent)
+    total_fee = final_rate * usedduration
+
+    fee_details_response = {"Total Fee": int(total_fee)}
+
+    if urgentbooking:
+        urgentbooking_fee = service_fee_list["Urgent"]
+        total_fee += urgentbooking_fee
+        urgentbooking_fee_response = {"Total Fee": int(total_fee),"Urgent Booking Fee": int(urgentbooking_fee)}
+        fee_details_response.update(urgentbooking_fee_response)
+
+    if ironingclothes == True:
+        ironingclothes_fee = final_rate
+        ironingclothes_fee_response = {"Ironing Clothes Fee": int(ironingclothes_fee)}
+        fee_details_response.update(ironingclothes_fee_response)
+
+    extra_service_fee_details.update(fee_detail)
+    extra_service_fee_response = {"Extra Service Fee Details": extra_service_fee_details}
+
+    if duration == 0:
+        sugggested_shift = 4
+        while estimatedduration != sugggested_shift * int(estimatedduration/sugggested_shift):
+            sugggested_shift = sugggested_shift + 1
+        estimatedduration_response = {"Estimated Duration": estimatedduration,"Suggested Number of hours per Shift":sugggested_shift,"Suggest Number of Workers":int(estimatedduration/sugggested_shift)}
         fee_details_response.update(estimatedduration_response)
 
     fee_details_response.update(extra_service_fee_response)
@@ -603,7 +795,7 @@ def get_first_working_date(startdate_formatted,workingdays_weekday_value):
     return index, actual_start_date
 
 
-def  get_S_Basic_fee_details_response(subscription_schedule_details,service_fee_list,base_rate,duration,estimatedduration,usedduration,owntool,ironingclothes,fee_detail):
+def  get_S_Basic_fee_details_response(subscription_schedule_details,service_fee_list,base_rate,duration,estimatedduration,usedduration,owntool,ironingclothes,urgentbooking,fee_detail):
     """Get fee details of the subscription service"""
     fee_details_response = {}
     workingdays = subscription_schedule_details.get("workingdays")
@@ -639,6 +831,12 @@ def  get_S_Basic_fee_details_response(subscription_schedule_details,service_fee_
 
     total_fee_response = {"Total Fee": total_fee}
     fee_details_response.update(total_fee_response)
+    if urgentbooking:
+        urgentbooking_fee = service_fee_list["Urgent"]
+        total_fee += urgentbooking_fee
+        urgentbooking_fee_response = {"Total Fee": int(total_fee),"Urgent Booking Fee": int(urgentbooking_fee)}
+        fee_details_response.update(urgentbooking_fee_response)
+
     total_workdays_response = {"Total Number of Work Days": count}
     fee_details_response.update(total_workdays_response)
     if duration == 0:
@@ -682,33 +880,4 @@ def  get_S_Basic_fee_details_response(subscription_schedule_details,service_fee_
         component_fee_detail = {"component_fee_detail":str(component_fee),"component_count_detail":str(component_count)}
         fee_details_response.update(component_fee_detail)
 
-
-
-    """
-    extra_fee_percent, extra_service_fee_details , index = extra_fee_special_day(bookdate,starttime,service_fee_list)
-    final_rate = base_rate * (1 + extra_fee_percent)
-    total_fee = final_rate * usedduration
-
-
-    if owntool == True:
-        total_fee += service_fee_list["OwnTools"]
-        extra_service_fee_details["is_OwnTools"] = True
-        fee_details_response = {"Total Fee": int(total_fee),"OwnTools Fee":service_fee_list["OwnTools"]}
-    else:
-        fee_details_response = {"Total Fee": int(total_fee)}
-
-    if ironingclothes == True:
-        ironingclothes_fee = final_rate * 0.5
-        ironingclothes_fee_response = {"Ironing Clothes Fee": int(ironingclothes_fee)}
-        fee_details_response.update(ironingclothes_fee_response)
-
-    extra_service_fee_details.update(fee_detail)
-    extra_service_fee_response = {"Extra Service Fee Details": extra_service_fee_details}
-
-    if duration == 0:
-        estimatedduration_response = {"Estimated Duration": estimatedduration}
-        fee_details_response.update(estimatedduration_response)
-
-    fee_details_response.update(extra_service_fee_response)
-    """
     return fee_details_response
