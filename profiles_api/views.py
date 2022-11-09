@@ -61,6 +61,9 @@ class Test_One_Off_Fee_View(viewsets.ModelViewSet):
             propertydetails = serializer.validated_data.get("propertydetails")
             subscription_schedule_details = serializer.validated_data.get("subscription_schedule_details")
 
+            if duration == None:
+                duration =  0
+
             servicename, city, area = test_sfc.get_servicecode_details(servicecode)
             error_messagge = test_sfc.check_valid_input(city,area,servicename,duration,propertydetails,subscription_schedule_details)
             if len(error_messagge) > 0:
@@ -69,13 +72,14 @@ class Test_One_Off_Fee_View(viewsets.ModelViewSet):
             city_fee_list = test_sfc._DEFAUT_FEE_LIST[city]
             service_fee_list = city_fee_list[servicename]
             usedduration = duration
+            estimatedduration = 0
 
             if servicename == "O_Sofa":
                 fee_details_response = test_sfc.get_estimated_fee_sofacleaning(bookdate,starttime,propertydetails,urgentbooking,service_fee_list)
                 return Response(fee_details_response)
 
             if duration == 0:
-                estimatedduration = test_sfc.get_estimated_duration(ironingclothes, propertydetails, servicename)
+                estimatedduration = test_sfc.get_estimated_duration(ironingclothes,propertydetails,subscription_schedule_details,servicename)
                 if estimatedduration == 0:
                     content = {'error message': 'could not estimate duration'}
                     return Response(content, status=status.HTTP_400_BAD_REQUEST)

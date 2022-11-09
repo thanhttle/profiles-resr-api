@@ -153,7 +153,7 @@ def check_valid_input(city,area,servicename,duration,propertydetails,subscriptio
     if fee_available not in _FEE_LIST_AVAILABLE:
         error_messagge  = error_messagge + "INVALID service code or Fee List for " + fee_available + " NOT yet availabble"
     if duration == 0:
-        if servicename == "O_Basic" or servicename == "S_Basic" or servicename == "O_DeepHome":
+        if servicename == "O_Basic" or servicename == "O_DeepHome":
             if propertydetails == None or json.dumps(propertydetails) == "{}":
                 error_messagge  = error_messagge + "Both duration = 0 and propertydetails is " + json.dumps(propertydetails) + "; "
             else:
@@ -170,24 +170,24 @@ def check_valid_input(city,area,servicename,duration,propertydetails,subscriptio
                 if totalarea not in _TOTAL_AREA_LIST:
                     error_messagge  = error_messagge + "INVALID total area in propertydetails; "
 
-                if servicename == "S_Basic":
-                    if subscription_schedule_details == None or json.dumps(subscription_schedule_details) == "{}":
-                        error_messagge  = error_messagge + "Subscription Service requires subscription_schedule_details. It's " + json.dumps(subscription_schedule_details)  + "; "
-                    elif subscription_schedule_details.get("workingdays") == None:
-                        error_messagge  = error_messagge + "subscription_schedule_details: working_ays empty;  "
-                    elif subscription_schedule_details.get("workingtime") == None:
-                        error_messagge  = error_messagge + "subscription_schedule_details: workingtime empty;  "
-                    elif subscription_schedule_details.get("workingduration") == None:
-                        error_messagge  = error_messagge + "subscription_schedule_details: workingduration empty;  "
-                    elif subscription_schedule_details.get("startdate") == None:
-                        error_messagge  = error_messagge + "subscription_schedule_details: startdate empty;  "
-                    elif subscription_schedule_details.get("enddate") == None:
-                        error_messagge  = error_messagge + "subscription_schedule_details: enddate empty;  "
-                    workingdays = subscription_schedule_details.get("workingdays")
-                    for wday in workingdays:
-                        if wday not in _WORK_DAY_LIST:
-                            error_messagge  = error_messagge + "subscription_schedule_details: workingdays INVALID;  "
-                    #error_messagge  = error_messagge + "VALID"
+        elif servicename == "S_Basic":
+            if subscription_schedule_details == None or json.dumps(subscription_schedule_details) == "{}":
+                error_messagge  = error_messagge + "Subscription Service requires subscription_schedule_details. It's " + json.dumps(subscription_schedule_details)  + "; "
+            elif subscription_schedule_details.get("workingdays") == None:
+                error_messagge  = error_messagge + "subscription_schedule_details: working_ays empty;  "
+            elif subscription_schedule_details.get("workingtime") == None:
+                error_messagge  = error_messagge + "subscription_schedule_details: workingtime empty;  "
+            elif subscription_schedule_details.get("workingduration") == None:
+                error_messagge  = error_messagge + "subscription_schedule_details: workingduration empty;  "
+            elif subscription_schedule_details.get("startdate") == None:
+                error_messagge  = error_messagge + "subscription_schedule_details: startdate empty;  "
+            elif subscription_schedule_details.get("enddate") == None:
+                error_messagge  = error_messagge + "subscription_schedule_details: enddate empty;  "
+            workingdays = subscription_schedule_details.get("workingdays")
+            for wday in workingdays:
+                if wday not in _WORK_DAY_LIST:
+                    error_messagge  = error_messagge + "subscription_schedule_details: workingdays INVALID;  "
+            #error_messagge  = error_messagge + "VALID"
 
         elif servicename == "O_Sofa":
             if propertydetails.get("withpets") == None:
@@ -618,11 +618,18 @@ def get_estimated_fee_sofacleaning(bookdate,starttime,propertydetails,urgentbook
     return fee_details_response
 
 
-def get_estimated_duration(ironingclothes, propertydetails, servicename):
+def get_estimated_duration(ironingclothes, propertydetails,subscription_schedule_details, servicename):
     estimatedduration = 0.0
 
-    if servicename == "O_Basic" or servicename == "S_Basic":
-         estimatedduration  = get_estimated_duration_for_cleaning(ironingclothes, propertydetails)
+    if servicename == "O_Basic":
+        estimatedduration  = get_estimated_duration_for_cleaning(ironingclothes, propertydetails)
+    elif servicename == "S_Basic":
+        if propertydetails != None:
+            estimatedduration  = get_estimated_duration_for_cleaning(ironingclothes, propertydetails)
+        elif subscription_schedule_details != None:
+            estimatedduration = subscription_schedule_details.get("workingduration")
+        else:
+            estimatedduration = 0.0
     elif servicename == "O_DeepHome":
         estimatedduration = get_estimated_duration_for_DeepHome(ironingclothes, propertydetails)
 
@@ -877,7 +884,7 @@ def  get_S_Basic_fee_details_response(subscription_schedule_details,service_fee_
                     details_fee_type.update(OOH_fee_response)
         details_fee_type_response = {"Detailed Fees":details_fee_type}
         fee_details_response.update(details_fee_type_response)
-        component_fee_detail = {"component_fee_detail":str(component_fee),"component_count_detail":str(component_count)}
-        fee_details_response.update(component_fee_detail)
+        #component_fee_detail = {"component_fee_detail":str(component_fee),"component_count_detail":str(component_count)}
+        #fee_details_response.update(component_fee_detail)
 
     return fee_details_response
