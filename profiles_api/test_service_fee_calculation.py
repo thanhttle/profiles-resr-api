@@ -22,11 +22,7 @@ _SPECIAL_DAYS = {
         "HOL":["2023-01-01","2023-01-02","2023-04-29","2023-04-30","2023-05-01","2023-05-02","2023-09-02","2023-09-03","2023-09-04","2023-12-31"]
     }
 }
-_LUNAR_NEW_YEAR_DAYS_2022 = ("2022-01-31","2022-02-01","2022-02-02","2022-02-03","2022-02-04","2022-02-05")
-_BEFORE_LUNAR_NEW_YEAR_DAYS_2022 = ("2022-01-30","2022-01-29","2022-01-28")
-_AFTER_LUNAR_NEW_YEAR_DAYS_2022 = ("2022-02-06","2022-02-07","2022-02-08")
-_OTHER_NATIONAL_HOLIDAY_DAYS_2022 = ("2022-01-01","2022-01-02","2022-01-03","2022-04-10","2022-04-11","2022-04-30","2022-05-01","2022-05-02","2022-05-03","2022-09-01","2022-09-02")
-_OTHER_NATIONAL_HOLIDAY_NAMES = ("International New Year's Day","New Year's Day Holiday","Day off for International New Year's Day","Hung Kings Festival","Day off for Hung Kings Festival","Reunification Day","International Labor Day","Independence Day Holiday","Independence Day")
+
 _CITY_LIST = ('001','079','048','031','092','001','002','004','006','008','010',
 '011','012','014','015','017','019','020','022','024','025','026','027',
 '030','033','034','035','036','037','038','040','042','044','045','046','049',
@@ -661,41 +657,6 @@ def get_estimated_duration(ironingclothes, propertydetails,subscription_schedule
 
     return math.ceil(estimatedduration)
 
-"""
-def extra_fee_special_day(bookdate, starttime, feelist):
-    Calculates additional fee based on date & time of booking
-
-    fee_detail = {}
-    extra_fee = 0.0
-    if bookdate in _LUNAR_NEW_YEAR_DAYS_2022:
-        fee_detail["is_NewYear"] = True
-        extra_fee += feelist["LNY"]
-        index = 1
-    elif bookdate in _BEFORE_LUNAR_NEW_YEAR_DAYS_2022:
-        fee_detail["is_BeforeNewYear"] = True
-        extra_fee += feelist["BLNY"]
-        index = 2
-    elif bookdate in _AFTER_LUNAR_NEW_YEAR_DAYS_2022:
-        fee_detail["is_AfterNewYear"] = True
-        extra_fee += feelist["ALNY"]
-        index = 3
-    elif bookdate in _OTHER_NATIONAL_HOLIDAY_DAYS_2022:
-        fee_detail["is_Holiday"] = True
-        extra_fee += feelist["HOL"]
-        index = 4
-    elif is_weekend(bookdate):
-        fee_detail["is_Weekend"] = True
-        extra_fee += feelist["WKD"]
-        index = 5
-    elif is_OutOfWorkingHour(starttime):
-        fee_detail["is_OutOfficeHours"] = True
-        extra_fee += feelist["OOH"]
-        index = 6
-    else:
-        index = 0
-
-    return extra_fee, fee_detail, index
-"""
 
 def get_year(date):
     date_list = str(date).split('-')
