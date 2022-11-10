@@ -61,10 +61,11 @@ class Test_One_Off_Fee_View(viewsets.ModelViewSet):
             propertydetails = serializer.validated_data.get("propertydetails")
             subscription_schedule_details = serializer.validated_data.get("subscription_schedule_details")
 
-            if duration == None:
+            servicename, city, area = test_sfc.get_servicecode_details(servicecode)
+
+            if duration == None or servicename == "S_Basic":
                 duration =  0
 
-            servicename, city, area = test_sfc.get_servicecode_details(servicecode)
             error_messagge = test_sfc.check_valid_input(city,area,servicename,duration,propertydetails,subscription_schedule_details)
             if len(error_messagge) > 0:
                 content = {'error message': error_messagge}
