@@ -90,13 +90,15 @@ class Test_One_Off_Fee(models.Model):
 
 class One_Off_Fee(models.Model):
 	"""Service Fee calculation"""
-	bookdate = models.DateField()
-	starttime = models.TimeField()
-	duration = models.IntegerField()
+	bookdate = models.DateField(blank=True)
+	starttime = models.TimeField(blank=True)
+	duration = models.IntegerField(default=0)
 	owntool = models.BooleanField(default=False)
 	ironingclothes = models.BooleanField(default=False)
-	servicecode = models.CharField(max_length=20,default="O_Basic_079_I")
-	propertydetails = jsonfield.JSONField()
+	urgentbooking = models.BooleanField(default=False)
+	servicecode = models.CharField(max_length=20)
+	propertydetails = jsonfield.JSONField(blank=True)
+	subscription_schedule_details = jsonfield.JSONField(blank=True)
 
 	def __str__(self):
 		"""Return the model as a string"""
