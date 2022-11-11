@@ -107,6 +107,17 @@ _DEFAUT_FEE_LIST = {
         }
     }
 }
+_Sofa_Duration = {
+    "Cotton1-Seat":1.0,
+    "Cotton2-Seat":1.5,
+    "Cotton3-Seat":2.0,
+    "CottonStool":0.3,
+    "Leather1-Seat":1.0,
+    "Leather2-Seat":1.5,
+    "Leather3-Seat":2.0,
+    "LeatherRecliner":0.8,
+    "LeatherStool":0.3
+}
 _FEE_LIST_AVAILABLE = ("O_Basic_079","S_Basic_079","O_DeepHome_079","O_Sofa_079")
 _DEFAUT_SERVICE_FEE_DETAILS = {"is_OutOfficeHours":False, "is_Weekend":False, "is_Holiday":False, "is_NewYear":False, "is_BeforeNewYear":False, "is_AfterNewYear":False, "is_OwnTools":False}
 _WORK_DAY_LIST = ("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday")
@@ -163,23 +174,30 @@ def check_valid_input(city,area,servicename,duration,propertydetails,subscriptio
     if fee_available not in _FEE_LIST_AVAILABLE:
         error_messagge  = error_messagge + "INVALID service code or Fee List for " + fee_available + " NOT yet availabble"
 
+    error_propertydetails = False
+    error_messagge_propertydetails = ""
+    if servicename == "O_Basic" or servicename == "O_DeepHome" or servicename == "S_Basic":
+        if propertydetails == None or json.dumps(propertydetails) == "{}":
+            error_messagge_propertydetails  = "propertydetails is " + json.dumps(propertydetails) + "; "
+            error_propertydetails = True
+        else:
+            if propertydetails["housetype"] == None:
+                housetype = "None"
+            else:
+                housetype = propertydetails["housetype"]
+            if propertydetails["totalarea"] == None:
+                totalarea = "None"
+            else:
+                totalarea = propertydetails["totalarea"]
+            if housetype not in _HOUSE_TYPE_LIST:
+                error_messagge_propertydetails  = "INVALID house type in propertydetails; "
+            if totalarea not in _TOTAL_AREA_LIST:
+                error_messagge_propertydetails  = "INVALID total area in propertydetails; "
+
     if servicename == "O_Basic" or servicename == "O_DeepHome":
         if duration == 0:
-            if propertydetails == None or json.dumps(propertydetails) == "{}":
-                error_messagge  = error_messagge + "Both duration = 0 and propertydetails is " + json.dumps(propertydetails) + "; "
-            else:
-                if propertydetails["housetype"] == None:
-                    housetype = "None"
-                else:
-                    housetype = propertydetails["housetype"]
-                if propertydetails["totalarea"] == None:
-                    totalarea = "None"
-                else:
-                    totalarea = propertydetails["totalarea"]
-                if housetype not in _HOUSE_TYPE_LIST:
-                    error_messagge  = error_messagge + "INVALID house type in propertydetails; "
-                if totalarea not in _TOTAL_AREA_LIST:
-                    error_messagge  = error_messagge + "INVALID total area in propertydetails; "
+            if error_propertydetails == True:
+                error_messagge  = error_messagge + "Duration = 0 and " + error_messagge_propertydetails
         elif duration < 6 and servicename == "O_DeepHome":
             error_messagge  = error_messagge + "Minimun duration for DeepHome Service is 6 hours; "
         elif duration < 2 and servicename == "O_Basic":
@@ -194,10 +212,14 @@ def check_valid_input(city,area,servicename,duration,propertydetails,subscriptio
             if subscription_schedule_details.get("workingtime") == None:
                 error_messagge  = error_messagge + "subscription_schedule_details: workingtime empty;  "
             if subscription_schedule_details.get("workingduration") == None:
-                error_messagge  = error_messagge + "subscription_schedule_details: workingduration empty;  "
+                if error_propertydetails == True:
+                    error_messagge  = error_messagge + "subscription_schedule_details: workingduration is required when propertydetails empty;  "
             else:
                 workingduration = subscription_schedule_details.get("workingduration")
-                if workingduration < 2:
+                if workingduration == 0:
+                    if error_propertydetails == True:
+                        error_messagge  = error_messagge + "subscription_schedule_details: workingduration is required when propertydetails empty;  "
+                elif workingduration < 2:
                     error_messagge  = error_messagge + "Minimun duration for Subscription Service is 2 hours; "
             if subscription_schedule_details.get("startdate") == None:
                 error_messagge  = error_messagge + "subscription_schedule_details: startdate empty;  "
@@ -426,6 +448,7 @@ def get_estimated_fee_cottonsofacleaning(propertydetails,feelist,adjust_rate):
     estimatedfee = 0.0
     details_response = {}
     fee_details_response = {}
+    estimatedduration = 0.0
 
     if propertydetails.get("cottonsofacleaning") != None:
         cottonsofacleaning = propertydetails.get("cottonsofacleaning")
@@ -435,34 +458,39 @@ def get_estimated_fee_cottonsofacleaning(propertydetails,feelist,adjust_rate):
             estimatedfee = estimatedfee + one_seatsofa_fee
             one_seatsofa_response = {"1-Seat Cotton Sofa":one_seatsofa_fee}
             details_response.update(one_seatsofa_response)
+            estimatedduration += _Sofa_Duration["Cotton1-Seat"] * one_seatsofa
         if cottonsofacleaning.get("2-seatsofa") != None:
             two_seatsofa = cottonsofacleaning.get("2-seatsofa")
             two_seatsofa_fee =  int(two_seatsofa * feelist["Cotton2-Seat"] * adjust_rate)
             estimatedfee = estimatedfee + two_seatsofa_fee
             two_seatsofa_response = {"2-Seat Cotton Sofa":two_seatsofa_fee}
             details_response.update(two_seatsofa_response)
+            estimatedduration += _Sofa_Duration["Cotton2-Seat"] * two_seatsofa
         if cottonsofacleaning.get("3-seatsofa") != None:
             three_seatsofa = cottonsofacleaning.get("3-seatsofa")
             three_seatsofa_fee =  int(three_seatsofa * feelist["Cotton3-Seat"] * adjust_rate)
             estimatedfee = estimatedfee + three_seatsofa_fee
             three_seatsofa_response = {"3-Seat Cotton Sofa":three_seatsofa_fee}
             details_response.update(three_seatsofa_response)
+            estimatedduration += _Sofa_Duration["Cotton3-Seat"] * three_seatsofa
         if cottonsofacleaning.get("stool") != None:
             stool = cottonsofacleaning.get("stool")
             stool_fee =  int(stool * feelist["CottonStool"] * adjust_rate)
             estimatedfee = estimatedfee + stool_fee
             stool_response = {"Cotton Stool":stool_fee}
             details_response.update(stool_response)
+            estimatedduration += _Sofa_Duration["CottonStool"] * stool
 
         if estimatedfee > 0:
             fee_details_response = {"Cotton Sofa":{"Cleaning Fee":int(estimatedfee),"Details":details_response}}
-    return estimatedfee, fee_details_response
+    return estimatedfee, fee_details_response, estimatedduration
 
 
 def get_estimated_fee_leathersofacleaning(propertydetails,feelist,adjust_rate):
     estimatedfee = 0.0
     details_response = {}
     fee_details_response = {}
+    estimatedduration = 0.0
 
     if propertydetails.get("leathersofacleaning") != None:
         leathersofacleaning = propertydetails.get("leathersofacleaning")
@@ -472,34 +500,39 @@ def get_estimated_fee_leathersofacleaning(propertydetails,feelist,adjust_rate):
             estimatedfee = estimatedfee + one_seatsofa_fee
             one_seatsofa_response = {"1-Seat Cotton Sofa":one_seatsofa_fee}
             details_response.update(one_seatsofa_response)
+            estimatedduration += _Sofa_Duration["Leather1-Seat"] * one_seatsofa
         if leathersofacleaning.get("2-seatsofa") != None:
             two_seatsofa = leathersofacleaning.get("2-seatsofa")
             two_seatsofa_fee =  int(two_seatsofa * feelist["Leather2-Seat"] * adjust_rate)
             estimatedfee = estimatedfee + two_seatsofa_fee
             two_seatsofa_response = {"2-Seat Cotton Sofa":two_seatsofa_fee}
             details_response.update(two_seatsofa_response)
+            estimatedduration += _Sofa_Duration["Leather2-Seat"] * two_seatsofa
         if leathersofacleaning.get("3-seatsofa") != None:
             three_seatsofa = leathersofacleaning.get("3-seatsofa")
             three_seatsofa_fee =  int(three_seatsofa * feelist["Leather3-Seat"] *  adjust_rate)
             estimatedfee = estimatedfee + three_seatsofa_fee
             three_seatsofa_response = {"3-Seat Cotton Sofa":three_seatsofa_fee}
             details_response.update(three_seatsofa_response)
+            estimatedduration += _Sofa_Duration["Leather3-Seat"] * three_seatsofa
         if leathersofacleaning.get("recliner") != None:
             recliner = leathersofacleaning.get("recliner")
-            recliner_fee =  int(recliner * feelist["LeatherStool"] * adjust_rate)
+            recliner_fee =  int(recliner * feelist["LeatherRecliner"] * adjust_rate)
             estimatedfee = estimatedfee + recliner_fee
             recliner_response = {"Cotton Recliner":recliner_fee}
             details_response.update(recliner_response)
+            estimatedduration += _Sofa_Duration["LeatherRecliner"] * recliner
         if leathersofacleaning.get("stool") != None:
             stool = leathersofacleaning.get("stool")
             stool_fee =  int(stool * feelist["LeatherStool"] * adjust_rate)
             estimatedfee = estimatedfee + stool_fee
             stool_response = {"Cotton Stool":stool_fee}
             details_response.update(stool_response)
+            estimatedduration += _Sofa_Duration["LeatherStool"] * stool
 
         if estimatedfee > 0:
             fee_details_response = {"Leather Sofa":{"Cleaning Fee":int(estimatedfee),"Details":details_response}}
-    return estimatedfee, fee_details_response
+    return estimatedfee, fee_details_response, estimatedduration
 
 
 def get_estimated_fee_mattresscleaning(propertydetails,feelist):
@@ -583,7 +616,8 @@ def get_estimated_fee_curtainswaterwashing(propertydetails,feelist):
 
 def get_estimated_fee_sofacleaning(bookdate,starttime,propertydetails,urgentbooking,feelist):
     estimatedfee = 0.0;
-    fee_details_response = {"Total Fee": int(estimatedfee)}
+    estimatedduration = 0.0
+    fee_details_response = {"Total Fee": int(estimatedfee), "Estimated Duration": math.ceil(estimatedduration)}
 
     extra_fee_percent, extra_service_fee_details, index = extra_fee_special_day_new(bookdate,starttime,feelist)
     adjust_rate = 1 + extra_fee_percent
@@ -594,15 +628,17 @@ def get_estimated_fee_sofacleaning(bookdate,starttime,propertydetails,urgentbook
         urgentbooking_fee_response = {"Urgent Booking Fee": int(urgentbooking_fee)}
         fee_details_response.update(urgentbooking_fee_response)
 
-    cotton_sofa_fee, cotton_sofa_response = get_estimated_fee_cottonsofacleaning(propertydetails,feelist,adjust_rate)
+    cotton_sofa_fee, cotton_sofa_response, cotton_duration = get_estimated_fee_cottonsofacleaning(propertydetails,feelist,adjust_rate)
     if cotton_sofa_fee > 0:
         estimatedfee = estimatedfee + cotton_sofa_fee
         fee_details_response.update(cotton_sofa_response)
+        estimatedduration  = estimatedduration + cotton_duration
 
-    leather_sofa_fee, leather_sofa_response = get_estimated_fee_leathersofacleaning(propertydetails,feelist,adjust_rate)
+    leather_sofa_fee, leather_sofa_response, leather_duration = get_estimated_fee_leathersofacleaning(propertydetails,feelist,adjust_rate)
     if leather_sofa_fee > 0:
         estimatedfee = estimatedfee + leather_sofa_fee
         fee_details_response.update(leather_sofa_response)
+        estimatedduration  = estimatedduration + leather_duration
 
     mattress_fee, mattress_response = get_estimated_fee_mattresscleaning(propertydetails,feelist)
     if mattress_fee > 0:
@@ -630,7 +666,7 @@ def get_estimated_fee_sofacleaning(bookdate,starttime,propertydetails,urgentbook
         minimum_response = {"Minimum Fee Applied": True}
         fee_details_response.update(minimum_response)
 
-    total_fee_response = {"Total Fee": int(estimatedfee)}
+    total_fee_response = {"Total Fee": int(estimatedfee), "Estimated Duration": math.ceil(estimatedduration)}
     fee_details_response.update(total_fee_response)
 
     if extra_fee_percent > 0.0:
