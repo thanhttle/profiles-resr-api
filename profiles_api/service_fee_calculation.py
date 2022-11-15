@@ -666,7 +666,7 @@ def get_estimated_fee_sofacleaning(bookdate,starttime,propertydetails,urgentbook
         minimum_response = {"Minimum Fee Applied": True}
         fee_details_response.update(minimum_response)
 
-    total_fee_response = {"Total Fee": int(estimatedfee), "Estimated Duration": math.ceil(estimatedduration)}
+    total_fee_response = {"Total Fee": int(estimatedfee), "Estimated Duration": round(estimatedduration,1)}
     fee_details_response.update(total_fee_response)
 
     if extra_fee_percent > 0.0:
