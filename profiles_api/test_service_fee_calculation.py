@@ -111,12 +111,12 @@ _Sofa_Duration = {
     "Cotton1-Seat":1.0,
     "Cotton2-Seat":1.5,
     "Cotton3-Seat":2.0,
-    "CottonStool":0.3,
+    "CottonStool":0.25,
     "Leather1-Seat":1.0,
     "Leather2-Seat":1.5,
     "Leather3-Seat":2.0,
-    "LeatherRecliner":0.8,
-    "LeatherStool":0.3
+    "LeatherRecliner":0.5,
+    "LeatherStool":0.25
 }
 _FEE_LIST_AVAILABLE = ("O_Basic_079","S_Basic_079","O_DeepHome_079","O_Sofa_079")
 _DEFAUT_SERVICE_FEE_DETAILS = {"is_OutOfficeHours":False, "is_Weekend":False, "is_Holiday":False, "is_NewYear":False, "is_BeforeNewYear":False, "is_AfterNewYear":False, "is_OwnTools":False}
