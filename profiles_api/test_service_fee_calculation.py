@@ -121,7 +121,8 @@ _Sofa_Duration = {
 _FEE_LIST_AVAILABLE = ("O_Basic_079","S_Basic_079","O_DeepHome_079","O_Sofa_079")
 _DEFAUT_SERVICE_FEE_DETAILS = {"is_OutOfficeHours":False, "is_Weekend":False, "is_Holiday":False, "is_NewYear":False, "is_BeforeNewYear":False, "is_AfterNewYear":False, "is_OwnTools":False}
 _WORK_DAY_LIST = ("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday")
-
+_SPECIAL_FEE_NAMES = ["Normal Fee","Lunar New Year Fee","Right Before Lunar New Year Fee",
+    "Right After Lunar New Year Fee","Nation Holidays Fee","Weekend Fee","Out Of Office Hour Fee"]
 
 def get_servicecode_details(servicecode):
     servicecodelist = servicecode.split("_")
@@ -895,8 +896,17 @@ def  get_S_Basic_fee_details_response(subscription_schedule_details,service_fee_
     count = 0
     component_fee = [0,0,0,0,0,0,0]
     component_count = [0,0,0,0,0,0,0]
+
+    Day_by_Day_Fee_Response = []
     while process_date <= enddate_formatted:
         oneday_fee, index, final_rate = get_Oneday_Basic_fee_details(process_date,workingtime,service_fee_list,base_rate,duration,estimatedduration,usedduration,owntool,ironingclothes,fee_detail)
+        one_day_fee_response = {"Date":str(process_date),"Fee_Type":_SPECIAL_FEE_NAMES[index],"Session Fee":oneday_fee}
+        if owntool == True:
+            one_day_fee_response.update({"OwnTools Fee":service_fee_list["OwnTools"]})
+        if ironingclothes == True:
+            ironingclothes_fee = final_rate * 0.5
+            one_day_fee_response.update({"Ironing Clothes Fee": int(ironingclothes_fee)})
+        Day_by_Day_Fee_Response.append(one_day_fee_response)
         total_fee = total_fee + oneday_fee
         count = count + 1
         component_fee[index] += oneday_fee
@@ -954,6 +964,8 @@ def  get_S_Basic_fee_details_response(subscription_schedule_details,service_fee_
                     details_fee_type.update(OOH_fee_response)
         details_fee_type_response = {"Detailed Fees":details_fee_type}
         fee_details_response.update(details_fee_type_response)
+        Day_by_Day_Fee =  {"Day_by_Day_Fee":Day_by_Day_Fee_Response}
+        fee_details_response.update(Day_by_Day_Fee)
         #component_fee_detail = {"component_fee_detail":str(component_fee),"component_count_detail":str(component_count)}
         #fee_details_response.update(component_fee_detail)
 
