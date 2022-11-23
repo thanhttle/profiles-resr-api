@@ -80,6 +80,7 @@ class Test_One_Off_Fee(models.Model):
 	ironingclothes = models.BooleanField(default=False)
 	urgentbooking = models.BooleanField(default=False)
 	servicecode = models.CharField(max_length=20)
+	locationdetails = jsonfield.JSONField(blank=True)
 	propertydetails = jsonfield.JSONField(blank=True)
 	subscription_schedule_details = jsonfield.JSONField(blank=True)
 

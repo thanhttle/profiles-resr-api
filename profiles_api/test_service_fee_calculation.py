@@ -6,6 +6,8 @@ from datetime import time
 import jsonschema
 from jsonschema import validate
 
+from profiles_api import calculate_location_area as cla
+
 import math
 
 _SPECIAL_DAYS = {
@@ -124,18 +126,25 @@ _WORK_DAY_LIST = ("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Satur
 _SPECIAL_FEE_NAMES = ["Normal Fee","Lunar New Year Fee","Right Before Lunar New Year Fee",
     "Right After Lunar New Year Fee","Nation Holidays Fee","Weekend Fee","Out Of Office Hour Fee"]
 
-def get_servicecode_details(servicecode):
+def get_servicecode_details(servicecode,locationdetails):
+    district_found = ""
     servicecodelist = servicecode.split("_")
     city = servicecodelist[2]
-    area = servicecodelist[3]
+    if len(servicecodelist) == 4:
+        area = servicecodelist[3]
+    elif locationdetails == None or json.dumps(locationdetails) == "{}":
+        area = "unknown"
+    else:
+        area, district_found = cla.get_district(locationdetails.get("formatted_address"))
     servicename = servicecodelist[0] + "_" + servicecodelist[1]
-    return servicename, city, area
+    return servicename, city, area, district_found
 
 
 # Service Fee calculation
 def get_base_rate(area, duration, feelist):
     fee_detail = {}
     base_rate = 0
+    basename = ""
     if duration == 2:
         basename = area + "_" + "P2h"
         fee_detail["is_P2h"] = True
@@ -145,11 +154,11 @@ def get_base_rate(area, duration, feelist):
     elif duration >= 4:
         basename = area + "_" + "P4h"
     else:
-        return {"base_rate": 0,"fee_detail": fee_detail}
+        return 0,fee_detail,basename
     base_rate = feelist[basename]
 
     #return {"base_rate": base_rate,"fee_detail": fee_detail}
-    return base_rate, fee_detail
+    return base_rate, fee_detail, basename
 
 
 def is_weekend(bookdate):

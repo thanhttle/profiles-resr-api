@@ -58,10 +58,11 @@ class Test_One_Off_Fee_View(viewsets.ModelViewSet):
             owntool = serializer.validated_data.get("owntool")
             ironingclothes = serializer.validated_data.get("ironingclothes")
             urgentbooking = serializer.validated_data.get("urgentbooking")
+            locationdetails = serializer.validated_data.get("locationdetails")
             propertydetails = serializer.validated_data.get("propertydetails")
             subscription_schedule_details = serializer.validated_data.get("subscription_schedule_details")
 
-            servicename, city, area = test_sfc.get_servicecode_details(servicecode)
+            servicename, city, area, district_found = test_sfc.get_servicecode_details(servicecode,locationdetails)
 
             if duration == None or servicename == "S_Basic":
                 duration =  0
@@ -77,6 +78,9 @@ class Test_One_Off_Fee_View(viewsets.ModelViewSet):
 
             if servicename == "O_Sofa":
                 fee_details_response = test_sfc.get_estimated_fee_sofacleaning(bookdate,starttime,propertydetails,urgentbooking,service_fee_list)
+                servicecode_used = servicename + "_" + city
+                servicecode_response = {"Service Code Used": servicecode_used,"District":district_found}
+                fee_details_response.update(servicecode_response)
                 return Response(fee_details_response)
 
             if duration == 0:
@@ -85,7 +89,8 @@ class Test_One_Off_Fee_View(viewsets.ModelViewSet):
                     content = {'error message': 'could not estimate duration'}
                     return Response(content, status=status.HTTP_400_BAD_REQUEST)
                 usedduration = estimatedduration
-            base_rate, fee_detail = test_sfc.get_base_rate(area,usedduration,service_fee_list)
+            base_rate, fee_detail, basename = test_sfc.get_base_rate(area,usedduration,service_fee_list)
+            servicecode_used = servicename + "_" + city + "_" + basename
             if base_rate == 0:
                 content = {'error message': 'could not get base rate' + str(estimatedduration)}
                 return Response(content, status=status.HTTP_400_BAD_REQUEST)
@@ -100,6 +105,8 @@ class Test_One_Off_Fee_View(viewsets.ModelViewSet):
             else :
                 fee_details_response = {}
 
+            servicecode_response = {"Service Code Used": servicecode_used,"District":district_found}
+            fee_details_response.update(servicecode_response)
             return Response(fee_details_response)
 
         else:
