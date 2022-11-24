@@ -127,16 +127,26 @@ _SPECIAL_FEE_NAMES = ["Normal Fee","Lunar New Year Fee","Right Before Lunar New 
     "Right After Lunar New Year Fee","Nation Holidays Fee","Weekend Fee","Out Of Office Hour Fee"]
 
 def get_servicecode_details(servicecode,locationdetails):
-    district_found = ""
+    district_found = "unknown"
+    area = "unknown"
+    city = "unknown"
     servicecodelist = servicecode.split("_")
-    city = servicecodelist[2]
-    if len(servicecodelist) == 4:
-        area = servicecodelist[3]
-    elif locationdetails == None or json.dumps(locationdetails) == "{}":
-        area = "unknown"
-    else:
-        area, district_found = cla.get_district(locationdetails.get("formatted_address"))
     servicename = servicecodelist[0] + "_" + servicecodelist[1]
+    if len(servicecodelist) > 2:
+        city = servicecodelist[2]
+    if len(servicecodelist) > 3:
+        area = servicecodelist[3]
+    if locationdetails != None:
+        if locationdetails.get("citycode") != None:
+            city = locationdetails.get("citycode")
+        if locationdetails.get("district") != None:
+            district_found = locationdetails.get("district").strip()
+            district_found = ' '.join(district_found.split())
+        elif locationdetails.get("formatted_address") != None:
+            district_found = cla.get_district_from_address(locationdetails.get("formatted_address"))
+
+        area, district_found = cla.get_area_from_district(district_found,locationdetails.get("formatted_address"))
+
     return servicename, city, area, district_found
 
 
