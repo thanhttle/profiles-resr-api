@@ -58,14 +58,15 @@ def get_district_from_address(address):
     if "thành phố thủ đức" in short_address:
         district_found = "Quận Thủ Đức"
         for ward in _WARDS_IN_SPECIAL_AREA["Q2"]:
-            if ward.lower().replace(" ","") in lower_address:
+            if ward.lower() in short_address:
                 district_found = "Quận 2"
-                break
-        if district_found == "Quận Thủ Đức":
-            for ward in _WARDS_IN_SPECIAL_AREA["Q9"]:
-                if ward.lower().replace(" ","") in lower_address:
-                    district_found = "Quận 9"
-                    break
+                return district_found
+
+        for ward in _WARDS_IN_SPECIAL_AREA["Q9"]:
+            if ward.lower() in short_address:
+                district_found = "Quận 9"
+                return district_found
+
         return district_found
 
     address_list = address.split(",")
