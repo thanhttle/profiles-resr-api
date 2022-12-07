@@ -36,8 +36,7 @@ _PRODUCT_LIST = ('Shopping','PestControl','DeepConstruction','Elderly','Patient'
 'Spiderman','PC','OfficeBasic','AC','Sofa','DeepHome','Basic')
 _SERVICE_TYPE_LIST = ('O','S','Q')
 _HOUSE_TYPE_LIST = ("apartment/single-story house", "building/multi-storey house", "villa",  "office")
-_TOTAL_AREA_LIST = ("< 50m2", "50m2 - 90m2", "90m2 - 140m2", "140m2 - 255m2", "255m2 - 500m2",
-"500m2 - 1000m2", "140m2 - 200m2", "> 500m2", "> 255m2", "> 200m2")
+_TOTAL_AREA_LIST = ("< 50m2", "50m2 - 90m2", "90m2 - 140m2", "140m2 - 255m2", "255m2 - 500m2", "500m2 - 1000m2")
 _PROPERTY_DETAIL_PRESET = {
     "apartment/single-story house":{
         "< 50m2":{
@@ -56,8 +55,8 @@ _PROPERTY_DETAIL_PRESET = {
             "estimated duration":{"min":3,"max":5},
             "recommended duration":4},
         "140m2 - 200m2":{
-            "bedroom":{"min":2,"max":6},
-            "bathroom":{"min":1,"max":6},
+            "bedroom":{"min":2,"max":5},
+            "bathroom":{"min":1,"max":5},
             "estimated duration":{"min":4,"max":6},
             "recommended duration":5}
     },
@@ -173,6 +172,153 @@ _PROPERTY_DETAIL_PRESET = {
         },
     },
 }
+_PROPERTY_DEEPHOME_PRESET = {
+    "apartment/single-story house":{
+        "< 50m2":{
+            "bedroom":{"min":0,"max":0},
+            "bathroom":{"min":0,"max":0},
+            "livingroom":{"min":0,"max":0},
+            "kitchen":{"min":0,"max":0},
+            "estimated duration":{"min":6,"max":8},
+            "recommended duration":6},
+        "50m2 - 90m2":{
+            "bedroom":{"min":1,"max":3},
+            "bathroom":{"min":1,"max":2},
+            "livingroom":{"min":1,"max":1},
+            "kitchen":{"min":1,"max":1},
+            "estimated duration":{"min":8,"max":10},
+            "recommended duration":8},
+        "90m2 - 140m2":{
+            "bedroom":{"min":1,"max":4},
+            "bathroom":{"min":1,"max":3},
+            "livingroom":{"min":1,"max":1},
+            "kitchen":{"min":1,"max":2},
+            "estimated duration":{"min":10,"max":14},
+            "recommended duration":12},
+        "140m2 - 200m2":{
+            "bedroom":{"min":2,"max":5},
+            "bathroom":{"min":1,"max":5},
+            "livingroom":{"min":1,"max":2},
+            "kitchen":{"min":1,"max":3},
+            "estimated duration":{"min":14,"max":18},
+            "recommended duration":16}
+    },
+    "villa":{
+        "140m2 - 255m2":{
+            "bedroom":{"min":2,"max":4},
+            "bathroom":{"min":1,"max":4},
+            "livingroom":{"min":1,"max":2},
+            "kitchen":{"min":1,"max":2},
+            "estimated duration":{"min":14,"max":18},
+            "recommended duration":16},
+        "255m2 - 500m2":{
+            "bedroom":{"min":3,"max":6},
+            "bathroom":{"min":3,"max":8},
+            "livingroom":{"min":1,"max":3},
+            "kitchen":{"min":1,"max":3},
+            "estimated duration":{"min":30,"max":34},
+            "recommended duration":32},
+        "> 500m2":{
+            "message":"Notify admins so they can talk to customer directly!"}
+    },
+    "office":{
+        "< 50m2":{
+            "estimated duration":{"min":6,"max":8},
+            "recommended duration":6},
+        "50m2 - 90m2":{
+            "estimated duration":{"min":8,"max":10},
+            "recommended duration":8},
+        "90m2 - 140m2":{
+            "estimated duration":{"min":10,"max":14},
+            "recommended duration":12},
+        "140m2 - 255m2":{
+            "estimated duration":{"min":14,"max":18},
+            "recommended duration":16},
+        "> 255m2":{
+            "message":"Notify admins so they can talk to customer directly!"}
+    },
+    "building/multi-storey house":{
+        "1-Storey":{
+            "< 90m2":{
+                "estimated duration":{"min":8,"max":10},
+                "recommended duration":8},
+            "90m2 - 140m2":{
+                "estimated duration":{"min":10,"max":14},
+                "recommended duration":12},
+            "140m2 - 200m2":{
+                "estimated duration":{"min":14,"max":18},
+                "recommended duration":16},
+            "> 200m2":{
+                "estimated duration":{"min":18,"max":22},
+                "recommended duration":20}
+        },
+        "2-Storey":{
+            "< 140m2":{
+                "estimated duration":{"min":10,"max":14},
+                "recommended duration":12},
+            "140m2 - 200m2":{
+                "estimated duration":{"min":14,"max":18},
+                "recommended duration":16},
+            "200m2 - 260m2":{
+                "estimated duration":{"min":18,"max":22},
+                "recommended duration":20},
+            "> 260m2":{
+                "estimated duration":{"min":22,"max":26},
+                "recommended duration":24}
+        },
+        "3-Storey":{
+            "< 200m2":{
+                "estimated duration":{"min":14,"max":18},
+                "recommended duration":16},
+            "200m2 - 260m2":{
+                "estimated duration":{"min":18,"max":22},
+                "recommended duration":20},
+            "260m2 - 320m2":{
+                "estimated duration":{"min":22,"max":26},
+                "recommended duration":24},
+            "> 320m2":{
+                "estimated duration":{"min":26,"max":30},
+                "recommended duration":28}
+        },
+        "4-Storey":{
+            "< 320m2":{
+                "estimated duration":{"min":22,"max":26},
+                "recommended duration":24},
+            "320m2 - 380m2":{
+                "estimated duration":{"min":26,"max":30},
+                "recommended duration":28},
+            "380m2 - 440m2":{
+                "estimated duration":{"min":30,"max":34},
+                "recommended duration":32},
+            "> 440m2":{
+                "estimated duration":{"min":34,"max":38},
+                "recommended duration":36}
+        },
+        "5-Storey":{
+            "< 380m2":{
+                "estimated duration":{"min":26,"max":30},
+                "recommended duration":28},
+            "380m2 - 440m2":{
+                "estimated duration":{"min":30,"max":34},
+                "recommended duration":32},
+            "440m2 - 500m2":{
+                "estimated duration":{"min":34,"max":38},
+                "recommended duration":36},
+            "> 500m2":{
+                "message":"Notify admins so they can talk to customer directly!"}
+        },
+        "6-Storey":{
+            "< 440m2":{
+                "estimated duration":{"min":30,"max":34},
+                "recommended duration":32},
+            "440m2 - 500m2":{
+                "estimated duration":{"min":34,"max":38},
+                "recommended duration":36},
+            "> 500m2":{
+                "message":"Notify admins so they can talk to customer directly!"}
+        },
+    },
+}
 _DEFAUT_FEE_LIST = {
     "079": {
         "O_Basic":{
@@ -262,6 +408,11 @@ DUR_FOR_NORMAL_BATHROOM = 0.3
 DUR_FOR_BIG_BATHROOM = 0.4
 DUR_FOR_IRONINGCLOTHES = 0.5
 DUR_FOR_WITHPETS = 0.5
+_SERVICE_TYPE_FACTORS = {
+    "O_Basic": 1,
+    "S_Basic": 1,
+    "O_DeepHome": 3
+}
 
 _FEE_LIST_AVAILABLE = ("O_Basic_079","S_Basic_079","O_DeepHome_079","O_Sofa_079")
 _DEFAUT_SERVICE_FEE_DETAILS = {"is_OutOfficeHours":False, "is_Weekend":False, "is_Holiday":False, "is_NewYear":False, "is_BeforeNewYear":False, "is_AfterNewYear":False, "is_OwnTools":False}
@@ -359,7 +510,10 @@ def check_valid_input(city,area,servicename,duration,propertydetails,subscriptio
             # Check corect totalarea for new fee Estimation (min, recommendation, max)
             if duration == -1 :
                 totalarea_key_found = False
-                property_details_preset = _PROPERTY_DETAIL_PRESET.get(housetype)
+                if servicename == "O_DeepHome":
+                    property_details_preset = _PROPERTY_DEEPHOME_PRESET.get(housetype)
+                else:
+                    property_details_preset = _PROPERTY_DETAIL_PRESET.get(housetype)
                 if ((housetype == "villa" or housetype == "building/multi-storey house") and totalarea == "> 500m2") or (housetype == "office" and totalarea == "> 255m2"):
                     error_messagge = "Notify admins so they can talk to customer directly!"
                     return error_messagge
@@ -402,6 +556,13 @@ def check_valid_input(city,area,servicename,duration,propertydetails,subscriptio
                                 if numberoffbathroom < bathrooms_min or numberoffbathroom > bathrooms_max:
                                     error_propertydetails = True
                                     error_messagge_propertydetails  = error_messagge_propertydetails  + "INVALID number of bathroom (either < min  or > max) of " + housetype + " in propertydetails; "
+                                if servicename == "O_DeepHome":
+                                    livingrooms_preset = number_of_rooms_preset.get("livingroom")
+                                    livingrooms_min = livingrooms_preset.get("min")
+                                    livingrooms_max = livingrooms_preset.get("max")
+                                    livingrooms_preset = number_of_rooms_preset.get("livingroom")
+                                    livingrooms_min = livingrooms_preset.get("min")
+                                    livingrooms_max = livingrooms_preset.get("max")
                             break
                     if totalarea_key_found == False:
                         error_propertydetails = True
@@ -1259,7 +1420,7 @@ def get_estimated_duration_for_DeepHome_new(ironingclothes, propertydetails):
 
     return dur_min, estimatedduration, dur_max
 
-def get_estimated_duration_for_cleaning_new(ironingclothes, propertydetails):
+def get_estimated_duration_for_cleaning_new(ironingclothes, propertydetails,servicename):
     """Estimation for Cleaning Service"""
     estimatedduration = 0.0
 
@@ -1310,12 +1471,15 @@ def get_estimated_duration_for_cleaning_new(ironingclothes, propertydetails):
         else:
             withpets = propertydetails.get("withpets")
 
+        service_type_factor = _SERVICE_TYPE_FACTORS.get(servicename)
+        service_type_factor = 3
+
         if housetype == "villa":
-            dur_for_room = DUR_FOR_BIG_ROOM
-            dur_for_bathroom = DUR_FOR_NORMAL_BATHROOM
+            dur_for_room = DUR_FOR_BIG_ROOM * service_type_factor
+            dur_for_bathroom = DUR_FOR_NORMAL_BATHROOM * service_type_factor
         else:
-            dur_for_room = DUR_FOR_NORMAL_ROOM
-            dur_for_bathroom = DUR_FOR_BIG_BATHROOM
+            dur_for_room = DUR_FOR_NORMAL_ROOM * service_type_factor
+            dur_for_bathroom = DUR_FOR_BIG_BATHROOM * service_type_factor
 
         estimatedduration = estimatedduration + numberoffbedroom * dur_for_room
         estimatedduration = estimatedduration + numberofflivingroom * dur_for_room
@@ -1325,7 +1489,10 @@ def get_estimated_duration_for_cleaning_new(ironingclothes, propertydetails):
 
 
         # Check min for estimatedduration
-        property_details_preset = _PROPERTY_DETAIL_PRESET.get(housetype)
+        if servicename == "O_DeepHome":
+            property_details_preset = _PROPERTY_DEEPHOME_PRESET.get(housetype)
+        else:
+            property_details_preset = _PROPERTY_DETAIL_PRESET.get(housetype)
         if housetype == "building/multi-storey house":
             floor_key = str(numberoffloors) + "-Storey"
             property_details_preset = property_details_preset.get(floor_key)
@@ -1341,23 +1508,30 @@ def get_estimated_duration_for_cleaning_new(ironingclothes, propertydetails):
         if ironingclothes:
             estimatedduration = estimatedduration + DUR_FOR_IRONINGCLOTHES
         if withpets:
-            estimatedduration = estimatedduration + DUR_FOR_WITHPETS
+            estimatedduration = estimatedduration + DUR_FOR_WITHPETS * service_type_factor
 
         estimatedduration = math.ceil(estimatedduration)
 
         if estimatedduration > estimated_duration_max:
             estimatedduration = estimated_duration_max
 
+        range = round((estimated_duration_max - estimated_duration_min)/2)
+        dur_min = estimatedduration - range
+        dur_max = estimatedduration + range
+
+    #return dur_min, estimatedduration, dur_max
     return estimated_duration_min, estimatedduration, estimated_duration_max
 
 def get_estimated_duration_new(ironingclothes, propertydetails,subscription_schedule_details, servicename):
     estimatedduration = 0.0
+    dur_min = 0.0
+    dur_max = 0.0
 
-    if servicename == "O_Basic":
-        dur_min, estimatedduration, dur_max  = get_estimated_duration_for_cleaning_new(ironingclothes, propertydetails)
+    if servicename == "O_Basic" or servicename == "O_DeepHome":
+        dur_min, estimatedduration, dur_max  = get_estimated_duration_for_cleaning_new(ironingclothes, propertydetails,servicename)
     elif servicename == "S_Basic":
         if propertydetails != None and json.dumps(propertydetails) != "{}":
-            dur_min, estimatedduration, dur_max  = get_estimated_duration_for_cleaning_new(ironingclothes, propertydetails)
+            dur_min, estimatedduration, dur_max  = get_estimated_duration_for_cleaning_new(ironingclothes, propertydetails,servicename)
         elif subscription_schedule_details != None:
             estimatedduration = subscription_schedule_details.get("workingduration")
             dur_min = estimatedduration
@@ -1366,7 +1540,5 @@ def get_estimated_duration_new(ironingclothes, propertydetails,subscription_sche
             estimatedduration = 0.0
             dur_min = estimatedduration
             dur_max = estimatedduration
-    elif servicename == "O_DeepHome":
-        dur_min, estimatedduration, dur_max = get_estimated_duration_for_DeepHome(ironingclothes, propertydetails)
 
     return dur_min, estimatedduration, dur_max
