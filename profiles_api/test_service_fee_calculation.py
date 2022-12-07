@@ -1519,8 +1519,8 @@ def get_estimated_duration_for_cleaning_new(ironingclothes, propertydetails,serv
         dur_min = estimatedduration - range
         dur_max = estimatedduration + range
 
-    #return dur_min, estimatedduration, dur_max
-    return estimated_duration_min, estimatedduration, estimated_duration_max
+    return dur_min, estimatedduration, dur_max
+    
 
 def get_estimated_duration_new(ironingclothes, propertydetails,subscription_schedule_details, servicename):
     estimatedduration = 0.0
