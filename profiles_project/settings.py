@@ -28,6 +28,7 @@ DEBUG = bool(int(os.environ.get('DEBUG', 1)))
 ALLOWED_HOSTS = [
     'ec2-54-179-175-121.ap-southeast-1.compute.amazonaws.com',
     'ec2-13-251-27-91.ap-southeast-1.compute.amazonaws.com',
+    'https://score.calibee.vn/',
     '127.0.0.1'
 ]
 
