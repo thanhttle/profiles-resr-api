@@ -1472,7 +1472,6 @@ def get_estimated_duration_for_cleaning_new(ironingclothes, propertydetails,serv
             withpets = propertydetails.get("withpets")
 
         service_type_factor = _SERVICE_TYPE_FACTORS.get(servicename)
-        service_type_factor = 3
 
         if housetype == "villa":
             dur_for_room = DUR_FOR_BIG_ROOM * service_type_factor
@@ -1520,7 +1519,7 @@ def get_estimated_duration_for_cleaning_new(ironingclothes, propertydetails,serv
         dur_max = estimatedduration + range
 
     return dur_min, estimatedduration, dur_max
-    
+
 
 def get_estimated_duration_new(ironingclothes, propertydetails,subscription_schedule_details, servicename):
     estimatedduration = 0.0
