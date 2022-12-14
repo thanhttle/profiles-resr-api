@@ -1565,19 +1565,26 @@ def check_valid_extra_hours_request(servicecode,extra_hours_request):
     area = ""
     base_code = ""
     allowed_durations = [1,2,3,4,1.0,2.0,3.0,4.0]
-    allowed_base_codes = ['P2h','P3h','P4h']
+    allowed_base_codes = {
+        "O_Basic":['P2h','P3h','P4h'],
+        "S_Basic":['P2h','P3h','P4h'],
+        "O_DeepHome":['P4h']
+    }
 
     if servicecode != None:
         servicename, city, area, base_code, error_messagge = get_used_servicecode_details(servicecode)
-        if city not in _CITY_LIST:
-            error_messagge  = "Incorrect Service Code was used! "
-        if area not in _AREA_LIST:
-            error_messagge  = "Incorrect Service Code was used! "
-        fee_available = servicename + "_" + city
-        if fee_available not in _FEE_LIST_AVAILABLE:
-            error_messagge  = "Incorrect Service Code was used! "
-        if base_code not in allowed_base_codes:
-            error_messagge  = "Incorrect Service Code was used! "
+        if servicename == "O_Sofa":
+            error_messagge  = "Request extra hours for Sofa Cleaning in NOT availabble at present! "
+        else:
+            if city not in _CITY_LIST:
+                error_messagge  = "Incorrect Service Code (city) was used! "
+            if area not in _AREA_LIST:
+                error_messagge  = "Incorrect Service Code (area) was used! "
+            fee_available = servicename + "_" + city
+            if fee_available not in _FEE_LIST_AVAILABLE:
+                error_messagge  = "Incorrect Service Code (service fee) was used! "
+            if base_code not in allowed_base_codes.get(servicename):
+                error_messagge  = "Incorrect Service Code (base_code) was used: " + base_code + "! "
     else:
         error_messagge = error_messagge + "Service Code is required!;  "
 

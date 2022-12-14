@@ -79,7 +79,7 @@ class Test_One_Off_Fee(models.Model):
 	owntool = models.BooleanField(default=False)
 	ironingclothes = models.BooleanField(default=False)
 	urgentbooking = models.BooleanField(default=False)
-	servicecode = models.CharField(max_length=20)
+	servicecode = models.CharField(max_length=64)
 	locationdetails = jsonfield.JSONField(blank=True)
 	propertydetails = jsonfield.JSONField(blank=True)
 	subscription_schedule_details = jsonfield.JSONField(blank=True)
@@ -98,7 +98,7 @@ class One_Off_Fee(models.Model):
 	owntool = models.BooleanField(default=False)
 	ironingclothes = models.BooleanField(default=False)
 	urgentbooking = models.BooleanField(default=False)
-	servicecode = models.CharField(max_length=20)
+	servicecode = models.CharField(max_length=64)
 	propertydetails = jsonfield.JSONField(blank=True)
 	subscription_schedule_details = jsonfield.JSONField(blank=True)
 
