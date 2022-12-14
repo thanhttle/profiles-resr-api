@@ -83,6 +83,7 @@ class Test_One_Off_Fee(models.Model):
 	locationdetails = jsonfield.JSONField(blank=True)
 	propertydetails = jsonfield.JSONField(blank=True)
 	subscription_schedule_details = jsonfield.JSONField(blank=True)
+	extra_hours_request = jsonfield.JSONField(blank=True)
 
 	def __str__(self):
 		"""Return the model as a string"""

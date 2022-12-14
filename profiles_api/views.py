@@ -61,6 +61,17 @@ class Test_One_Off_Fee_View(viewsets.ModelViewSet):
             locationdetails = serializer.validated_data.get("locationdetails")
             propertydetails = serializer.validated_data.get("propertydetails")
             subscription_schedule_details = serializer.validated_data.get("subscription_schedule_details")
+            extra_hours_request = serializer.validated_data.get("extra_hours_request")
+
+            if extra_hours_request != None:
+                servicename, city, area, base_code, error_messagge = test_sfc.check_valid_extra_hours_request(servicecode,extra_hours_request)
+                if len(error_messagge) > 0:
+                    content = {'error message': "extra_hours_request: " + error_messagge}
+                    return Response(content, status=status.HTTP_400_BAD_REQUEST)
+                city_fee_list = test_sfc._DEFAUT_FEE_LIST[city]
+                service_fee_list = city_fee_list[servicename]
+                fee_details_response = test_sfc.get_extra_hours_request(servicecode,extra_hours_request,service_fee_list)
+                return Response(fee_details_response)
 
             servicename, city, area, district_found = test_sfc.get_servicecode_details(servicecode,locationdetails)
 

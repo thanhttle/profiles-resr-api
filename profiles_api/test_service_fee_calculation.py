@@ -1541,3 +1541,107 @@ def get_estimated_duration_new(ironingclothes, propertydetails,subscription_sche
             dur_max = estimatedduration
 
     return dur_min, estimatedduration, dur_max
+
+
+def get_used_servicecode_details(servicecode):
+    error_messagge = ""
+    servicecodelist = servicecode.split("_")
+    if len(servicecodelist) != 5:
+        error_messagge = "Incorrect Service Code was used! "
+        return "","","","",error_messagge
+
+    servicename = servicecodelist[0] + "_" + servicecodelist[1]
+    city = servicecodelist[2]
+    area = servicecodelist[3]
+    base_code = servicecodelist[4]
+
+    return servicename, city, area, base_code, error_messagge
+
+
+def check_valid_extra_hours_request(servicecode,extra_hours_request):
+    error_messagge = ""
+    servicename = ""
+    city = ""
+    area = ""
+    base_code = ""
+    allowed_durations = [1,2,3,4,1.0,2.0,3.0,4.0]
+    allowed_base_codes = ['P2h','P3h','P4h']
+
+    if servicecode != None:
+        servicename, city, area, base_code, error_messagge = get_used_servicecode_details(servicecode)
+        if city not in _CITY_LIST:
+            error_messagge  = "Incorrect Service Code was used! "
+        if area not in _AREA_LIST:
+            error_messagge  = "Incorrect Service Code was used! "
+        fee_available = servicename + "_" + city
+        if fee_available not in _FEE_LIST_AVAILABLE:
+            error_messagge  = "Incorrect Service Code was used! "
+        if base_code not in allowed_base_codes:
+            error_messagge  = "Incorrect Service Code was used! "
+    else:
+        error_messagge = error_messagge + "Service Code is required!;  "
+
+    if extra_hours_request.get("extra_duration") != None:
+        extra_duration = extra_hours_request.get("extra_duration")
+        if extra_duration not in allowed_durations:
+            error_messagge = error_messagge + "extra_duration must be either 1,2,3,4!;  "
+    else:
+        error_messagge = error_messagge + "extra_duration is required!;  "
+
+    return servicename, city, area, base_code, error_messagge
+
+
+def extra_fee_extra_hours_request(Extra_Service_Fee_Details, feelist):
+    """Calculates additional fee for extra hours request"""
+
+    extra_fee = 0.0
+    if Extra_Service_Fee_Details.get("is_NewYear") == True:
+        extra_fee += feelist["LNY"]
+    elif Extra_Service_Fee_Details.get("is_BeforeNewYear") == True:
+        extra_fee += feelist["BLNY"]
+    elif Extra_Service_Fee_Details.get("is_AfterNewYear") == True:
+        extra_fee += feelist["ALNY"]
+    elif Extra_Service_Fee_Details.get("is_Holiday") == True:
+        extra_fee += feelist["HOL"]
+    elif Extra_Service_Fee_Details.get("is_Weekend") == True:
+        extra_fee += feelist["WKD"]
+    elif Extra_Service_Fee_Details.get("is_OutOfficeHours") == True:
+        extra_fee += feelist["OOH"]
+
+    return extra_fee
+
+
+def get_new_base_code(base_code,extra_duration):
+    if base_code == "P2h":
+        if extra_duration == 1:
+            new_base_code = "P3h"
+        else:
+            new_base_code = "P4h"
+    else:
+        new_base_code = "P4h"
+    return new_base_code
+
+
+def get_extra_hours_request(servicecode, extra_hours_request,service_fee_list):
+    error_messagge = ""
+    fee_details_response = {}
+
+    extra_duration = extra_hours_request.get("extra_duration")
+    servicename, city, area, base_code, error_messagge = get_used_servicecode_details(servicecode)
+
+    new_base_code = get_new_base_code(base_code,extra_duration)
+    basename = area + "_" + new_base_code
+    base_rate = service_fee_list[basename]
+
+    extra_fee = 0.0
+    if extra_hours_request.get("Extra Service Fee Details") != None:
+        Extra_Service_Fee_Details = extra_hours_request.get("Extra Service Fee Details")
+        extra_fee = extra_fee_extra_hours_request(Extra_Service_Fee_Details, service_fee_list)
+
+    final_rate = base_rate * (1 + extra_fee)
+    total_fee = final_rate * extra_duration
+
+    servicecode_used = servicename + "_" + city + "_" + basename
+    fee_details_response = {"Total Fee for extra hours request": int(total_fee), "Service Code Used": servicecode_used, "Extra Service Fee Details":Extra_Service_Fee_Details}
+
+    return fee_details_response
