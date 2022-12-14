@@ -1588,7 +1588,7 @@ def check_valid_extra_hours_request(servicecode,extra_hours_request):
         if fee_available not in _FEE_LIST_AVAILABLE:
             error_messagge  = "Incorrect Service Code (service fee: " + fee_available + ") was used! "
         if base_code not in allowed_base_codes.get(servicename):
-            error_messagge  = "Incorrect Service Code (base_code: " + base_code + ") was used! "
+            error_messagge  = "Incorrect Service Code (base_code: " + base_code + ") was used!"
     else:
         error_messagge = error_messagge + "Service Code is required!;  "
 
