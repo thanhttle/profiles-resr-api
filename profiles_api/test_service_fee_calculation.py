@@ -1546,11 +1546,15 @@ def get_estimated_duration_new(ironingclothes, propertydetails,subscription_sche
 def get_used_servicecode_details(servicecode):
     error_messagge = ""
     servicecodelist = servicecode.split("_")
-    if len(servicecodelist) != 5:
+    servicename = servicecodelist[0] + "_" + servicecodelist[1]
+
+    if servicename == "O_Sofa":
+        error_messagge  = "Request extra hours for Sofa Cleaning in NOT availabble at present! "
+    elif len(servicecodelist) != 5:
         error_messagge = "Incorrect Service Code was used! "
+    if len(error_messagge) > 0:
         return "","","","",error_messagge
 
-    servicename = servicecodelist[0] + "_" + servicecodelist[1]
     city = servicecodelist[2]
     area = servicecodelist[3]
     base_code = servicecodelist[4]
@@ -1573,18 +1577,18 @@ def check_valid_extra_hours_request(servicecode,extra_hours_request):
 
     if servicecode != None:
         servicename, city, area, base_code, error_messagge = get_used_servicecode_details(servicecode)
-        if servicename == "O_Sofa":
-            error_messagge  = "Request extra hours for Sofa Cleaning in NOT availabble at present! "
-        else:
-            if city not in _CITY_LIST:
-                error_messagge  = "Incorrect Service Code (city) was used! "
-            if area not in _AREA_LIST:
-                error_messagge  = "Incorrect Service Code (area) was used! "
-            fee_available = servicename + "_" + city
-            if fee_available not in _FEE_LIST_AVAILABLE:
-                error_messagge  = "Incorrect Service Code (service fee) was used! "
-            if base_code not in allowed_base_codes.get(servicename):
-                error_messagge  = "Incorrect Service Code (base_code) was used: " + base_code + "! "
+        if len(error_messagge) > 0:
+            return servicename, city, area, base_code, error_messagge
+
+        if city not in _CITY_LIST:
+            error_messagge  = "Incorrect Service Code (city: " + city + ") was used! "
+        if area not in _AREA_LIST:
+            error_messagge  = "Incorrect Service Code (area: " + area + ") was used! "
+        fee_available = servicename + "_" + city
+        if fee_available not in _FEE_LIST_AVAILABLE:
+            error_messagge  = "Incorrect Service Code (service fee: " + fee_available + ") was used! "
+        if base_code not in allowed_base_codes.get(servicename):
+            error_messagge  = "Incorrect Service Code (base_code: " + base_code + ") was used! "
     else:
         error_messagge = error_messagge + "Service Code is required!;  "
 
