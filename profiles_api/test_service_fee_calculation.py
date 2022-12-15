@@ -338,7 +338,9 @@ _DEFAUT_FEE_LIST = {
             "BLNY":0.65,
             "ALNY":0.60,
             "OwnTools":30000,
-            "Urgent":20000
+            "Urgent":20000,
+            "Premium":0.2,
+            "ForeignLang":0.2
         },
         "S_Basic":{
             "I_P4h":69000,
@@ -357,7 +359,9 @@ _DEFAUT_FEE_LIST = {
             "BLNY":0.65,
             "ALNY":0.60,
             "OwnTools":30000,
-            "Urgent":20000
+            "Urgent":20000,
+            "Premium":0.2,
+            "ForeignLang":0.2
         },
         "O_DeepHome":{
             "I_P4h":90000,
@@ -369,7 +373,9 @@ _DEFAUT_FEE_LIST = {
             "LNY":3,
             "BLNY":1.65,
             "ALNY":1.2,
-            "Urgent":20000
+            "Urgent":20000,
+            "Premium":0.2,
+            "ForeignLang":0.2
         },
         "O_Sofa":{
             "Cotton1-Seat":370000,
@@ -387,7 +393,9 @@ _DEFAUT_FEE_LIST = {
             "LNY":3,
             "BLNY":1.65,
             "ALNY":1.2,
-            "Urgent":20000
+            "Urgent":20000,
+            "Premium":0.2,
+            "ForeignLang":0.2
         }
     }
 }
@@ -578,14 +586,16 @@ def check_valid_input(city,area,servicename,duration,propertydetails,subscriptio
                 error_messagge  = error_messagge + "Duration = 0 and " + error_messagge_propertydetails
         elif duration == -1:
             if error_propertydetails == True:
-                error_messagge  = error_messagge + error_messagge_propertydetails
+                error_messagge  = error_messagge + "propertydetails is required when duration = -1! "
         elif duration < 6 and servicename == "O_DeepHome":
             error_messagge  = error_messagge + "Minimun duration for DeepHome Service is 6 hours; "
         elif duration < 2 and servicename == "O_Basic":
             error_messagge  = error_messagge + "Minimun duration for Basic Service is 2 hours; "
 
     elif servicename == "S_Basic":
-        error_messagge  = error_messagge + error_messagge_propertydetails
+        if duration == -1:
+            if error_propertydetails == True:
+                error_messagge  = error_messagge + "propertydetails is required when duration = -1! "
         if subscription_schedule_details == None or json.dumps(subscription_schedule_details) == "{}":
             error_messagge  = error_messagge + "Subscription Service requires subscription_schedule_details. It's " + json.dumps(subscription_schedule_details)  + "; "
         else:

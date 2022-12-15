@@ -52,7 +52,7 @@ class ProfileFeedItemSerializer(serializers.ModelSerializer):
 class Test_One_Off_Fee_Serializer(serializers.ModelSerializer):
 	class Meta:
 		model = models.Test_One_Off_Fee
-		fields = ('id', 'bookdate', 'starttime', 'duration', 'owntool', 'ironingclothes', 'urgentbooking', 'servicecode', 'locationdetails', 'propertydetails', 'subscription_schedule_details', 'extra_hours_request')
+		fields = ('id', 'bookdate', 'starttime', 'duration', 'owntool', 'ironingclothes', 'urgentbooking', 'servicecode', 'locationdetails', 'propertydetails', 'subscription_schedule_details', 'extra_hours_request','premiumservices','foreignlanguage')
 
 
 class One_Off_Fee_Serializer(serializers.ModelSerializer):

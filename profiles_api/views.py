@@ -62,6 +62,8 @@ class Test_One_Off_Fee_View(viewsets.ModelViewSet):
             propertydetails = serializer.validated_data.get("propertydetails")
             subscription_schedule_details = serializer.validated_data.get("subscription_schedule_details")
             extra_hours_request = serializer.validated_data.get("extra_hours_request")
+            premiumservices = serializer.validated_data.get("premiumservices")
+            foreignlanguage = serializer.validated_data.get("foreignlanguage")
 
             if extra_hours_request != None:
                 servicename, city, area, base_code, error_messagge = test_sfc.check_valid_extra_hours_request(servicecode,extra_hours_request)
