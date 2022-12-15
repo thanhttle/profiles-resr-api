@@ -1530,13 +1530,9 @@ def get_estimated_duration_for_cleaning_new(ironingclothes, propertydetails,serv
         if estimatedduration > estimated_duration_max:
             estimatedduration = estimated_duration_max
 
-        range = round((estimated_duration_max - estimated_duration_min)/2)
-        if range < 1:
-            range = 1
-        dur_min = estimatedduration - range
-        if dur_min < 2:
-            dur_min = 2
-        dur_max = estimatedduration + range
+        diff = estimatedduration - estimated_duration_recommended
+        dur_min = estimated_duration_min + diff
+        dur_max = estimated_duration_max + diff
 
     return dur_min, estimatedduration, dur_max
 
