@@ -1663,7 +1663,7 @@ def get_extra_hours_request(servicecode, extra_hours_request,service_fee_list):
     total_fee = final_rate * extra_duration
 
     servicecode_used = servicename + "_" + city + "_" + basename
-    fee_details_response = {"Total Fee for extra hours request": int(total_fee), "Service Code Used": servicecode_used, "Extra Service Fee Details":Extra_Service_Fee_Details}
+    fee_details_response = {"Total Fee": int(total_fee), "Service Code Used": servicecode_used, "Extra Service Fee Details":Extra_Service_Fee_Details}
 
     return fee_details_response
 

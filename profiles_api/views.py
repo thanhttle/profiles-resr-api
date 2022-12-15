@@ -73,69 +73,63 @@ class Test_One_Off_Fee_View(viewsets.ModelViewSet):
                 city_fee_list = test_sfc._DEFAUT_FEE_LIST[city]
                 service_fee_list = city_fee_list[servicename]
                 fee_details_response = test_sfc.get_extra_hours_request(servicecode,extra_hours_request,service_fee_list)
-                return Response(fee_details_response)
 
-            servicename, city, area, district_found = test_sfc.get_servicecode_details(servicecode,locationdetails)
+            else:
+                servicename, city, area, district_found = test_sfc.get_servicecode_details(servicecode,locationdetails)
+                if duration == None:
+                    duration =  0
 
-            #if duration == None or servicename == "S_Basic":
-            if duration == None:
-                duration =  0
-
-            error_messagge = test_sfc.check_valid_input(city,area,servicename,duration,propertydetails,subscription_schedule_details)
-            if len(error_messagge) > 0:
-                content = {'error message': error_messagge}
-                return Response(content, status=status.HTTP_400_BAD_REQUEST)
-            city_fee_list = test_sfc._DEFAUT_FEE_LIST[city]
-            service_fee_list = city_fee_list[servicename]
-            usedduration = duration
-            estimatedduration = 0
-            dur_min = 0
-            dur_max = 0
-
-            if servicename == "O_Sofa":
-                fee_details_response = test_sfc.get_estimated_fee_sofacleaning(bookdate,starttime,propertydetails,urgentbooking,service_fee_list)
-                servicecode_used = servicename + "_" + city
-                servicecode_response = {"Service Code Used": servicecode_used,"District":district_found}
-                fee_details_response.update(servicecode_response)
-                return Response(fee_details_response)
-
-            if duration == 0:
-                estimatedduration = test_sfc.get_estimated_duration(ironingclothes,propertydetails,subscription_schedule_details,servicename)
-                if estimatedduration == 0:
-                    content = {'error message': 'could not estimate duration'}
+                error_messagge = test_sfc.check_valid_input(city,area,servicename,duration,propertydetails,subscription_schedule_details)
+                if len(error_messagge) > 0:
+                    content = {'error message': error_messagge}
                     return Response(content, status=status.HTTP_400_BAD_REQUEST)
-                usedduration = estimatedduration
-            if duration == -1:
-                dur_min, estimatedduration, dur_max = test_sfc.get_estimated_duration_new(ironingclothes,propertydetails,subscription_schedule_details,servicename)
-                if estimatedduration == 0:
-                    content = {'error message': 'could not estimate duration'}
-                    return Response(content, status=status.HTTP_400_BAD_REQUEST)
-                usedduration = estimatedduration
-            base_rate, fee_detail, basename = test_sfc.get_base_rate(area,usedduration,service_fee_list)
-            servicecode_used = servicename + "_" + city + "_" + basename
-            if base_rate == 0:
-                content = {'error message': 'could not get base rate' + str(estimatedduration)}
-                return Response(content, status=status.HTTP_400_BAD_REQUEST)
+                city_fee_list = test_sfc._DEFAUT_FEE_LIST[city]
+                service_fee_list = city_fee_list[servicename]
+                usedduration = duration
+                estimatedduration = 0
+                dur_min = 0
+                dur_max = 0
 
-            #content = {'error message': '; dur_min: ' + str(dur_min) + '; estimatedduration: ' + str(estimatedduration) + '; dur_max: ' + str(dur_max) }
-            #return Response(content, status=status.HTTP_400_BAD_REQUEST)
+                if servicename == "O_Sofa":
+                    fee_details_response = test_sfc.get_estimated_fee_sofacleaning(bookdate,starttime,propertydetails,urgentbooking,service_fee_list)
+                    servicecode_used = servicename + "_" + city
+                    servicecode_response = {"Service Code Used": servicecode_used,"District":district_found}
+                    fee_details_response.update(servicecode_response)
+                else:
+                    if duration == 0:
+                        estimatedduration = test_sfc.get_estimated_duration(ironingclothes,propertydetails,subscription_schedule_details,servicename)
+                        if estimatedduration == 0:
+                            content = {'error message': 'could not estimate duration'}
+                            return Response(content, status=status.HTTP_400_BAD_REQUEST)
+                        usedduration = estimatedduration
+                    if duration == -1:
+                        dur_min, estimatedduration, dur_max = test_sfc.get_estimated_duration_new(ironingclothes,propertydetails,subscription_schedule_details,servicename)
+                        if estimatedduration == 0:
+                            content = {'error message': 'could not estimate duration'}
+                            return Response(content, status=status.HTTP_400_BAD_REQUEST)
+                        usedduration = estimatedduration
+                    base_rate, fee_detail, basename = test_sfc.get_base_rate(area,usedduration,service_fee_list)
+                    servicecode_used = servicename + "_" + city + "_" + basename
+                    if base_rate == 0:
+                        content = {'error message': 'could not get base rate' + str(estimatedduration)}
+                        return Response(content, status=status.HTTP_400_BAD_REQUEST)
 
-            if servicename == "O_Basic":
-                fee_details_response = test_sfc.get_O_Basic_fee_details_response(bookdate,starttime,service_fee_list,base_rate,duration,estimatedduration,usedduration,owntool,ironingclothes,urgentbooking,fee_detail)
-            elif servicename == "S_Basic":
-                fee_details_response = test_sfc.get_S_Basic_fee_details_response(subscription_schedule_details,service_fee_list,base_rate,duration,estimatedduration,usedduration,owntool,ironingclothes,urgentbooking,fee_detail)
-            elif servicename == "O_DeepHome":
-                #fee_details_response  = {"owntool":str(owntool),"ironingclothes":str(ironingclothes),"fee_detail":str(fee_detail)}
-                fee_details_response = test_sfc.get_O_DeepHome_fee_details_response(bookdate,starttime,service_fee_list,base_rate,duration,estimatedduration,usedduration,owntool,ironingclothes,urgentbooking,fee_detail)
-            else :
-                fee_details_response = {}
+                    if servicename == "O_Basic":
+                        fee_details_response = test_sfc.get_O_Basic_fee_details_response(bookdate,starttime,service_fee_list,base_rate,duration,estimatedduration,usedduration,owntool,ironingclothes,urgentbooking,fee_detail)
+                    elif servicename == "S_Basic":
+                        fee_details_response = test_sfc.get_S_Basic_fee_details_response(subscription_schedule_details,service_fee_list,base_rate,duration,estimatedduration,usedduration,owntool,ironingclothes,urgentbooking,fee_detail)
+                    elif servicename == "O_DeepHome":
+                        #fee_details_response  = {"owntool":str(owntool),"ironingclothes":str(ironingclothes),"fee_detail":str(fee_detail)}
+                        fee_details_response = test_sfc.get_O_DeepHome_fee_details_response(bookdate,starttime,service_fee_list,base_rate,duration,estimatedduration,usedduration,owntool,ironingclothes,urgentbooking,fee_detail)
+                    else :
+                        fee_details_response = {}
 
-            servicecode_response = {"Service Code Used": servicecode_used,"District":district_found}
-            fee_details_response.update(servicecode_response)
+                    servicecode_response = {"Service Code Used": servicecode_used,"District":district_found}
+                    fee_details_response.update(servicecode_response)
 
-            if dur_min > 0 and dur_max > 0:
-                duration_minmax_response = {"Minimum Duration":dur_min,"Maximum Duration":dur_max}
-                fee_details_response.update(duration_minmax_response)
+                    if dur_min > 0 and dur_max > 0:
+                        duration_minmax_response = {"Minimum Duration":dur_min,"Maximum Duration":dur_max}
+                        fee_details_response.update(duration_minmax_response)
 
             if foreignlanguage:
                 feename = "Foreign Language Fee"
