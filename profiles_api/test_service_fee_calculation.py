@@ -586,7 +586,7 @@ def check_valid_input(city,area,servicename,duration,propertydetails,subscriptio
                 error_messagge  = error_messagge + "Duration = 0 and " + error_messagge_propertydetails
         elif duration == -1:
             if error_propertydetails == True:
-                error_messagge  = error_messagge + "propertydetails is required when duration = -1! "
+                error_messagge  = error_messagge + error_messagge_propertydetails
         elif duration < 6 and servicename == "O_DeepHome":
             error_messagge  = error_messagge + "Minimun duration for DeepHome Service is 6 hours; "
         elif duration < 2 and servicename == "O_Basic":
@@ -595,7 +595,7 @@ def check_valid_input(city,area,servicename,duration,propertydetails,subscriptio
     elif servicename == "S_Basic":
         if duration == -1:
             if error_propertydetails == True:
-                error_messagge  = error_messagge + "propertydetails is required when duration = -1! "
+                error_messagge  = error_messagge + error_messagge_propertydetails
         if subscription_schedule_details == None or json.dumps(subscription_schedule_details) == "{}":
             error_messagge  = error_messagge + "Subscription Service requires subscription_schedule_details. It's " + json.dumps(subscription_schedule_details)  + "; "
         else:
@@ -1511,8 +1511,14 @@ def get_estimated_duration_for_cleaning_new(ironingclothes, propertydetails,serv
         estimated_duration_max = estimated_duration_preset.get("max")
         estimated_duration_recommended = number_of_rooms_preset.get("recommended duration")
 
+        if totalarea == "< 50m2":
+            estimatedduration = estimated_duration_recommended
+
         if estimatedduration < estimated_duration_recommended:
             estimatedduration = estimated_duration_recommended
+
+        if estimatedduration > estimated_duration_max:
+            estimatedduration = estimated_duration_max
 
         if ironingclothes:
             estimatedduration = estimatedduration + DUR_FOR_IRONINGCLOTHES
@@ -1525,7 +1531,11 @@ def get_estimated_duration_for_cleaning_new(ironingclothes, propertydetails,serv
             estimatedduration = estimated_duration_max
 
         range = round((estimated_duration_max - estimated_duration_min)/2)
+        if range < 1:
+            range = 1
         dur_min = estimatedduration - range
+        if dur_min < 2:
+            dur_min = 2
         dur_max = estimatedduration + range
 
     return dur_min, estimatedduration, dur_max
