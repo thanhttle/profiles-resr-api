@@ -1578,7 +1578,6 @@ def check_valid_extra_hours_request(servicecode,extra_hours_request):
     city = ""
     area = ""
     base_code = ""
-    allowed_durations = [1,2,3,4,1.0,2.0,3.0,4.0]
     allowed_base_codes = {
         "O_Basic":['P2h','P3h','P4h'],
         "S_Basic":['P2h','P3h','P4h'],
@@ -1604,8 +1603,8 @@ def check_valid_extra_hours_request(servicecode,extra_hours_request):
 
     if extra_hours_request.get("extra_duration") != None:
         extra_duration = extra_hours_request.get("extra_duration")
-        if extra_duration not in allowed_durations:
-            error_messagge = error_messagge + "extra_duration must be either 1,2,3,4!;  "
+        if extra_duration < 1 or extra_duration > 8:
+            error_messagge = error_messagge + "extra_duration must be > 0 and <= 8;  "
     else:
         error_messagge = error_messagge + "extra_duration is required!;  "
 
@@ -1633,11 +1632,10 @@ def extra_fee_extra_hours_request(Extra_Service_Fee_Details, feelist):
 
 
 def get_new_base_code(base_code,extra_duration):
-    if base_code == "P2h":
-        if extra_duration == 1:
-            new_base_code = "P3h"
-        else:
-            new_base_code = "P4h"
+    if extra_duration <= 2:
+        new_base_code = "P2h"
+    elif extra_duration == 3:
+        new_base_code = "P3h"
     else:
         new_base_code = "P4h"
     return new_base_code
