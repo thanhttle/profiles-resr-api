@@ -137,6 +137,16 @@ class Test_One_Off_Fee_View(viewsets.ModelViewSet):
                 duration_minmax_response = {"Minimum Duration":dur_min,"Maximum Duration":dur_max}
                 fee_details_response.update(duration_minmax_response)
 
+            if foreignlanguage:
+                feename = "Foreign Language Fee"
+                feelistkey = "ForeignLang"
+                fee_details_response = test_sfc.get_compound_extra_fee(fee_details_response,feename,service_fee_list,feelistkey)
+
+            if premiumservices:
+                feename = "Preminum Service Fee"
+                feelistkey = "Premium"
+                fee_details_response = test_sfc.get_compound_extra_fee(fee_details_response,feename,service_fee_list,feelistkey)
+
             return Response(fee_details_response)
 
         else:

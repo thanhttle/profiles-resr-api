@@ -1666,3 +1666,16 @@ def get_extra_hours_request(servicecode, extra_hours_request,service_fee_list):
     fee_details_response = {"Total Fee for extra hours request": int(total_fee), "Service Code Used": servicecode_used, "Extra Service Fee Details":Extra_Service_Fee_Details}
 
     return fee_details_response
+
+
+def get_compound_extra_fee(fee_details_response,feename,feelist,feelistkey):
+    extra_fee_percent = feelist.get(feelistkey)
+    for key in fee_details_response.keys():
+        if key == "Total Fee":
+            total_fee = fee_details_response.get("Total Fee")
+            compound_fee = round(total_fee * extra_fee_percent,-2)
+            new_total_fee = total_fee + compound_fee
+            new_fee_details_response = fee_details_response
+            compound_fee_response = {"Total Fee": new_total_fee, feename: compound_fee}
+            new_fee_details_response.update(compound_fee_response)
+            return new_fee_details_response
