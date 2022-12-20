@@ -512,7 +512,10 @@ def get_servicecode_details(servicecode,locationdetails):
         elif locationdetails.get("formatted_address") != None:
             district_found = cla.get_district_from_address(locationdetails.get("formatted_address"))
 
-        area, district_found = cla.get_area_from_district(district_found,locationdetails.get("formatted_address"))
+        if city == "079":
+            area, district_found = cla.get_area_from_district(district_found,locationdetails.get("formatted_address"))
+        else:
+            area = "I"
 
     return servicename, city, area, district_found
 
