@@ -398,6 +398,70 @@ _DEFAUT_FEE_LIST = {
             "Premium":0.2,
             "ForeignLang":0.2
         }
+    },
+    "048": {
+        "O_Basic":{
+            "I_P4h":69000,
+            "I_P3h":73000,
+            "I_P2h":88000,
+            "OOH": 0.17,
+            "WKD":0.17,
+            "HOL": 0.17,
+            "LNY":1.0,
+            "BLNY":0.65,
+            "ALNY":0.60,
+            "OwnTools":30000,
+            "Urgent":20000,
+            "Premium":0.2,
+            "ForeignLang":0.2
+        },
+        "S_Basic":{
+            "I_P4h":69000,
+            "I_P3h":73000,
+            "I_P2h":88000,
+            "OOH": 0.17,
+            "WKD":0.17,
+            "HOL": 0.17,
+            "LNY":1.0,
+            "BLNY":0.65,
+            "ALNY":0.60,
+            "OwnTools":30000,
+            "Urgent":20000,
+            "Premium":0.2,
+            "ForeignLang":0.2
+        },
+        "O_DeepHome":{
+            "I_P4h":90000,
+            "OOH":0.2,
+            "WKD":0.2,
+            "HOL":2,
+            "LNY":3,
+            "BLNY":1.65,
+            "ALNY":1.2,
+            "Urgent":20000,
+            "Premium":0.2,
+            "ForeignLang":0.2
+        },
+        "O_Sofa":{
+            "Cotton1-Seat":370000,
+            "Cotton2-Seat":440000,
+            "Cotton3-Seat":580000,
+            "CottonStool":50000,
+            "Leather1-Seat":420000,
+            "Leather2-Seat":480000,
+            "Leather3-Seat":620000,
+            "LeatherRecliner":290000,
+            "LeatherStool":60000,
+            "OOH":0.2,
+            "WKD":0.2,
+            "HOL":2,
+            "LNY":3,
+            "BLNY":1.65,
+            "ALNY":1.2,
+            "Urgent":20000,
+            "Premium":0.2,
+            "ForeignLang":0.2
+        }
     }
 }
 _Sofa_Duration = {
@@ -423,7 +487,7 @@ _SERVICE_TYPE_FACTORS = {
     "O_DeepHome": 3
 }
 
-_FEE_LIST_AVAILABLE = ("O_Basic_079","S_Basic_079","O_DeepHome_079","O_Sofa_079")
+_FEE_LIST_AVAILABLE = ("O_Basic_079","S_Basic_079","O_DeepHome_079","O_Sofa_079","O_Basic_048","S_Basic_048","O_DeepHome_048","O_Sofa_048")
 _DEFAUT_SERVICE_FEE_DETAILS = {"is_OutOfficeHours":False, "is_Weekend":False, "is_Holiday":False, "is_NewYear":False, "is_BeforeNewYear":False, "is_AfterNewYear":False, "is_OwnTools":False}
 _WORK_DAY_LIST = ("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday")
 _SPECIAL_FEE_NAMES = ["Normal Fee","Lunar New Year Fee","Right Before Lunar New Year Fee",
@@ -1329,7 +1393,7 @@ def  get_S_Basic_fee_details_response(subscription_schedule_details,service_fee_
     total_fee_response = {"Total Fee": total_fee}
     fee_details_response.update(total_fee_response)
     if urgentbooking == None:
-        urgentbooking = is_UrgentBooking(bookdate,starttime)
+        urgentbooking = is_UrgentBooking(actual_start_date,workingtime)
     if urgentbooking:
         urgentbooking_fee = service_fee_list["Urgent"]
         total_fee += urgentbooking_fee
