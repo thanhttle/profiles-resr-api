@@ -2,7 +2,8 @@ import json
 import jsonfield
 import datetime
 from datetime import date, timedelta
-from datetime import time
+from datetime import time, datetime
+import pytz
 import jsonschema
 from jsonschema import validate
 
@@ -484,6 +485,18 @@ def is_OutOfWorkingHour(starttime):
 	timelist = str(starttime).split(":")
 	time_formated = time(int(timelist[0]),int(timelist[1]),int(timelist[2]))
 	return time_formated < time(8,0,0) or time_formated >= time(18,0,0)
+
+
+def is_UrgentBooking(bookdate, starttime):
+    days = str(bookdate).split('-')
+    BDate = date(int(days[0]), int(days[1]), int(days[2]))
+    timelist = str(starttime).split(":")
+    BTime = time(int(timelist[0]),int(timelist[1]),int(timelist[2]))
+
+    today = date.today()
+    now_in_SG = datetime.now(pytz.timezone('Asia/Saigon'))
+    current_Time_plus2h = time(now_in_SG.hour+2,now_in_SG.minute,now_in_SG.second)
+    return (today == BDate) and (BTime < current_Time_plus2h)
 
 
 def check_valid_input(city,area,servicename,duration,propertydetails,subscription_schedule_details):
@@ -1014,6 +1027,8 @@ def get_estimated_fee_sofacleaning(bookdate,starttime,propertydetails,urgentbook
     extra_fee_percent, extra_service_fee_details, index = extra_fee_special_day_new(bookdate,starttime,feelist)
     adjust_rate = 1 + extra_fee_percent
 
+    if urgentbooking == None:
+        urgentbooking = is_UrgentBooking(bookdate,starttime)
     if urgentbooking:
         urgentbooking_fee = feelist["Urgent"]
         estimatedfee += urgentbooking_fee
@@ -1158,6 +1173,8 @@ def  get_O_Basic_fee_details_response(bookdate,starttime,service_fee_list,base_r
     else:
         fee_details_response = {"Total Fee": int(total_fee)}
 
+    if urgentbooking == None:
+        urgentbooking = is_UrgentBooking(bookdate,starttime)
     if urgentbooking:
         urgentbooking_fee = service_fee_list["Urgent"]
         total_fee += urgentbooking_fee
@@ -1189,6 +1206,8 @@ def  get_O_DeepHome_fee_details_response(bookdate,starttime,service_fee_list,bas
 
     fee_details_response = {"Total Fee": int(total_fee)}
 
+    if urgentbooking == None:
+        urgentbooking = is_UrgentBooking(bookdate,starttime)
     if urgentbooking:
         urgentbooking_fee = service_fee_list["Urgent"]
         total_fee += urgentbooking_fee
@@ -1309,6 +1328,8 @@ def  get_S_Basic_fee_details_response(subscription_schedule_details,service_fee_
 
     total_fee_response = {"Total Fee": total_fee}
     fee_details_response.update(total_fee_response)
+    if urgentbooking == None:
+        urgentbooking = is_UrgentBooking(bookdate,starttime)
     if urgentbooking:
         urgentbooking_fee = service_fee_list["Urgent"]
         total_fee += urgentbooking_fee
