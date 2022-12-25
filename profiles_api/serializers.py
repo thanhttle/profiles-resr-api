@@ -58,7 +58,7 @@ class Test_One_Off_Fee_Serializer(serializers.ModelSerializer):
 class One_Off_Fee_Serializer(serializers.ModelSerializer):
 	class Meta:
 		model = models.One_Off_Fee
-		fields = ('id', 'bookdate', 'starttime', 'duration', 'owntool', 'ironingclothes', 'urgentbooking', 'servicecode', 'propertydetails', 'subscription_schedule_details')
+		fields = ('id', 'bookdate', 'starttime', 'duration', 'owntool', 'ironingclothes', 'urgentbooking', 'servicecode', 'locationdetails', 'propertydetails', 'subscription_schedule_details', 'extra_hours_request','premiumservices','foreignlanguage')
 
 
 class Service_Fee_List_Serializer(serializers.ModelSerializer):

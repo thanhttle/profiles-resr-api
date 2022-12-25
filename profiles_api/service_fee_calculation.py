@@ -2,7 +2,8 @@ import json
 import jsonfield
 import datetime
 from datetime import date, timedelta
-from datetime import time
+from datetime import time, datetime
+import pytz
 import jsonschema
 from jsonschema import validate
 
@@ -42,29 +43,35 @@ _PROPERTY_DETAIL_PRESET = {
         "< 50m2":{
             "bedroom":{"min":0,"max":0},
             "bathroom":{"min":0,"max":0},
-            "estimated duration":{"min":2,"max":3}},
+            "estimated duration":{"min":2,"max":3},
+            "recommended duration":2},
         "50m2 - 90m2":{
             "bedroom":{"min":1,"max":3},
             "bathroom":{"min":1,"max":2},
-            "estimated duration":{"min":2,"max":3}},
+            "estimated duration":{"min":2,"max":4},
+            "recommended duration":3},
         "90m2 - 140m2":{
             "bedroom":{"min":1,"max":4},
             "bathroom":{"min":1,"max":3},
-            "estimated duration":{"min":3,"max":4}},
+            "estimated duration":{"min":3,"max":5},
+            "recommended duration":4},
         "140m2 - 200m2":{
-            "bedroom":{"min":2,"max":6},
-            "bathroom":{"min":1,"max":6},
-            "estimated duration":{"min":4,"max":6}}
+            "bedroom":{"min":2,"max":5},
+            "bathroom":{"min":1,"max":5},
+            "estimated duration":{"min":4,"max":6},
+            "recommended duration":5}
     },
     "villa":{
         "140m2 - 255m2":{
             "bedroom":{"min":2,"max":4},
             "bathroom":{"min":1,"max":4},
-            "estimated duration":{"min":4,"max":6}},
+            "estimated duration":{"min":4,"max":6},
+            "recommended duration":5},
         "255m2 - 500m2":{
             "bedroom":{"min":3,"max":6},
             "bathroom":{"min":3,"max":8},
-            "estimated duration":{"min":6,"max":10}},
+            "estimated duration":{"min":6,"max":10},
+            "recommended duration":8},
         "> 500m2":{
             "message":"Notify admins so they can talk to customer directly!"}
     },
@@ -87,39 +94,39 @@ _PROPERTY_DETAIL_PRESET = {
     "building/multi-storey house":{
         "1-Storey":{
             "< 90m2":{
-                "estimated duration":{"min":2,"max":3},
-                "recommended duration":2},
-            "90m2 - 140m2":{
-                "estimated duration":{"min":3,"max":4},
+                "estimated duration":{"min":2,"max":4},
                 "recommended duration":3},
-            "140m2 - 200m2":{
-                "estimated duration":{"min":4,"max":5},
+            "90m2 - 140m2":{
+                "estimated duration":{"min":3,"max":5},
                 "recommended duration":4},
+            "140m2 - 200m2":{
+                "estimated duration":{"min":4,"max":6},
+                "recommended duration":5},
             "> 200m2":{
                 "estimated duration":{"min":5,"max":7},
                 "recommended duration":6}
         },
         "2-Storey":{
             "< 140m2":{
-                "estimated duration":{"min":4,"max":5},
-                "recommended duration":4},
-            "140m2 - 200m2":{
-                "estimated duration":{"min":5,"max":6},
+                "estimated duration":{"min":4,"max":6},
                 "recommended duration":5},
-            "200m2 - 260m2":{
-                "estimated duration":{"min":6,"max":7},
+            "140m2 - 200m2":{
+                "estimated duration":{"min":5,"max":7},
                 "recommended duration":6},
+            "200m2 - 260m2":{
+                "estimated duration":{"min":6,"max":8},
+                "recommended duration":7},
             "> 260m2":{
                 "estimated duration":{"min":7,"max":9},
                 "recommended duration":8}
         },
         "3-Storey":{
             "< 200m2":{
-                "estimated duration":{"min":5,"max":6},
-                "recommended duration":5},
-            "200m2 - 260m2":{
-                "estimated duration":{"min":6,"max":7},
+                "estimated duration":{"min":5,"max":7},
                 "recommended duration":6},
+            "200m2 - 260m2":{
+                "estimated duration":{"min":6,"max":8},
+                "recommended duration":7},
             "260m2 - 320m2":{
                 "estimated duration":{"min":7,"max":9},
                 "recommended duration":8},
@@ -166,6 +173,153 @@ _PROPERTY_DETAIL_PRESET = {
         },
     },
 }
+_PROPERTY_DEEPHOME_PRESET = {
+    "apartment/single-story house":{
+        "< 50m2":{
+            "bedroom":{"min":0,"max":0},
+            "bathroom":{"min":0,"max":0},
+            "livingroom":{"min":0,"max":0},
+            "kitchen":{"min":0,"max":0},
+            "estimated duration":{"min":6,"max":8},
+            "recommended duration":6},
+        "50m2 - 90m2":{
+            "bedroom":{"min":1,"max":3},
+            "bathroom":{"min":1,"max":2},
+            "livingroom":{"min":1,"max":1},
+            "kitchen":{"min":1,"max":1},
+            "estimated duration":{"min":8,"max":10},
+            "recommended duration":8},
+        "90m2 - 140m2":{
+            "bedroom":{"min":1,"max":4},
+            "bathroom":{"min":1,"max":3},
+            "livingroom":{"min":1,"max":1},
+            "kitchen":{"min":1,"max":2},
+            "estimated duration":{"min":10,"max":14},
+            "recommended duration":12},
+        "140m2 - 200m2":{
+            "bedroom":{"min":2,"max":5},
+            "bathroom":{"min":1,"max":5},
+            "livingroom":{"min":1,"max":2},
+            "kitchen":{"min":1,"max":3},
+            "estimated duration":{"min":14,"max":18},
+            "recommended duration":16}
+    },
+    "villa":{
+        "140m2 - 255m2":{
+            "bedroom":{"min":2,"max":4},
+            "bathroom":{"min":1,"max":4},
+            "livingroom":{"min":1,"max":2},
+            "kitchen":{"min":1,"max":2},
+            "estimated duration":{"min":14,"max":18},
+            "recommended duration":16},
+        "255m2 - 500m2":{
+            "bedroom":{"min":3,"max":6},
+            "bathroom":{"min":3,"max":8},
+            "livingroom":{"min":1,"max":3},
+            "kitchen":{"min":1,"max":3},
+            "estimated duration":{"min":30,"max":34},
+            "recommended duration":32},
+        "> 500m2":{
+            "message":"Notify admins so they can talk to customer directly!"}
+    },
+    "office":{
+        "< 50m2":{
+            "estimated duration":{"min":6,"max":8},
+            "recommended duration":6},
+        "50m2 - 90m2":{
+            "estimated duration":{"min":8,"max":10},
+            "recommended duration":8},
+        "90m2 - 140m2":{
+            "estimated duration":{"min":10,"max":14},
+            "recommended duration":12},
+        "140m2 - 255m2":{
+            "estimated duration":{"min":14,"max":18},
+            "recommended duration":16},
+        "> 255m2":{
+            "message":"Notify admins so they can talk to customer directly!"}
+    },
+    "building/multi-storey house":{
+        "1-Storey":{
+            "< 90m2":{
+                "estimated duration":{"min":8,"max":10},
+                "recommended duration":8},
+            "90m2 - 140m2":{
+                "estimated duration":{"min":10,"max":14},
+                "recommended duration":12},
+            "140m2 - 200m2":{
+                "estimated duration":{"min":14,"max":18},
+                "recommended duration":16},
+            "> 200m2":{
+                "estimated duration":{"min":18,"max":22},
+                "recommended duration":20}
+        },
+        "2-Storey":{
+            "< 140m2":{
+                "estimated duration":{"min":10,"max":14},
+                "recommended duration":12},
+            "140m2 - 200m2":{
+                "estimated duration":{"min":14,"max":18},
+                "recommended duration":16},
+            "200m2 - 260m2":{
+                "estimated duration":{"min":18,"max":22},
+                "recommended duration":20},
+            "> 260m2":{
+                "estimated duration":{"min":22,"max":26},
+                "recommended duration":24}
+        },
+        "3-Storey":{
+            "< 200m2":{
+                "estimated duration":{"min":14,"max":18},
+                "recommended duration":16},
+            "200m2 - 260m2":{
+                "estimated duration":{"min":18,"max":22},
+                "recommended duration":20},
+            "260m2 - 320m2":{
+                "estimated duration":{"min":22,"max":26},
+                "recommended duration":24},
+            "> 320m2":{
+                "estimated duration":{"min":26,"max":30},
+                "recommended duration":28}
+        },
+        "4-Storey":{
+            "< 320m2":{
+                "estimated duration":{"min":22,"max":26},
+                "recommended duration":24},
+            "320m2 - 380m2":{
+                "estimated duration":{"min":26,"max":30},
+                "recommended duration":28},
+            "380m2 - 440m2":{
+                "estimated duration":{"min":30,"max":34},
+                "recommended duration":32},
+            "> 440m2":{
+                "estimated duration":{"min":34,"max":38},
+                "recommended duration":36}
+        },
+        "5-Storey":{
+            "< 380m2":{
+                "estimated duration":{"min":26,"max":30},
+                "recommended duration":28},
+            "380m2 - 440m2":{
+                "estimated duration":{"min":30,"max":34},
+                "recommended duration":32},
+            "440m2 - 500m2":{
+                "estimated duration":{"min":34,"max":38},
+                "recommended duration":36},
+            "> 500m2":{
+                "message":"Notify admins so they can talk to customer directly!"}
+        },
+        "6-Storey":{
+            "< 440m2":{
+                "estimated duration":{"min":30,"max":34},
+                "recommended duration":32},
+            "440m2 - 500m2":{
+                "estimated duration":{"min":34,"max":38},
+                "recommended duration":36},
+            "> 500m2":{
+                "message":"Notify admins so they can talk to customer directly!"}
+        },
+    },
+}
 _DEFAUT_FEE_LIST = {
     "079": {
         "O_Basic":{
@@ -185,7 +339,9 @@ _DEFAUT_FEE_LIST = {
             "BLNY":0.65,
             "ALNY":0.60,
             "OwnTools":30000,
-            "Urgent":20000
+            "Urgent":20000,
+            "Premium":0.2,
+            "ForeignLang":0.2
         },
         "S_Basic":{
             "I_P4h":69000,
@@ -204,7 +360,9 @@ _DEFAUT_FEE_LIST = {
             "BLNY":0.65,
             "ALNY":0.60,
             "OwnTools":30000,
-            "Urgent":20000
+            "Urgent":20000,
+            "Premium":0.2,
+            "ForeignLang":0.2
         },
         "O_DeepHome":{
             "I_P4h":90000,
@@ -216,7 +374,9 @@ _DEFAUT_FEE_LIST = {
             "LNY":3,
             "BLNY":1.65,
             "ALNY":1.2,
-            "Urgent":20000
+            "Urgent":20000,
+            "Premium":0.2,
+            "ForeignLang":0.2
         },
         "O_Sofa":{
             "Cotton1-Seat":370000,
@@ -234,7 +394,73 @@ _DEFAUT_FEE_LIST = {
             "LNY":3,
             "BLNY":1.65,
             "ALNY":1.2,
-            "Urgent":20000
+            "Urgent":20000,
+            "Premium":0.2,
+            "ForeignLang":0.2
+        }
+    },
+    "048": {
+        "O_Basic":{
+            "I_P4h":59000,
+            "I_P3h":62000,
+            "I_P2h":74000,
+            "OOH": 0.17,
+            "WKD":0.17,
+            "HOL": 0.30,
+            "LNY":1.0,
+            "BLNY":0.65,
+            "ALNY":0.60,
+            "OwnTools":30000,
+            "Urgent":20000,
+            "Premium":0.2,
+            "ForeignLang":0.2
+        },
+        "S_Basic":{
+            "I_P4h":59000,
+            "I_P3h":62000,
+            "I_P2h":74000,
+            "OOH": 0.17,
+            "WKD":0.17,
+            "HOL": 0.30,
+            "LNY":1.0,
+            "BLNY":0.65,
+            "ALNY":0.60,
+            "OwnTools":30000,
+            "Urgent":20000,
+            "Premium":0.2,
+            "ForeignLang":0.2
+        },
+        "O_DeepHome":{
+            "I_P4h":80000,
+            "OOH": 0.17,
+            "WKD":0.17,
+            "HOL": 0.30,
+            "LNY":1.0,
+            "BLNY":0.65,
+            "ALNY":0.60,
+            "Urgent":20000,
+            "Premium":0.2,
+            "ForeignLang":0.2
+        },
+        "O_Sofa":{
+            "Cotton1-Seat":330000,
+            "Cotton2-Seat":450000,
+            "Cotton3-Seat":540000,
+            "CottonStool":30000,
+            "Leather1-Seat":400000,
+            "Leather2-Seat":500000,
+            "Leather3-Seat":650000,
+            "LeatherRecliner":150000,
+            "LeatherStool":50000,
+            "OOH": 0.17,
+            "WKD":0.17,
+            "HOL": 0.30,
+            "LNY":1.0,
+            "BLNY":0.65,
+            "ALNY":0.60,
+            "Urgent":20000,
+            "Premium":0.2,
+            "ForeignLang":0.2
         }
     }
 }
@@ -249,7 +475,19 @@ _Sofa_Duration = {
     "LeatherRecliner":0.5,
     "LeatherStool":0.25
 }
-_FEE_LIST_AVAILABLE = ("O_Basic_079","S_Basic_079","O_DeepHome_079","O_Sofa_079")
+DUR_FOR_NORMAL_ROOM = 0.5
+DUR_FOR_BIG_ROOM = 0.8
+DUR_FOR_NORMAL_BATHROOM = 0.3
+DUR_FOR_BIG_BATHROOM = 0.4
+DUR_FOR_IRONINGCLOTHES = 0.5
+DUR_FOR_WITHPETS = 0.5
+_SERVICE_TYPE_FACTORS = {
+    "O_Basic": 1,
+    "S_Basic": 1,
+    "O_DeepHome": 3
+}
+
+_FEE_LIST_AVAILABLE = ("O_Basic_079","S_Basic_079","O_DeepHome_079","O_Sofa_079","O_Basic_048","S_Basic_048","O_DeepHome_048","O_Sofa_048")
 _DEFAUT_SERVICE_FEE_DETAILS = {"is_OutOfficeHours":False, "is_Weekend":False, "is_Holiday":False, "is_NewYear":False, "is_BeforeNewYear":False, "is_AfterNewYear":False, "is_OwnTools":False}
 _WORK_DAY_LIST = ("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday")
 _SPECIAL_FEE_NAMES = ["Normal Fee","Lunar New Year Fee","Right Before Lunar New Year Fee",
@@ -274,7 +512,10 @@ def get_servicecode_details(servicecode,locationdetails):
         elif locationdetails.get("formatted_address") != None:
             district_found = cla.get_district_from_address(locationdetails.get("formatted_address"))
 
-        area, district_found = cla.get_area_from_district(district_found,locationdetails.get("formatted_address"))
+        if city == "079":
+            area, district_found = cla.get_area_from_district(district_found,locationdetails.get("formatted_address"))
+        else:
+            area = "I"
 
     return servicename, city, area, district_found
 
@@ -313,6 +554,18 @@ def is_OutOfWorkingHour(starttime):
 	return time_formated < time(8,0,0) or time_formated >= time(18,0,0)
 
 
+def is_UrgentBooking(bookdate, starttime):
+    days = str(bookdate).split('-')
+    BDate = date(int(days[0]), int(days[1]), int(days[2]))
+    timelist = str(starttime).split(":")
+    BTime = time(int(timelist[0]),int(timelist[1]),int(timelist[2]))
+
+    today = date.today()
+    now_in_SG = datetime.now(pytz.timezone('Asia/Saigon'))
+    current_Time_plus2h = time(now_in_SG.hour+2,now_in_SG.minute,now_in_SG.second)
+    return (today == BDate) and (BTime < current_Time_plus2h)
+
+
 def check_valid_input(city,area,servicename,duration,propertydetails,subscription_schedule_details):
     error_messagge = ""
     if city not in _CITY_LIST:
@@ -345,29 +598,63 @@ def check_valid_input(city,area,servicename,duration,propertydetails,subscriptio
             # Check corect totalarea for new fee Estimation (min, recommendation, max)
             if duration == -1 :
                 totalarea_key_found = False
-                property_details_preset = _PROPERTY_DETAIL_PRESET.get(housetype)
-                for totalarea_key in property_details_preset.keys():
-                    if totalarea == totalarea_key:
-                        totalarea_key_found = True
-                        if propertydetails.get("numberoffbedroom") == None:
-                            numberoffbedroom = 0
-                        else:
-                            numberoffbedroom = propertydetails.get("numberoffbedroom")
-                        if propertydetails.get("numberoffbathroom") == None:
-                            numberoffbathroom = 0
-                        else:
-                            numberoffbathroom = propertydetails.get("numberoffbathroom")
-                        number_of_rooms_preset = property_details_preset.get(totalarea)
-                        bedrooms_preset = number_of_rooms_preset.get("bedroom")
-                        bedrooms_min = bedrooms_preset.get("min")
-                        bedrooms_max = bedrooms_preset.get("max")
-                        bathrooms_preset = number_of_rooms_preset.get("bathroom")
-                        bathrooms_min = bathrooms_preset.get("min")
-                        bathrooms_max = bathrooms_preset.get("max")
-                        break
-                if totalarea_key_found == False:
-                    error_propertydetails = True
-                    error_messagge_propertydetails  = error_messagge_propertydetails  + "INVALID total area in propertydetails; "
+                if servicename == "O_DeepHome":
+                    property_details_preset = _PROPERTY_DEEPHOME_PRESET.get(housetype)
+                else:
+                    property_details_preset = _PROPERTY_DETAIL_PRESET.get(housetype)
+                if ((housetype == "villa" or housetype == "building/multi-storey house") and totalarea == "> 500m2") or (housetype == "office" and totalarea == "> 255m2"):
+                    error_messagge = "Notify admins so they can talk to customer directly!"
+                    return error_messagge
+
+                if housetype == "building/multi-storey house":
+                    if propertydetails.get("numberoffloors") == None:
+                        numberoffloors = 0
+                    else:
+                        numberoffloors = propertydetails.get("numberoffloors")
+                    if numberoffloors < 1 or numberoffloors > 6:
+                        error_propertydetails = True
+                        error_messagge_propertydetails  = error_messagge_propertydetails  + "INVALID number of floors: " + str(numberoffloors) + " of building/multi-storey house in propertydetails; "
+                    else:
+                        floor_key = str(numberoffloors) + "-Storey"
+                        property_details_preset = property_details_preset.get(floor_key)
+
+                if error_propertydetails == False:
+                    for totalarea_key in property_details_preset.keys():
+                        if totalarea == totalarea_key:
+                            totalarea_key_found = True
+                            if totalarea != "< 50m2" and (housetype == "apartment/single-story house" or housetype =="villa"):
+                                if propertydetails.get("numberoffbedroom") == None:
+                                    numberoffbedroom = 0
+                                else:
+                                    numberoffbedroom = propertydetails.get("numberoffbedroom")
+                                if propertydetails.get("numberoffbathroom") == None:
+                                    numberoffbathroom = 0
+                                else:
+                                    numberoffbathroom = propertydetails.get("numberoffbathroom")
+                                number_of_rooms_preset = property_details_preset.get(totalarea)
+                                bedrooms_preset = number_of_rooms_preset.get("bedroom")
+                                bedrooms_min = bedrooms_preset.get("min")
+                                bedrooms_max = bedrooms_preset.get("max")
+                                bathrooms_preset = number_of_rooms_preset.get("bathroom")
+                                bathrooms_min = bathrooms_preset.get("min")
+                                bathrooms_max = bathrooms_preset.get("max")
+                                if numberoffbedroom < bedrooms_min or numberoffbedroom > bedrooms_max:
+                                    error_propertydetails = True
+                                    error_messagge_propertydetails  = error_messagge_propertydetails  + "INVALID number of bedroom (either < min  or > max) of " + housetype + " in propertydetails; "
+                                if numberoffbathroom < bathrooms_min or numberoffbathroom > bathrooms_max:
+                                    error_propertydetails = True
+                                    error_messagge_propertydetails  = error_messagge_propertydetails  + "INVALID number of bathroom (either < min  or > max) of " + housetype + " in propertydetails; "
+                                if servicename == "O_DeepHome":
+                                    livingrooms_preset = number_of_rooms_preset.get("livingroom")
+                                    livingrooms_min = livingrooms_preset.get("min")
+                                    livingrooms_max = livingrooms_preset.get("max")
+                                    livingrooms_preset = number_of_rooms_preset.get("livingroom")
+                                    livingrooms_min = livingrooms_preset.get("min")
+                                    livingrooms_max = livingrooms_preset.get("max")
+                            break
+                    if totalarea_key_found == False:
+                        error_propertydetails = True
+                        error_messagge_propertydetails  = error_messagge_propertydetails  + "INVALID total area " + totalarea + " (DURATION -1) in propertydetails; "
             else :
                 if totalarea not in _TOTAL_AREA_LIST:
                     error_propertydetails = True
@@ -386,6 +673,9 @@ def check_valid_input(city,area,servicename,duration,propertydetails,subscriptio
             error_messagge  = error_messagge + "Minimun duration for Basic Service is 2 hours; "
 
     elif servicename == "S_Basic":
+        if duration == -1:
+            if error_propertydetails == True:
+                error_messagge  = error_messagge + error_messagge_propertydetails
         if subscription_schedule_details == None or json.dumps(subscription_schedule_details) == "{}":
             error_messagge  = error_messagge + "Subscription Service requires subscription_schedule_details. It's " + json.dumps(subscription_schedule_details)  + "; "
         else:
@@ -804,6 +1094,8 @@ def get_estimated_fee_sofacleaning(bookdate,starttime,propertydetails,urgentbook
     extra_fee_percent, extra_service_fee_details, index = extra_fee_special_day_new(bookdate,starttime,feelist)
     adjust_rate = 1 + extra_fee_percent
 
+    if urgentbooking == None:
+        urgentbooking = is_UrgentBooking(bookdate,starttime)
     if urgentbooking:
         urgentbooking_fee = feelist["Urgent"]
         estimatedfee += urgentbooking_fee
@@ -948,6 +1240,8 @@ def  get_O_Basic_fee_details_response(bookdate,starttime,service_fee_list,base_r
     else:
         fee_details_response = {"Total Fee": int(total_fee)}
 
+    if urgentbooking == None:
+        urgentbooking = is_UrgentBooking(bookdate,starttime)
     if urgentbooking:
         urgentbooking_fee = service_fee_list["Urgent"]
         total_fee += urgentbooking_fee
@@ -962,7 +1256,7 @@ def  get_O_Basic_fee_details_response(bookdate,starttime,service_fee_list,base_r
     extra_service_fee_details.update(fee_detail)
     extra_service_fee_response = {"Extra Service Fee Details": extra_service_fee_details}
 
-    if duration == 0:
+    if duration == 0 or duration == -1:
         estimatedduration_response = {"Estimated Duration": estimatedduration}
         fee_details_response.update(estimatedduration_response)
 
@@ -979,6 +1273,8 @@ def  get_O_DeepHome_fee_details_response(bookdate,starttime,service_fee_list,bas
 
     fee_details_response = {"Total Fee": int(total_fee)}
 
+    if urgentbooking == None:
+        urgentbooking = is_UrgentBooking(bookdate,starttime)
     if urgentbooking:
         urgentbooking_fee = service_fee_list["Urgent"]
         total_fee += urgentbooking_fee
@@ -993,7 +1289,7 @@ def  get_O_DeepHome_fee_details_response(bookdate,starttime,service_fee_list,bas
     extra_service_fee_details.update(fee_detail)
     extra_service_fee_response = {"Extra Service Fee Details": extra_service_fee_details}
 
-    if duration == 0:
+    if duration == 0 or duration == -1:
         sugggested_shift = 4
         if estimatedduration != sugggested_shift * int(estimatedduration/sugggested_shift):
             sugggested_shift = 3
@@ -1099,6 +1395,8 @@ def  get_S_Basic_fee_details_response(subscription_schedule_details,service_fee_
 
     total_fee_response = {"Total Fee": total_fee}
     fee_details_response.update(total_fee_response)
+    if urgentbooking == None:
+        urgentbooking = is_UrgentBooking(actual_start_date,workingtime)
     if urgentbooking:
         urgentbooking_fee = service_fee_list["Urgent"]
         total_fee += urgentbooking_fee
@@ -1107,7 +1405,7 @@ def  get_S_Basic_fee_details_response(subscription_schedule_details,service_fee_
 
     total_workdays_response = {"Total Number of Work Days": count}
     fee_details_response.update(total_workdays_response)
-    if duration == 0:
+    if duration == 0 or duration == -1:
         estimatedduration_response = {"Duration per session": estimatedduration}
         fee_details_response.update(estimatedduration_response)
     if owntool == True:
@@ -1153,11 +1451,12 @@ def  get_S_Basic_fee_details_response(subscription_schedule_details,service_fee_
     return fee_details_response
 
 
-def get_estimated_duration_for_cleaning_new(ironingclothes, propertydetails):
+def get_estimated_duration_for_DeepHome_new(ironingclothes, propertydetails):
     """Estimation for Cleaning Service"""
     estimatedduration = 0.0
 
     if propertydetails.get("housetype") != None:
+
         housetype = propertydetails.get("housetype")
 
         if propertydetails.get("numberoffloors") == None:
@@ -1195,48 +1494,280 @@ def get_estimated_duration_for_cleaning_new(ironingclothes, propertydetails):
         else:
             totalarea = propertydetails.get("totalarea")
 
-        estimatedduration = estimatedduration + numberoffbedroom * 0.5
-        estimatedduration = estimatedduration + numberofflivingroom * 0.5
-        estimatedduration = estimatedduration + numberoffkitchen * 0.5
-        estimatedduration = estimatedduration + numberoffofficeroom * 0.5
-        estimatedduration = estimatedduration + numberoffbathroom * 0.3
+        # Check min for estimatedduration
+        if estimatedduration < 64.0 and totalarea == "500m2 - 1000m2":
+            estimatedduration = 64.0
+        elif estimatedduration < 32.0 and totalarea == "255m2 - 500m2":
+            estimatedduration = 32.0
+        elif estimatedduration < 16.0 and totalarea == "140m2 - 255m2":
+            estimatedduration = 16.0
+        elif estimatedduration < 12.0 and totalarea == "90m2 - 140m2":
+            estimatedduration = 12.0
+        elif estimatedduration < 8.0 and totalarea == "50m2 - 90m2":
+            estimatedduration = 8.0
+        elif estimatedduration < 6.0 and totalarea == "< 50m2":
+            estimatedduration = 6.0
+
+    # Minimum serbvice is 2 hours
+    if estimatedduration < 6.0:
+        estimatedduration = 6.0
+
+    estimatedduration = math.ceil(estimatedduration)
+    dur_min = estimatedduration
+    dur_max = estimatedduration
+
+    return dur_min, estimatedduration, dur_max
+
+def get_estimated_duration_for_cleaning_new(ironingclothes, propertydetails,servicename):
+    """Estimation for Cleaning Service"""
+    estimatedduration = 0.0
+
+    if propertydetails.get("housetype") != None:
+        housetype = propertydetails.get("housetype")
+
+        if propertydetails.get("numberoffloors") == None:
+            numberoffloors = 0
+        else:
+            numberoffloors = propertydetails.get("numberoffloors")
+
+        if propertydetails.get("numberoffbedroom") == None:
+            numberoffbedroom = 0
+        else:
+            numberoffbedroom = propertydetails.get("numberoffbedroom")
+
+        if propertydetails.get("numberofflivingroom") == None:
+            numberofflivingroom = 0
+        else:
+            numberofflivingroom = propertydetails.get("numberofflivingroom")
+        if numberofflivingroom < 1 and housetype != "office":
+            numberofflivingroom = 1
+
+        if propertydetails.get("numberoffkitchen") == None:
+            numberoffkitchen = 0
+        else:
+            numberoffkitchen = propertydetails.get("numberoffkitchen")
+        if numberoffkitchen < 1 and housetype != "office":
+            numberoffkitchen = 1
+
+        if propertydetails.get("numberoffofficeroom") == None:
+            numberoffofficeroom = 0
+        else:
+            numberoffofficeroom = propertydetails.get("numberoffofficeroom")
+
+        if propertydetails.get("numberoffbathroom") == None:
+            numberoffbathroom = 0
+        else:
+            numberoffbathroom = propertydetails.get("numberoffbathroom")
+
+        if propertydetails.get("totalarea") == None:
+            totalarea = "None"
+        else:
+            totalarea = propertydetails.get("totalarea")
+
+        if propertydetails.get("withpets") == None:
+            withpets = False
+        else:
+            withpets = propertydetails.get("withpets")
+
+        service_type_factor = _SERVICE_TYPE_FACTORS.get(servicename)
+
+        if housetype == "villa":
+            dur_for_room = DUR_FOR_BIG_ROOM * service_type_factor
+            dur_for_bathroom = DUR_FOR_NORMAL_BATHROOM * service_type_factor
+        else:
+            dur_for_room = DUR_FOR_NORMAL_ROOM * service_type_factor
+            dur_for_bathroom = DUR_FOR_BIG_BATHROOM * service_type_factor
+
+        estimatedduration = estimatedduration + numberoffbedroom * dur_for_room
+        estimatedduration = estimatedduration + numberofflivingroom * dur_for_room
+        estimatedduration = estimatedduration + numberoffkitchen * dur_for_room
+        estimatedduration = estimatedduration + numberoffofficeroom * dur_for_room
+        estimatedduration = estimatedduration + numberoffbathroom * dur_for_bathroom
 
 
         # Check min for estimatedduration
-        property_details_preset = _PROPERTY_DETAIL_PRESET.get(housetype)
+        if servicename == "O_DeepHome":
+            property_details_preset = _PROPERTY_DEEPHOME_PRESET.get(housetype)
+        else:
+            property_details_preset = _PROPERTY_DETAIL_PRESET.get(housetype)
+        if housetype == "building/multi-storey house":
+            floor_key = str(numberoffloors) + "-Storey"
+            property_details_preset = property_details_preset.get(floor_key)
+        number_of_rooms_preset = property_details_preset.get(totalarea)
+        estimated_duration_preset = number_of_rooms_preset.get("estimated duration")
+        estimated_duration_min = estimated_duration_preset.get("min")
+        estimated_duration_max = estimated_duration_preset.get("max")
+        estimated_duration_recommended = number_of_rooms_preset.get("recommended duration")
 
-        if estimatedduration < 12.0 and totalarea == "500m2 - 1000m2":
-            estimatedduration = 12.0
-        elif estimatedduration < 7.0 and totalarea == "255m2 - 500m2":
-            estimatedduration = 7.0
-        elif estimatedduration < 4.0 and totalarea == "140m2 - 255m2":
-            estimatedduration = 4.0
-        elif estimatedduration < 3.0 and totalarea == "90m2 - 140m2":
-            estimatedduration = 3.0
-        elif estimatedduration < 3.0 and housetype == "villa":
-            estimatedduration = 3.0
-        elif estimatedduration < 3.0 and numberoffbedroom >= 3:
-            estimatedduration = 3.0
+        if totalarea == "< 50m2":
+            estimatedduration = estimated_duration_recommended
 
-        # Check max for estimatedduration
-        if estimatedduration > 3.0 and (totalarea == "< 50m2" or totalarea == "50m2 - 90m2"):
-            estimatedduration = 3.0
+        if estimatedduration < estimated_duration_recommended:
+            estimatedduration = estimated_duration_recommended
 
-    if housetype == "building/multi-storey house":
-        estimatedduration = estimatedduration + 0.5
-    if ironingclothes:
-        estimatedduration = estimatedduration + 0.5
+        if estimatedduration > estimated_duration_max:
+            estimatedduration = estimated_duration_max
 
-    # Add 0.5 hours if withpets
-    if propertydetails.get("withpets") == None:
-        withpets = False
+        if ironingclothes:
+            estimatedduration = estimatedduration + DUR_FOR_IRONINGCLOTHES
+        if withpets:
+            estimatedduration = estimatedduration + DUR_FOR_WITHPETS * service_type_factor
+
+        estimatedduration = math.ceil(estimatedduration)
+
+        if estimatedduration > estimated_duration_max:
+            estimatedduration = estimated_duration_max
+
+        diff = estimatedduration - estimated_duration_recommended
+        dur_min = estimated_duration_min + diff
+        dur_max = estimated_duration_max + diff
+
+    return dur_min, estimatedduration, dur_max
+
+
+def get_estimated_duration_new(ironingclothes, propertydetails,subscription_schedule_details, servicename):
+    estimatedduration = 0.0
+    dur_min = 0.0
+    dur_max = 0.0
+
+    if servicename == "O_Basic" or servicename == "O_DeepHome":
+        dur_min, estimatedduration, dur_max  = get_estimated_duration_for_cleaning_new(ironingclothes, propertydetails,servicename)
+    elif servicename == "S_Basic":
+        if propertydetails != None and json.dumps(propertydetails) != "{}":
+            dur_min, estimatedduration, dur_max  = get_estimated_duration_for_cleaning_new(ironingclothes, propertydetails,servicename)
+        elif subscription_schedule_details != None:
+            estimatedduration = subscription_schedule_details.get("workingduration")
+            dur_min = estimatedduration
+            dur_max = estimatedduration
+        else:
+            estimatedduration = 0.0
+            dur_min = estimatedduration
+            dur_max = estimatedduration
+
+    return dur_min, estimatedduration, dur_max
+
+
+def get_used_servicecode_details(servicecode):
+    error_messagge = ""
+    servicecodelist = servicecode.split("_")
+    servicename = servicecodelist[0] + "_" + servicecodelist[1]
+
+    if servicename == "O_Sofa":
+        error_messagge  = "Request extra hours for Sofa Cleaning in NOT availabble at present! "
+    elif len(servicecodelist) != 5:
+        error_messagge = "Incorrect Service Code was used! "
+    if len(error_messagge) > 0:
+        return "","","","",error_messagge
+
+    city = servicecodelist[2]
+    area = servicecodelist[3]
+    base_code = servicecodelist[4]
+
+    return servicename, city, area, base_code, error_messagge
+
+
+def check_valid_extra_hours_request(servicecode,extra_hours_request):
+    error_messagge = ""
+    servicename = ""
+    city = ""
+    area = ""
+    base_code = ""
+    allowed_base_codes = {
+        "O_Basic":['P2h','P3h','P4h'],
+        "S_Basic":['P2h','P3h','P4h'],
+        "O_DeepHome":['P4h']
+    }
+
+    if servicecode != None:
+        servicename, city, area, base_code, error_messagge = get_used_servicecode_details(servicecode)
+        if len(error_messagge) > 0:
+            return servicename, city, area, base_code, error_messagge
+
+        if city not in _CITY_LIST:
+            error_messagge  = "Incorrect Service Code (city: " + city + ") was used! "
+        if area not in _AREA_LIST:
+            error_messagge  = "Incorrect Service Code (area: " + area + ") was used! "
+        fee_available = servicename + "_" + city
+        if fee_available not in _FEE_LIST_AVAILABLE:
+            error_messagge  = "Incorrect Service Code (service fee: " + fee_available + ") was used! "
+        if base_code not in allowed_base_codes.get(servicename):
+            error_messagge  = "Incorrect Service Code (base_code: " + base_code + ") was used!"
     else:
-        withpets = propertydetails.get("withpets")
-    if withpets:
-        estimatedduration = estimatedduration + 0.5
+        error_messagge = error_messagge + "Service Code is required!;  "
 
-    # Minimum serbvice is 2 hours
-    if estimatedduration < 2.0:
-        estimatedduration = 2.0
+    if extra_hours_request.get("extra_duration") != None:
+        extra_duration = extra_hours_request.get("extra_duration")
+        if extra_duration < 1 or extra_duration > 8:
+            error_messagge = error_messagge + "extra_duration must be > 0 and <= 8;  "
+    else:
+        error_messagge = error_messagge + "extra_duration is required!;  "
 
-    return math.ceil(estimatedduration)
+    return servicename, city, area, base_code, error_messagge
+
+
+def extra_fee_extra_hours_request(Extra_Service_Fee_Details, feelist):
+    """Calculates additional fee for extra hours request"""
+
+    extra_fee = 0.0
+    if Extra_Service_Fee_Details.get("is_NewYear") == True:
+        extra_fee += feelist["LNY"]
+    elif Extra_Service_Fee_Details.get("is_BeforeNewYear") == True:
+        extra_fee += feelist["BLNY"]
+    elif Extra_Service_Fee_Details.get("is_AfterNewYear") == True:
+        extra_fee += feelist["ALNY"]
+    elif Extra_Service_Fee_Details.get("is_Holiday") == True:
+        extra_fee += feelist["HOL"]
+    elif Extra_Service_Fee_Details.get("is_Weekend") == True:
+        extra_fee += feelist["WKD"]
+    elif Extra_Service_Fee_Details.get("is_OutOfficeHours") == True:
+        extra_fee += feelist["OOH"]
+
+    return extra_fee
+
+
+def get_new_base_code(base_code,extra_duration):
+    if extra_duration <= 2:
+        new_base_code = "P2h"
+    elif extra_duration == 3:
+        new_base_code = "P3h"
+    else:
+        new_base_code = "P4h"
+    return new_base_code
+
+
+def get_extra_hours_request(servicecode, extra_hours_request,service_fee_list):
+    error_messagge = ""
+    fee_details_response = {}
+
+    extra_duration = extra_hours_request.get("extra_duration")
+    servicename, city, area, base_code, error_messagge = get_used_servicecode_details(servicecode)
+
+    new_base_code = get_new_base_code(base_code,extra_duration)
+    basename = area + "_" + new_base_code
+    base_rate = service_fee_list[basename]
+
+    extra_fee = 0.0
+    if extra_hours_request.get("Extra Service Fee Details") != None:
+        Extra_Service_Fee_Details = extra_hours_request.get("Extra Service Fee Details")
+        extra_fee = extra_fee_extra_hours_request(Extra_Service_Fee_Details, service_fee_list)
+
+    final_rate = base_rate * (1 + extra_fee)
+    total_fee = final_rate * extra_duration
+
+    servicecode_used = servicename + "_" + city + "_" + basename
+    fee_details_response = {"Total Fee": int(total_fee), "Service Code Used": servicecode_used, "Extra Service Fee Details":Extra_Service_Fee_Details}
+
+    return fee_details_response
+
+
+def get_compound_extra_fee(fee_details_response,feename,feelist,feelistkey):
+    extra_fee_percent = feelist.get(feelistkey)
+    for key in fee_details_response.keys():
+        if key == "Total Fee":
+            total_fee = fee_details_response.get("Total Fee")
+            compound_fee = round(total_fee * extra_fee_percent,-2)
+            new_total_fee = total_fee + compound_fee
+            new_fee_details_response = fee_details_response
+            compound_fee_response = {"Total Fee": new_total_fee, feename: compound_fee}
+            new_fee_details_response.update(compound_fee_response)
+            return new_fee_details_response
