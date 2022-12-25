@@ -1742,7 +1742,10 @@ def get_extra_hours_request(servicecode, extra_hours_request,service_fee_list):
     extra_duration = extra_hours_request.get("extra_duration")
     servicename, city, area, base_code, error_messagge = get_used_servicecode_details(servicecode)
 
-    new_base_code = get_new_base_code(base_code,extra_duration)
+    if servicename != "O_DeepHome":
+        new_base_code = get_new_base_code(base_code,extra_duration)
+    else:
+        new_base_code = "P4h"
     basename = area + "_" + new_base_code
     base_rate = service_fee_list[basename]
 
