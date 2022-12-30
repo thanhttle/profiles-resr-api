@@ -65,12 +65,18 @@ class Test_One_Off_Fee_View(viewsets.ModelViewSet):
             premiumservices = serializer.validated_data.get("premiumservices")
             foreignlanguage = serializer.validated_data.get("foreignlanguage")
 
+            feedatalist = models.Service_Fee_List.objects.values()
+
             if extra_hours_request != None:
                 servicename, city, area, base_code, error_messagge = test_sfc.check_valid_extra_hours_request(servicecode,extra_hours_request)
                 if len(error_messagge) > 0:
                     content = {'error message': "extra_hours_request: " + error_messagge}
                     return Response(content, status=status.HTTP_400_BAD_REQUEST)
-                city_fee_list = test_sfc._DEFAUT_FEE_LIST[city]
+                #city_fee_list = test_sfc._DEFAUT_FEE_LIST[city]
+                city_fee_list,feelist_found = test_sfc.get_active_city_fee_list(feedatalist,city)
+                if not feelist_found:
+                    content = {'error message': 'could not get fee_list for city: ' + city}
+                    return Response(content, status=status.HTTP_400_BAD_REQUEST)
                 service_fee_list = city_fee_list[servicename]
                 fee_details_response = test_sfc.get_extra_hours_request(servicecode,extra_hours_request,service_fee_list)
 
@@ -83,7 +89,11 @@ class Test_One_Off_Fee_View(viewsets.ModelViewSet):
                 if len(error_messagge) > 0:
                     content = {'error message': error_messagge}
                     return Response(content, status=status.HTTP_400_BAD_REQUEST)
-                city_fee_list = test_sfc._DEFAUT_FEE_LIST[city]
+                #city_fee_list = test_sfc._DEFAUT_FEE_LIST[city]
+                city_fee_list,feelist_found = test_sfc.get_active_city_fee_list(feedatalist,city)
+                if not feelist_found:
+                    content = {'error message': 'could not get fee_list for city: ' + city}
+                    return Response(content, status=status.HTTP_400_BAD_REQUEST)
                 service_fee_list = city_fee_list[servicename]
                 usedduration = duration
                 estimatedduration = 0
@@ -136,7 +146,7 @@ class Test_One_Off_Fee_View(viewsets.ModelViewSet):
                 feelistkey = "ForeignLang"
                 fee_details_response = test_sfc.get_compound_extra_fee(fee_details_response,feename,service_fee_list,feelistkey)
 
-            if premiumservices:
+            if premiumservices and servicename != "O_DeepHome":
                 feename = "Preminum Service Fee"
                 feelistkey = "Premium"
                 fee_details_response = test_sfc.get_compound_extra_fee(fee_details_response,feename,service_fee_list,feelistkey)
@@ -243,7 +253,7 @@ class One_Off_Fee_View(viewsets.ModelViewSet):
                 feelistkey = "ForeignLang"
                 fee_details_response = sfc.get_compound_extra_fee(fee_details_response,feename,service_fee_list,feelistkey)
 
-            if premiumservices:
+            if premiumservices and servicename != "O_DeepHome":
                 feename = "Preminum Service Fee"
                 feelistkey = "Premium"
                 fee_details_response = sfc.get_compound_extra_fee(fee_details_response,feename,service_fee_list,feelistkey)
@@ -267,37 +277,86 @@ class Service_Fee_List_ViewSet(viewsets.ModelViewSet):
         serializer = self.serializer_class(data=request.data)
 
         if serializer.is_valid():
+            from_date = serializer.validated_data.get("from_date")
+            to_date = serializer.validated_data.get("to_date")
             fee_list = serializer.validated_data.get("fee_list")
-            #feedatalist = list(models.Service_Fee_List.objects.values())
+            active = serializer.validated_data.get("active")
             feedatalist = models.Service_Fee_List.objects.values()
-            if not sflc.validate_Json(fee_list) or not sflc.validate_Json_key(fee_list):
-                content = {'error message': 'invalid fee_list json'}
+            error_msg, jsondata_valid = sflc.validate_Json_key(fee_list)
+            if not jsondata_valid:
+                content = {'error message': error_msg}
                 return Response(content, status=status.HTTP_400_BAD_REQUEST)
 
-            fee_list_duplication, error_msg = sflc.check_fee_list_duplication(fee_list,feedatalist)
+            fee_list_duplication, error_msg = sflc.check_fee_list_duplication(fee_list,feedatalist, -1)
             if fee_list_duplication:
-                #content = {'error message': 'Fee data exist. Please use PATCH() method to update "to" key.'}
-                return Response(error_msg, status=status.HTTP_400_BAD_REQUEST)
+                content = {'error message': 'Match active fee list city: ' + error_msg + ' Please deactivate current active fee list.'}
+                return Response(content, status=status.HTTP_400_BAD_REQUEST)
 
 
             serializer.save()
-            #return Response(serializer.save(),status=status.HTTP_201_CREATED)
+            return Response(serializer.data)
+
         else:
             return Response(
 				serializer.errors,
 				status=status.HTTP_400_BAD_REQUEST
 			)
 
-    def update(self, request, pk=None):
+
+    def destroy(self, request, *args, **kwargs):
+        """Handle deleting an object"""
+        content = {'error message': 'http_method PUT is NOT allowed'}
+        return Response(content, status=status.HTTP_400_BAD_REQUEST)
+
+
+    def update(self, request, *args, **kwargs):
         """Handle updating an object"""
         content = {'error message': 'http_method PUT is NOT allowed'}
         return Response(content, status=status.HTTP_400_BAD_REQUEST)
 
 
-    def partial_update(self, request, pk):
+    def partial_update(self, request, *args, **kwargs):
         """Handle updating part of an object"""
-        #fee_item = get_object_or_404(Car, id=kwargs.get('pk'))
-        fee_items = models.Service_Fee_List.objects.values()
-        #fee_item = fee_items.get('id':)
-        content = {'error message': str(pk) + " "  + str(self)}
-        return Response(content, status=status.HTTP_400_BAD_REQUEST)
+        serializer = self.serializer_class(data=request.data)
+
+        if serializer.is_valid():
+            from_date = serializer.validated_data.get("from_date")
+            to_date = serializer.validated_data.get("to_date")
+            fee_list = serializer.validated_data.get("fee_list")
+            active = serializer.validated_data.get("active")
+            feedatalist = models.Service_Fee_List.objects.values()
+
+            fee_item = self.get_object()
+            data = request.data
+
+            # Not allow to update fee_list, from_date
+            if fee_list != None or from_date != None:
+                content = {'error message': "NOT allow to update from_date or fee_list data: "}
+                return Response(content, status=status.HTTP_400_BAD_REQUEST)
+
+            # to_date must be later than from_date
+            if to_date != None and sflc.from_later_than_to(fee_item.from_date,to_date):
+                content = {'error message': "to_date must be LATER than from_date! "}
+                return Response(content, status=status.HTTP_400_BAD_REQUEST)
+            fee_item.to_date = data.get("to_date",fee_item.to_date)
+
+            # updating active to true is allowed if not duplicated
+            fee_list_duplication = False
+            if active == True and fee_item.active == False:
+                fee_list_duplication, error_msg = sflc.check_fee_list_duplication(fee_item.fee_list,feedatalist, fee_item.id)
+            if fee_list_duplication:
+                content = {'error message': 'Match active fee list: ' + error_msg}
+                return Response(content, status=status.HTTP_400_BAD_REQUEST)
+
+            fee_item.active = data.get("active",fee_item.active)
+            fee_item.save()
+            #serializer.save()
+
+            serializer = serializers.Service_Fee_List_Serializer(fee_item)
+            return Response(serializer.data)
+
+        else:
+            return Response(
+				serializer.errors,
+				status=status.HTTP_400_BAD_REQUEST
+			)

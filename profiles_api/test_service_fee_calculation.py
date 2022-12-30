@@ -36,6 +36,18 @@ _AREA_LIST = ('I','II','III')
 _PRODUCT_LIST = ('Shopping','PestControl','DeepConstruction','Elderly','Patient','Child','HomeBasic',
 'Spiderman','PC','OfficeBasic','AC','Sofa','DeepHome','Basic')
 _SERVICE_TYPE_LIST = ('O','S','Q')
+_DEFAUT_SERVICE_CODE_LIST = {
+    "079":{
+        "Basic":["I_P4h","I_P3h","I_P2h","II_P4h","II_P3h","II_P2h","III_P4h","III_P3h","III_P2h","OOH","WKD","HOL","LNY","BLNY","ALNY","OwnTools","Urgent","Premium","ForeignLang"],
+        "DeepHome":["I_P4h","II_P4h","III_P4h","OOH","WKD","HOL","LNY","BLNY","ALNY","Urgent","ForeignLang"],
+        "Sofa":["Cotton1-Seat","Cotton2-Seat","Cotton3-Seat","CottonStool","Leather1-Seat","Leather2-Seat","Leather3-Seat","LeatherRecliner","LeatherStool","OOH","WKD","HOL","LNY","BLNY","ALNY","Urgent","Premium","ForeignLang"],
+    },
+    "others":{
+        "Basic":["I_P4h","I_P3h","I_P2h","OOH","WKD","HOL","LNY","BLNY","ALNY","OwnTools","Urgent","Premium","ForeignLang"],
+        "DeepHome":["I_P4h","OOH","WKD","HOL","LNY","BLNY","ALNY","Urgent","ForeignLang"],
+        "Sofa":["Cotton1-Seat","Cotton2-Seat","Cotton3-Seat","CottonStool","Leather1-Seat","Leather2-Seat","Leather3-Seat","LeatherRecliner","LeatherStool","OOH","WKD","HOL","LNY","BLNY","ALNY","Urgent","Premium","ForeignLang"],
+    }
+}
 _HOUSE_TYPE_LIST = ("apartment/single-story house", "building/multi-storey house", "villa",  "office")
 _TOTAL_AREA_LIST = ("< 50m2", "50m2 - 90m2", "90m2 - 140m2", "140m2 - 255m2", "255m2 - 500m2", "500m2 - 1000m2")
 _PROPERTY_DETAIL_PRESET = {
@@ -375,7 +387,6 @@ _DEFAUT_FEE_LIST = {
             "BLNY":0.65,
             "ALNY":0.60,
             "Urgent":20000,
-            "Premium":0.2,
             "ForeignLang":0.2
         },
         "O_Sofa":{
@@ -439,7 +450,6 @@ _DEFAUT_FEE_LIST = {
             "BLNY":0.65,
             "ALNY":0.60,
             "Urgent":20000,
-            "Premium":0.2,
             "ForeignLang":0.2
         },
         "O_Sofa":{
@@ -1774,3 +1784,17 @@ def get_compound_extra_fee(fee_details_response,feename,feelist,feelistkey):
             compound_fee_response = {"Total Fee": new_total_fee, feename: compound_fee}
             new_fee_details_response.update(compound_fee_response)
             return new_fee_details_response
+
+
+def get_active_city_fee_list(feedatalist, city):
+    #feedatalist.reverse()
+    fee_list = {}
+    fee_found = False
+    for this_item in reversed(feedatalist):
+        if this_item.get("active"):
+            all_fee_list = this_item.get("fee_list")
+            for key in all_fee_list.keys():
+                if key == city:
+                    return all_fee_list.get(city),True
+
+    return fee_list, fee_found

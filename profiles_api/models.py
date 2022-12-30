@@ -115,9 +115,12 @@ class One_Off_Fee(models.Model):
 
 class Service_Fee_List(models.Model):
 	"""Service Fee List Record"""
+	from_date = models.DateField(null=True, blank=True)
+	to_date = models.DateField(null=True, blank=True)
 	fee_list = jsonfield.JSONField()
+	active = models.BooleanField(default=False)
 	created_on = models.DateTimeField(auto_now_add=True)
 
-	def __str__(self):
-		"""Return the model as a string"""
-		return self.ID
+	#def __str__(self):
+		#"""Return the model as a string"""
+		#return str(self.id)

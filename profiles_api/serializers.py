@@ -66,5 +66,4 @@ class Service_Fee_List_Serializer(serializers.ModelSerializer):
 
     class Meta:
         model = models.Service_Fee_List
-        fields = ('id', 'fee_list', 'created_on')
-        extra_kwargs = {'feename': {'read_only': True}}
+        fields = ('id', 'from_date', 'to_date', 'active', 'fee_list', 'created_on')
