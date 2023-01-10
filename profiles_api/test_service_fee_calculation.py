@@ -452,13 +452,27 @@ def is_UrgentBooking(bookdate, starttime):
     BDateTime = datetime(int(days[0]), int(days[1]), int(days[2]),int(timelist[0]),int(timelist[1]),int(timelist[2]))
 
     localisedDatetime = datetime.now(pytz.timezone('Asia/Saigon'))
-    now = datetime(localisedDatetime.year,localisedDatetime.month,localisedDatetime.day,localisedDatetime.hour,localisedDatetime.minute,localisedDatetime.second)
     if localisedDatetime.hour < 22:
         now_plus2h = datetime(localisedDatetime.year,localisedDatetime.month,localisedDatetime.day,localisedDatetime.hour+2,localisedDatetime.minute,localisedDatetime.second)
     else:
         now_plus2h = datetime(localisedDatetime.year,localisedDatetime.month,localisedDatetime.day+1,localisedDatetime.hour-22,localisedDatetime.minute,localisedDatetime.second)
 
-    return (BDateTime > now) and (BDateTime < now_plus2h)
+    return (BDateTime < now_plus2h)
+
+
+def check_validBookingTime(bookdate, starttime):
+    error_messagge = ""
+    days = str(bookdate).split('-')
+    timelist = str(starttime).split(":")
+    BDateTime = datetime(int(days[0]), int(days[1]), int(days[2]),int(timelist[0]),int(timelist[1]),int(timelist[2]))
+
+    localisedDatetime = datetime.now(pytz.timezone('Asia/Saigon'))
+    now = datetime(localisedDatetime.year,localisedDatetime.month,localisedDatetime.day,localisedDatetime.hour,localisedDatetime.minute,localisedDatetime.second)
+
+    if BDateTime <= now:
+        error_messagge = "INVALID input: booking time must be later than current time! "
+
+    return error_messagge
 
 
 def check_valid_input(city,area,servicename,duration,propertydetails,subscription_schedule_details):

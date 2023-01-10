@@ -86,6 +86,7 @@ class Test_One_Off_Fee_View(viewsets.ModelViewSet):
                     duration =  0
 
                 error_messagge = test_sfc.check_valid_input(city,area,servicename,duration,propertydetails,subscription_schedule_details)
+                error_messagge = error_messagge + test_sfc.check_validBookingTime(bookdate, starttime)
                 if len(error_messagge) > 0:
                     content = {'error message': error_messagge}
                     return Response(content, status=status.HTTP_400_BAD_REQUEST)
