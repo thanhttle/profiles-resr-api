@@ -3,7 +3,7 @@ import jsonfield
 import datetime
 from datetime import date, timedelta
 from datetime import time, datetime
-import pytz
+from dateutil import tz
 import jsonschema
 from jsonschema import validate
 
@@ -448,14 +448,18 @@ def is_OutOfWorkingHour(starttime):
 
 def is_UrgentBooking(bookdate, starttime):
     days = str(bookdate).split('-')
-    BDate = date(int(days[0]), int(days[1]), int(days[2]))
     timelist = str(starttime).split(":")
-    BTime = time(int(timelist[0]),int(timelist[1]),int(timelist[2]))
+    BDateTime = datetime(int(days[0]), int(days[1]), int(days[2]),int(timelist[0]),int(timelist[1]),int(timelist[2]))
 
-    today = date.today()
-    now_in_SG = datetime.now(pytz.timezone('Asia/Saigon'))
-    current_Time_plus2h = time(now_in_SG.hour+2,now_in_SG.minute,now_in_SG.second)
-    return (today == BDate) and (BTime < current_Time_plus2h)
+    unlocalisedDatetime = datetime.now()
+    localisedDatetime = unlocalisedDatetime.astimezone(tz = tz.tzlocal())
+    now = datetime(localisedDatetime.year,localisedDatetime.month,localisedDatetime.day,localisedDatetime.hour,localisedDatetime.minute,localisedDatetime.second)
+    if localisedDatetime.hour < 22:
+        now_plus2h = datetime(localisedDatetime.year,localisedDatetime.month,localisedDatetime.day,localisedDatetime.hour+2,localisedDatetime.minute,localisedDatetime.second)
+    else:
+        now_plus2h = datetime(localisedDatetime.year,localisedDatetime.month,localisedDatetime.day+1,localisedDatetime.hour-22,localisedDatetime.minute,localisedDatetime.second)
+
+    return (BDateTime > now) and (BDateTime < now_plus2h)
 
 
 def check_valid_input(city,area,servicename,duration,propertydetails,subscription_schedule_details):
