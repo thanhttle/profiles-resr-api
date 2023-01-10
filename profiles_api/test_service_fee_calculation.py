@@ -3,7 +3,7 @@ import jsonfield
 import datetime
 from datetime import date, timedelta
 from datetime import time, datetime
-from dateutil import tz
+import pytz
 import jsonschema
 from jsonschema import validate
 
@@ -451,8 +451,7 @@ def is_UrgentBooking(bookdate, starttime):
     timelist = str(starttime).split(":")
     BDateTime = datetime(int(days[0]), int(days[1]), int(days[2]),int(timelist[0]),int(timelist[1]),int(timelist[2]))
 
-    unlocalisedDatetime = datetime.now()
-    localisedDatetime = unlocalisedDatetime.astimezone(tz = tz.tzlocal())
+    localisedDatetime = datetime.now(pytz.timezone('Asia/Saigon'))
     now = datetime(localisedDatetime.year,localisedDatetime.month,localisedDatetime.day,localisedDatetime.hour,localisedDatetime.minute,localisedDatetime.second)
     if localisedDatetime.hour < 22:
         now_plus2h = datetime(localisedDatetime.year,localisedDatetime.month,localisedDatetime.day,localisedDatetime.hour+2,localisedDatetime.minute,localisedDatetime.second)
