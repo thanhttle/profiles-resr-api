@@ -161,8 +161,8 @@ class Test_One_Off_Fee_View(viewsets.ModelViewSet):
 			)
 
 class One_Off_Fee_View(viewsets.ModelViewSet):
-    queryset = models.Test_One_Off_Fee.objects.all()
-    serializer_class = serializers.Test_One_Off_Fee_Serializer
+    queryset = models.One_Off_Fee.objects.all()
+    serializer_class = serializers.One_Off_Fee_Serializer
 
     def create(self,request):
         """Create a fee calculation """
@@ -183,12 +183,18 @@ class One_Off_Fee_View(viewsets.ModelViewSet):
             premiumservices = serializer.validated_data.get("premiumservices")
             foreignlanguage = serializer.validated_data.get("foreignlanguage")
 
+            feedatalist = models.Service_Fee_List.objects.values()
+
             if extra_hours_request != None:
                 servicename, city, area, base_code, error_messagge = sfc.check_valid_extra_hours_request(servicecode,extra_hours_request)
                 if len(error_messagge) > 0:
                     content = {'error message': "extra_hours_request: " + error_messagge}
                     return Response(content, status=status.HTTP_400_BAD_REQUEST)
-                city_fee_list = sfc._DEFAUT_FEE_LIST[city]
+                #city_fee_list = sfc._DEFAUT_FEE_LIST[city]
+                city_fee_list,feelist_found = sfc.get_active_city_fee_list(feedatalist,city)
+                if not feelist_found:
+                    content = {'error message': 'could not get fee_list for city: ' + city}
+                    return Response(content, status=status.HTTP_400_BAD_REQUEST)
                 service_fee_list = city_fee_list[servicename]
                 fee_details_response = sfc.get_extra_hours_request(servicecode,extra_hours_request,service_fee_list)
 
@@ -198,10 +204,15 @@ class One_Off_Fee_View(viewsets.ModelViewSet):
                     duration =  0
 
                 error_messagge = sfc.check_valid_input(city,area,servicename,duration,propertydetails,subscription_schedule_details)
+                #error_messagge = error_messagge + sfc.check_validBookingTime(bookdate, starttime)
                 if len(error_messagge) > 0:
                     content = {'error message': error_messagge}
                     return Response(content, status=status.HTTP_400_BAD_REQUEST)
-                city_fee_list = sfc._DEFAUT_FEE_LIST[city]
+                #city_fee_list = sfc._DEFAUT_FEE_LIST[city]
+                city_fee_list,feelist_found = sfc.get_active_city_fee_list(feedatalist,city)
+                if not feelist_found:
+                    content = {'error message': 'could not get fee_list for city: ' + city}
+                    return Response(content, status=status.HTTP_400_BAD_REQUEST)
                 service_fee_list = city_fee_list[servicename]
                 usedduration = duration
                 estimatedduration = 0

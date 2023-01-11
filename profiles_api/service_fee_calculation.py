@@ -19,10 +19,31 @@ _SPECIAL_DAYS = {
         "HOL":["2022-01-01","2022-01-02","2022-01-03","2022-04-10","2022-04-11","2022-04-30","2022-05-01","2022-05-02","2022-05-03","2022-09-01","2022-09-02","2022-12-31"]
     },
     "2023":{
-        "LNY":["2023-01-20","2023-01-21","2023-01-22","2023-01-23","2023-01-24","2023-01-25","2023-01-26"],
-        "BLNY":["2023-01-10","2023-01-11","2023-01-12","2023-01-13","2023-01-14","2023-01-15","2023-01-16","2023-01-17","2023-01-18","2023-01-19"],
-        "ALNY":["2023-01-27","2023-01-28","2023-01-29","2023-01-30","2023-01-31","2023-02-01","2023-02-02","2023-02-03","2023-02-04","2023-02-05"],
-        "HOL":["2023-01-01","2023-01-02","2023-04-29","2023-04-30","2023-05-01","2023-05-02","2023-09-02","2023-09-03","2023-09-04","2023-12-31"]
+        "LNY":["2023-01-20","2023-01-21","2023-01-22","2023-01-23","2023-01-24"],
+        "BLNY04":["2023-01-16","2023-01-17","2023-01-18","2023-01-19"],
+        "BLNY07":["2023-01-13","2023-01-14","2023-01-15"],
+        "BLNY10":["2023-01-10","2023-01-11","2023-01-12"],
+        "ALNY04":["2023-01-25","2023-01-26","2023-01-27","2023-01-28"],
+        "ALNY07":["2023-01-29","2023-01-30","2023-01-31"],
+        "HOL":["2023-01-01","2023-01-02","2023-04-29","2023-04-30","2023-05-01","2023-05-02","2023-05-03","2023-09-02","2023-09-03","2023-09-04","2023-12-31"]
+    },
+    "2024":{
+        "LNY":["2024-02-08","2024-02-09","2024-02-10","2024-02-11","2024-02-12"],
+        "BLNY04":["2024-02-04","2024-02-05","2024-02-06","2024-02-07"],
+        "BLNY07":["2024-02-01","2024-02-02","2024-02-03"],
+        "BLNY10":["2024-01-29","2024-01-30","2024-01-31"],
+        "ALNY04":["2024-02-13","2024-02-14","2024-02-15","2024-02-16"],
+        "ALNY07":["2024-02-17","2024-02-18","2024-02-19"],
+        "HOL":["2024-01-01","2024-04-18","2024-04-30","2024-05-01","2024-09-02"]
+    },
+    "2025":{
+        "LNY":["2025-01-27","2025-01-28","2025-01-29","2025-01-30","2025-01-31"],
+        "BLNY04":["2025-01-23","2025-01-24","2025-01-25","2025-01-26"],
+        "BLNY07":["2025-01-20","2025-01-21","2025-01-22"],
+        "BLNY10":["2025-01-17","2025-01-18","2025-01-19"],
+        "ALNY04":["2025-02-01","2025-02-02","2025-02-03","2025-02-04"],
+        "ALNY07":["2025-02-05","2025-02-06","2025-02-07"],
+        "HOL":["2025-01-01","2025-04-07","2025-04-30","2025-05-01","2025-09-02"]
     }
 }
 
@@ -36,6 +57,18 @@ _AREA_LIST = ('I','II','III')
 _PRODUCT_LIST = ('Shopping','PestControl','DeepConstruction','Elderly','Patient','Child','HomeBasic',
 'Spiderman','PC','OfficeBasic','AC','Sofa','DeepHome','Basic')
 _SERVICE_TYPE_LIST = ('O','S','Q')
+_DEFAUT_SERVICE_CODE_LIST = {
+    "079":{
+        "Basic":["I_P4h","I_P3h","I_P2h","II_P4h","II_P3h","II_P2h","III_P4h","III_P3h","III_P2h","OOH","WKD","HOL","LNY","BLNY04","BLNY07","BLNY10","ALNY04","ALNY07","OwnTools","Urgent","Premium","ForeignLang"],
+        "DeepHome":["I_P4h","II_P4h","III_P4h","OOH","WKD","HOL","LNY","BLNY04","BLNY07","BLNY10","ALNY04","ALNY07","Urgent","ForeignLang"],
+        "Sofa":["Cotton1-Seat","Cotton2-Seat","Cotton3-Seat","CottonStool","Leather1-Seat","Leather2-Seat","Leather3-Seat","LeatherRecliner","LeatherStool","OOH","WKD","HOL","LNY","BLNY04","BLNY07","BLNY10","ALNY04","ALNY07","Urgent","Premium","ForeignLang"],
+    },
+    "others":{
+        "Basic":["I_P4h","I_P3h","I_P2h","OOH","WKD","HOL","LNY","BLNY04","BLNY07","BLNY10","ALNY04","ALNY07","OwnTools","Urgent","Premium","ForeignLang"],
+        "DeepHome":["I_P4h","OOH","WKD","HOL","LNY","BLNY04","BLNY07","BLNY10","ALNY04","ALNY07","Urgent","ForeignLang"],
+        "Sofa":["Cotton1-Seat","Cotton2-Seat","Cotton3-Seat","CottonStool","Leather1-Seat","Leather2-Seat","Leather3-Seat","LeatherRecliner","LeatherStool","OOH","WKD","HOL","LNY","BLNY04","BLNY07","BLNY10","ALNY04","ALNY07","BLNY04","BLNY07","BLNY10","ALNY04","ALNY07","Urgent","Premium","ForeignLang"],
+    }
+}
 _HOUSE_TYPE_LIST = ("apartment/single-story house", "building/multi-storey house", "villa",  "office")
 _TOTAL_AREA_LIST = ("< 50m2", "50m2 - 90m2", "90m2 - 140m2", "140m2 - 255m2", "255m2 - 500m2", "500m2 - 1000m2")
 _PROPERTY_DETAIL_PRESET = {
@@ -320,150 +353,7 @@ _PROPERTY_DEEPHOME_PRESET = {
         },
     },
 }
-_DEFAUT_FEE_LIST = {
-    "079": {
-        "O_Basic":{
-            "I_P4h":69000,
-            "I_P3h":73000,
-            "I_P2h":88000,
-            "II_P4h":69000,
-            "II_P3h":73000,
-            "II_P2h":88000,
-            "III_P4h":76000,
-            "III_P3h":80000,
-            "III_P2h":96000,
-            "OOH": 0.17,
-            "WKD":0.17,
-            "HOL": 0.30,
-            "LNY":1.0,
-            "BLNY":0.65,
-            "ALNY":0.60,
-            "OwnTools":30000,
-            "Urgent":20000,
-            "Premium":0.2,
-            "ForeignLang":0.2
-        },
-        "S_Basic":{
-            "I_P4h":69000,
-            "I_P3h":73000,
-            "I_P2h":88000,
-            "II_P4h":69000,
-            "II_P3h":73000,
-            "II_P2h":88000,
-            "III_P4h":76000,
-            "III_P3h":80000,
-            "III_P2h":96000,
-            "OOH": 0.17,
-            "WKD":0.17,
-            "HOL": 0.30,
-            "LNY":1.0,
-            "BLNY":0.65,
-            "ALNY":0.60,
-            "OwnTools":30000,
-            "Urgent":20000,
-            "Premium":0.2,
-            "ForeignLang":0.2
-        },
-        "O_DeepHome":{
-            "I_P4h":90000,
-            "II_P4h":85000,
-            "III_P4h":100000,
-            "OOH": 0.17,
-            "WKD":0.17,
-            "HOL": 0.30,
-            "LNY":1.0,
-            "BLNY":0.65,
-            "ALNY":0.60,
-            "Urgent":20000,
-            "Premium":0.2,
-            "ForeignLang":0.2
-        },
-        "O_Sofa":{
-            "Cotton1-Seat":370000,
-            "Cotton2-Seat":440000,
-            "Cotton3-Seat":580000,
-            "CottonStool":50000,
-            "Leather1-Seat":420000,
-            "Leather2-Seat":480000,
-            "Leather3-Seat":620000,
-            "LeatherRecliner":290000,
-            "LeatherStool":60000,
-            "OOH": 0.17,
-            "WKD":0.17,
-            "HOL": 0.30,
-            "LNY":1.0,
-            "BLNY":0.65,
-            "ALNY":0.60,
-            "Urgent":20000,
-            "Premium":0.2,
-            "ForeignLang":0.2
-        }
-    },
-    "048": {
-        "O_Basic":{
-            "I_P4h":59000,
-            "I_P3h":62000,
-            "I_P2h":74000,
-            "OOH": 0.17,
-            "WKD":0.17,
-            "HOL": 0.30,
-            "LNY":1.0,
-            "BLNY":0.65,
-            "ALNY":0.60,
-            "OwnTools":30000,
-            "Urgent":20000,
-            "Premium":0.2,
-            "ForeignLang":0.2
-        },
-        "S_Basic":{
-            "I_P4h":59000,
-            "I_P3h":62000,
-            "I_P2h":74000,
-            "OOH": 0.17,
-            "WKD":0.17,
-            "HOL": 0.30,
-            "LNY":1.0,
-            "BLNY":0.65,
-            "ALNY":0.60,
-            "OwnTools":30000,
-            "Urgent":20000,
-            "Premium":0.2,
-            "ForeignLang":0.2
-        },
-        "O_DeepHome":{
-            "I_P4h":80000,
-            "OOH": 0.17,
-            "WKD":0.17,
-            "HOL": 0.30,
-            "LNY":1.0,
-            "BLNY":0.65,
-            "ALNY":0.60,
-            "Urgent":20000,
-            "Premium":0.2,
-            "ForeignLang":0.2
-        },
-        "O_Sofa":{
-            "Cotton1-Seat":330000,
-            "Cotton2-Seat":450000,
-            "Cotton3-Seat":540000,
-            "CottonStool":30000,
-            "Leather1-Seat":400000,
-            "Leather2-Seat":500000,
-            "Leather3-Seat":650000,
-            "LeatherRecliner":150000,
-            "LeatherStool":50000,
-            "OOH": 0.17,
-            "WKD":0.17,
-            "HOL": 0.30,
-            "LNY":1.0,
-            "BLNY":0.65,
-            "ALNY":0.60,
-            "Urgent":20000,
-            "Premium":0.2,
-            "ForeignLang":0.2
-        }
-    }
-}
+
 _Sofa_Duration = {
     "Cotton1-Seat":1.0,
     "Cotton2-Seat":1.5,
@@ -488,10 +378,12 @@ _SERVICE_TYPE_FACTORS = {
 }
 
 _FEE_LIST_AVAILABLE = ("O_Basic_079","S_Basic_079","O_DeepHome_079","O_Sofa_079","O_Basic_048","S_Basic_048","O_DeepHome_048","O_Sofa_048")
-_DEFAUT_SERVICE_FEE_DETAILS = {"is_OutOfficeHours":False, "is_Weekend":False, "is_Holiday":False, "is_NewYear":False, "is_BeforeNewYear":False, "is_AfterNewYear":False, "is_OwnTools":False}
+#_DEFAUT_SERVICE_FEE_DETAILS = {"is_OutOfficeHours":False, "is_Weekend":False, "is_Holiday":False, "is_NewYear":False, "is_BeforeNewYear":False, "is_AfterNewYear":False, "is_OwnTools":False}
 _WORK_DAY_LIST = ("Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday")
-_SPECIAL_FEE_NAMES = ["Normal Fee","Lunar New Year Fee","Right Before Lunar New Year Fee",
-    "Right After Lunar New Year Fee","Nation Holidays Fee","Weekend Fee","Out Of Office Hour Fee"]
+_SPECIAL_FEE_NAMES = ["Normal Fee","Lunar New Year Fee","1-4 Days Before Lunar New Year Fee",
+    "5-7 Days Before Lunar New Year Fee","8-10 Days Before Lunar New Year Fee",
+    "1-4 Days After Lunar New Year Fee","5-7 Days After Lunar New Year Fee",
+    "Nation Holidays Fee","Weekend Fee","Out Of Office Hour Fee"]
 
 def get_servicecode_details(servicecode,locationdetails):
     district_found = "unknown"
@@ -556,14 +448,31 @@ def is_OutOfWorkingHour(starttime):
 
 def is_UrgentBooking(bookdate, starttime):
     days = str(bookdate).split('-')
-    BDate = date(int(days[0]), int(days[1]), int(days[2]))
     timelist = str(starttime).split(":")
-    BTime = time(int(timelist[0]),int(timelist[1]),int(timelist[2]))
+    BDateTime = datetime(int(days[0]), int(days[1]), int(days[2]),int(timelist[0]),int(timelist[1]),int(timelist[2]))
 
-    today = date.today()
-    now_in_SG = datetime.now(pytz.timezone('Asia/Saigon'))
-    current_Time_plus2h = time(now_in_SG.hour+2,now_in_SG.minute,now_in_SG.second)
-    return (today == BDate) and (BTime < current_Time_plus2h)
+    localisedDatetime = datetime.now(pytz.timezone('Asia/Saigon'))
+    if localisedDatetime.hour < 22:
+        now_plus2h = datetime(localisedDatetime.year,localisedDatetime.month,localisedDatetime.day,localisedDatetime.hour+2,localisedDatetime.minute,localisedDatetime.second)
+    else:
+        now_plus2h = datetime(localisedDatetime.year,localisedDatetime.month,localisedDatetime.day+1,localisedDatetime.hour-22,localisedDatetime.minute,localisedDatetime.second)
+
+    return (BDateTime < now_plus2h)
+
+
+def check_validBookingTime(bookdate, starttime):
+    error_messagge = ""
+    days = str(bookdate).split('-')
+    timelist = str(starttime).split(":")
+    BDateTime = datetime(int(days[0]), int(days[1]), int(days[2]),int(timelist[0]),int(timelist[1]),int(timelist[2]))
+
+    localisedDatetime = datetime.now(pytz.timezone('Asia/Saigon'))
+    now = datetime(localisedDatetime.year,localisedDatetime.month,localisedDatetime.day,localisedDatetime.hour,localisedDatetime.minute,localisedDatetime.second)
+
+    if BDateTime <= now:
+        error_messagge = "INVALID input: booking time must be later than current time! "
+
+    return error_messagge
 
 
 def check_valid_input(city,area,servicename,duration,propertydetails,subscription_schedule_details):
@@ -1181,33 +1090,48 @@ def extra_fee_special_day_new(bookdate, starttime, feelist):
     year = get_year(bookdate)
     special_day_of_year = _SPECIAL_DAYS.get(year)
     LNY  = special_day_of_year.get("LNY")
-    BLNY  = special_day_of_year.get("BLNY")
-    ALNY  = special_day_of_year.get("ALNY")
+    BLNY04  = special_day_of_year.get("BLNY04")
+    BLNY07  = special_day_of_year.get("BLNY07")
+    BLNY10  = special_day_of_year.get("BLNY10")
+    ALNY04  = special_day_of_year.get("ALNY04")
+    ALNY07  = special_day_of_year.get("ALNY07")
     HOL  = special_day_of_year.get("HOL")
     if bookdate in LNY:
         fee_detail["is_NewYear"] = True
         extra_fee += feelist["LNY"]
         index = 1
-    elif bookdate in BLNY:
-        fee_detail["is_BeforeNewYear"] = True
-        extra_fee += feelist["BLNY"]
+    elif bookdate in BLNY04:
+        fee_detail["is_BeforeNewYear04Days"] = True
+        extra_fee += feelist["BLNY04"]
         index = 2
-    elif bookdate in ALNY:
-        fee_detail["is_AfterNewYear"] = True
-        extra_fee += feelist["ALNY"]
+    elif bookdate in BLNY07:
+        fee_detail["is_BeforeNewYear07Days"] = True
+        extra_fee += feelist["BLNY07"]
         index = 3
+    elif bookdate in BLNY10:
+        fee_detail["is_BeforeNewYear10Days"] = True
+        extra_fee += feelist["BLNY10"]
+        index = 4
+    elif bookdate in ALNY04:
+        fee_detail["is_AfterNewYear04Days"] = True
+        extra_fee += feelist["ALNY04"]
+        index = 5
+    elif bookdate in ALNY07:
+        fee_detail["is_AfterNewYear07Days"] = True
+        extra_fee += feelist["ALNY07"]
+        index = 6
     elif bookdate in HOL:
         fee_detail["is_Holiday"] = True
         extra_fee += feelist["HOL"]
-        index = 4
+        index = 7
     elif is_weekend(bookdate):
         fee_detail["is_Weekend"] = True
         extra_fee += feelist["WKD"]
-        index = 5
+        index = 8
     elif is_OutOfWorkingHour(starttime):
         fee_detail["is_OutOfficeHours"] = True
         extra_fee += feelist["OOH"]
-        index = 6
+        index = 9
     else:
         index = 0
 
@@ -1371,8 +1295,8 @@ def  get_S_Basic_fee_details_response(subscription_schedule_details,service_fee_
     process_date = actual_start_date
     total_fee = 0
     count = 0
-    component_fee = [0,0,0,0,0,0,0]
-    component_count = [0,0,0,0,0,0,0]
+    component_fee = [0,0,0,0,0,0,0,0,0,0]
+    component_count = [0,0,0,0,0,0,0,0,0,0]
 
     Day_by_Day_Fee_Response = []
     while process_date <= enddate_formatted:
@@ -1418,7 +1342,7 @@ def  get_S_Basic_fee_details_response(subscription_schedule_details,service_fee_
         fee_details_response.update(ironingclothes_fee_response)
     if count > 0:
         details_fee_type = {}
-        for i in range(7):
+        for i in range(10):
             if component_count[i] > 0:
                 if i == 0:
                     normal_fee_response = {"Normal Fee":{"Total Days": component_count[0], "Sub Total Fee":component_fee[0]}}
@@ -1427,19 +1351,28 @@ def  get_S_Basic_fee_details_response(subscription_schedule_details,service_fee_
                     LNY_fee_response = {"Lunar New Year Fee":{"Total Days": component_count[1], "Sub Total Fee":component_fee[1]}}
                     details_fee_type.update(LNY_fee_response)
                 elif i == 2:
-                    BLNY_fee_response = {"Right Before Lunar New Year Fee":{"Total Days": component_count[2], "Sub Total Fee":component_fee[2]}}
-                    details_fee_type.update(BLNY_fee_response)
+                    BLNY04_fee_response = {"1-4 Days Before Lunar New Year Fee":{"Total Days": component_count[2], "Sub Total Fee":component_fee[2]}}
+                    details_fee_type.update(BLNY04_fee_response)
                 elif i == 3:
-                    ALNY_fee_response = {"Right After Lunar New Year Fee":{"Total Days": component_count[3], "Sub Total Fee":component_fee[3]}}
-                    details_fee_type.update(ALNY_fee_response)
+                    BLNY07_fee_response = {"5-7 Days Before Lunar New Year Fee":{"Total Days": component_count[3], "Sub Total Fee":component_fee[3]}}
+                    details_fee_type.update(BLNY07_fee_response)
                 elif i == 4:
-                    HOL_fee_response = {"Nation Holidays Fee":{"Total Days": component_count[4], "Sub Total Fee":component_fee[4]}}
-                    details_fee_type.update(HOL_fee_response)
+                    BLNY10_fee_response = {"8-10 Days Before Lunar New Year Fee":{"Total Days": component_count[4], "Sub Total Fee":component_fee[4]}}
+                    details_fee_type.update(BLNY10_fee_response)
                 elif i == 5:
-                    WKD_fee_response = {"Weekend Fee":{"Total Days": component_count[5], "Sub Total Fee":component_fee[5]}}
-                    details_fee_type.update(WKD_fee_response)
+                    ALNY04_fee_response = {"1-4 Days After Lunar New Year Fee":{"Total Days": component_count[5], "Sub Total Fee":component_fee[5]}}
+                    details_fee_type.update(ALNY04_fee_response)
                 elif i == 6:
-                    OOH_fee_response = {"Out Of Office Hour Fee":{"Total Days": component_count[6], "Sub Total Fee":component_fee[6]}}
+                    ALNY07_fee_response = {"5-7 Days After Lunar New Year Fee":{"Total Days": component_count[6], "Sub Total Fee":component_fee[6]}}
+                    details_fee_type.update(ALNY07_fee_response)
+                elif i == 7:
+                    HOL_fee_response = {"Nation Holidays Fee":{"Total Days": component_count[7], "Sub Total Fee":component_fee[7]}}
+                    details_fee_type.update(HOL_fee_response)
+                elif i == 8:
+                    WKD_fee_response = {"Weekend Fee":{"Total Days": component_count[8], "Sub Total Fee":component_fee[8]}}
+                    details_fee_type.update(WKD_fee_response)
+                elif i == 9:
+                    OOH_fee_response = {"Out Of Office Hour Fee":{"Total Days": component_count[9], "Sub Total Fee":component_fee[9]}}
                     details_fee_type.update(OOH_fee_response)
         details_fee_type_response = {"Detailed Fees":details_fee_type}
         fee_details_response.update(details_fee_type_response)
@@ -1711,10 +1644,16 @@ def extra_fee_extra_hours_request(Extra_Service_Fee_Details, feelist):
     extra_fee = 0.0
     if Extra_Service_Fee_Details.get("is_NewYear") == True:
         extra_fee += feelist["LNY"]
-    elif Extra_Service_Fee_Details.get("is_BeforeNewYear") == True:
-        extra_fee += feelist["BLNY"]
-    elif Extra_Service_Fee_Details.get("is_AfterNewYear") == True:
-        extra_fee += feelist["ALNY"]
+    elif Extra_Service_Fee_Details.get("is_BeforeNewYear04Days") == True:
+        extra_fee += feelist["BLNY04"]
+    elif Extra_Service_Fee_Details.get("is_BeforeNewYear07Days") == True:
+        extra_fee += feelist["BLNY07"]
+    elif Extra_Service_Fee_Details.get("is_BeforeNewYear10Days") == True:
+        extra_fee += feelist["BLNY10"]
+    elif Extra_Service_Fee_Details.get("is_AfterNewYear04Days") == True:
+        extra_fee += feelist["ALNY04"]
+    elif Extra_Service_Fee_Details.get("is_AfterNewYear07Days") == True:
+        extra_fee += feelist["ALNY07"]
     elif Extra_Service_Fee_Details.get("is_Holiday") == True:
         extra_fee += feelist["HOL"]
     elif Extra_Service_Fee_Details.get("is_Weekend") == True:
@@ -1774,3 +1713,17 @@ def get_compound_extra_fee(fee_details_response,feename,feelist,feelistkey):
             compound_fee_response = {"Total Fee": new_total_fee, feename: compound_fee}
             new_fee_details_response.update(compound_fee_response)
             return new_fee_details_response
+
+
+def get_active_city_fee_list(feedatalist, city):
+    #feedatalist.reverse()
+    fee_list = {}
+    fee_found = False
+    for this_item in reversed(feedatalist):
+        if this_item.get("active"):
+            all_fee_list = this_item.get("fee_list")
+            for key in all_fee_list.keys():
+                if key == city:
+                    return all_fee_list.get(city),True
+
+    return fee_list, fee_found

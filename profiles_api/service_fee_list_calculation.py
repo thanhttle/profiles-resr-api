@@ -4,6 +4,7 @@ import jsonschema
 from jsonschema import validate
 
 from profiles_api import test_service_fee_calculation as test_sfc
+from profiles_api import service_fee_calculation as sfc
 
 _FEE_LIST_JSON_KEY = ("name", "value", "from", "to")
 
@@ -37,22 +38,22 @@ def validate_Json_key(jsondata):
     error_msg = ""
     jsondata_valid = True
     for city in jsondata.keys():
-        if city not in test_sfc._CITY_LIST:
+        if city not in sfc._CITY_LIST:
             jsondata_valid = False
             error_msg = error_msg + "city code: " + city + " does NOT exist!"
         city_data = jsondata.get(city)
         for service_code in city_data.keys():
             code_items =  service_code.split("_")
-            if code_items[0] not in test_sfc._SERVICE_TYPE_LIST:
+            if code_items[0] not in sfc._SERVICE_TYPE_LIST:
                 jsondata_valid = False
                 error_msg = error_msg + "service type code: " + code_items[0] + " does NOT exist!"
-            if code_items[1] not in test_sfc._PRODUCT_LIST:
+            if code_items[1] not in sfc._PRODUCT_LIST:
                 jsondata_valid = False
                 error_msg = error_msg + "product code: " + code_items[1] + " does NOT exist!"
             if city == "079":
-                service_code_list =  test_sfc._DEFAUT_SERVICE_CODE_LIST.get(city)
+                service_code_list =  sfc._DEFAUT_SERVICE_CODE_LIST.get(city)
             else:
-                service_code_list =  test_sfc._DEFAUT_SERVICE_CODE_LIST.get("others")
+                service_code_list =  sfc._DEFAUT_SERVICE_CODE_LIST.get("others")
             if service_code_list != None:
                 fee_name_list = service_code_list.get(code_items[1])
                 new_fee_list = []
