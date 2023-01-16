@@ -106,7 +106,8 @@ _PROPERTY_DETAIL_PRESET = {
             "estimated duration":{"min":6,"max":10},
             "recommended duration":8},
         "> 500m2":{
-            "message":"Notify admins so they can talk to customer directly!"}
+            "estimated duration":{"min":8,"max":16},
+            "recommended duration":12}
     },
     "office":{
         "< 50m2":{
@@ -121,8 +122,12 @@ _PROPERTY_DETAIL_PRESET = {
         "140m2 - 255m2":{
             "estimated duration":{"min":3,"max":5},
             "recommended duration":4},
-        "> 255m2":{
-            "message":"Notify admins so they can talk to customer directly!"}
+        "255m2 - 500m2":{
+            "estimated duration":{"min":5,"max":9},
+            "recommended duration":7},
+        "> 500m2":{
+            "estimated duration":{"min":7,"max":13},
+            "recommended duration":10}
     },
     "building/multi-storey house":{
         "1-Storey":{
@@ -192,7 +197,8 @@ _PROPERTY_DETAIL_PRESET = {
                 "estimated duration":{"min":10,"max":12},
                 "recommended duration":11},
             "> 500m2":{
-                "message":"Notify admins so they can talk to customer directly!"}
+                "estimated duration":{"min":11,"max":15},
+                "recommended duration":13}
         },
         "6-Storey":{
             "< 440m2":{
@@ -202,7 +208,8 @@ _PROPERTY_DETAIL_PRESET = {
                 "estimated duration":{"min":10,"max":12},
                 "recommended duration":11},
             "> 500m2":{
-                "message":"Notify admins so they can talk to customer directly!"}
+                "estimated duration":{"min":11,"max":15},
+                "recommended duration":13}
         },
     },
 }
@@ -243,17 +250,18 @@ _PROPERTY_DEEPHOME_PRESET = {
             "bathroom":{"min":1,"max":4},
             "livingroom":{"min":1,"max":2},
             "kitchen":{"min":1,"max":2},
-            "estimated duration":{"min":14,"max":18},
+            "estimated duration":{"min":12,"max":20},
             "recommended duration":16},
         "255m2 - 500m2":{
             "bedroom":{"min":3,"max":6},
             "bathroom":{"min":3,"max":8},
             "livingroom":{"min":1,"max":3},
             "kitchen":{"min":1,"max":3},
-            "estimated duration":{"min":30,"max":34},
+            "estimated duration":{"min":28,"max":36},
             "recommended duration":32},
         "> 500m2":{
-            "message":"Notify admins so they can talk to customer directly!"}
+            "estimated duration":{"min":32,"max":40},
+            "recommended duration":36}
     },
     "office":{
         "< 50m2":{
@@ -263,13 +271,17 @@ _PROPERTY_DEEPHOME_PRESET = {
             "estimated duration":{"min":8,"max":10},
             "recommended duration":8},
         "90m2 - 140m2":{
-            "estimated duration":{"min":10,"max":14},
-            "recommended duration":12},
+            "estimated duration":{"min":9,"max":13},
+            "recommended duration":11},
         "140m2 - 255m2":{
-            "estimated duration":{"min":14,"max":18},
-            "recommended duration":16},
-        "> 255m2":{
-            "message":"Notify admins so they can talk to customer directly!"}
+            "estimated duration":{"min":12,"max":16},
+            "recommended duration":14},
+        "255m2 - 500m2":{
+            "estimated duration":{"min":24,"max":32},
+            "recommended duration":28},
+        "> 500m2":{
+            "estimated duration":{"min":28,"max":36},
+            "recommended duration":32}
     },
     "building/multi-storey house":{
         "1-Storey":{
@@ -339,7 +351,8 @@ _PROPERTY_DEEPHOME_PRESET = {
                 "estimated duration":{"min":34,"max":38},
                 "recommended duration":36},
             "> 500m2":{
-                "message":"Notify admins so they can talk to customer directly!"}
+                "estimated duration":{"min":36,"max":44},
+                "recommended duration":40}
         },
         "6-Storey":{
             "< 440m2":{
@@ -349,7 +362,8 @@ _PROPERTY_DEEPHOME_PRESET = {
                 "estimated duration":{"min":34,"max":38},
                 "recommended duration":36},
             "> 500m2":{
-                "message":"Notify admins so they can talk to customer directly!"}
+                "estimated duration":{"min":36,"max":44},
+                "recommended duration":40}
         },
     },
 }
@@ -511,9 +525,6 @@ def check_valid_input(city,area,servicename,duration,propertydetails,subscriptio
                     property_details_preset = _PROPERTY_DEEPHOME_PRESET.get(housetype)
                 else:
                     property_details_preset = _PROPERTY_DETAIL_PRESET.get(housetype)
-                if ((housetype == "villa" or housetype == "building/multi-storey house") and totalarea == "> 500m2") or (housetype == "office" and totalarea == "> 255m2"):
-                    error_messagge = "Notify admins so they can talk to customer directly!"
-                    return error_messagge
 
                 if housetype == "building/multi-storey house":
                     if propertydetails.get("numberoffloors") == None:
@@ -531,35 +542,6 @@ def check_valid_input(city,area,servicename,duration,propertydetails,subscriptio
                     for totalarea_key in property_details_preset.keys():
                         if totalarea == totalarea_key:
                             totalarea_key_found = True
-                            if totalarea != "< 50m2" and (housetype == "apartment/single-story house" or housetype =="villa"):
-                                if propertydetails.get("numberoffbedroom") == None:
-                                    numberoffbedroom = 0
-                                else:
-                                    numberoffbedroom = propertydetails.get("numberoffbedroom")
-                                if propertydetails.get("numberoffbathroom") == None:
-                                    numberoffbathroom = 0
-                                else:
-                                    numberoffbathroom = propertydetails.get("numberoffbathroom")
-                                number_of_rooms_preset = property_details_preset.get(totalarea)
-                                bedrooms_preset = number_of_rooms_preset.get("bedroom")
-                                bedrooms_min = bedrooms_preset.get("min")
-                                bedrooms_max = bedrooms_preset.get("max")
-                                bathrooms_preset = number_of_rooms_preset.get("bathroom")
-                                bathrooms_min = bathrooms_preset.get("min")
-                                bathrooms_max = bathrooms_preset.get("max")
-                                if numberoffbedroom < bedrooms_min or numberoffbedroom > bedrooms_max:
-                                    error_propertydetails = True
-                                    error_messagge_propertydetails  = error_messagge_propertydetails  + "INVALID number of bedroom (either < min  or > max) of " + housetype + " in propertydetails; "
-                                if numberoffbathroom < bathrooms_min or numberoffbathroom > bathrooms_max:
-                                    error_propertydetails = True
-                                    error_messagge_propertydetails  = error_messagge_propertydetails  + "INVALID number of bathroom (either < min  or > max) of " + housetype + " in propertydetails; "
-                                if servicename == "O_DeepHome":
-                                    livingrooms_preset = number_of_rooms_preset.get("livingroom")
-                                    livingrooms_min = livingrooms_preset.get("min")
-                                    livingrooms_max = livingrooms_preset.get("max")
-                                    livingrooms_preset = number_of_rooms_preset.get("livingroom")
-                                    livingrooms_min = livingrooms_preset.get("min")
-                                    livingrooms_max = livingrooms_preset.get("max")
                             break
                     if totalarea_key_found == False:
                         error_propertydetails = True
