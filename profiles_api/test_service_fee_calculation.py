@@ -1025,11 +1025,14 @@ def get_estimated_fee_sofacleaning(bookdate,starttime,propertydetails,urgentbook
         estimatedfee = estimatedfee + curtainswaterwashing_fee
         fee_details_response.update(curtainswaterwashing_response)
 
-    # Minimum serbvice is 2 hours
+    # Minimum serbvice is 500000 vnd and 0.5 hours
     if estimatedfee < 500000:
         estimatedfee = 500000
         minimum_response = {"Minimum Fee Applied": True}
         fee_details_response.update(minimum_response)
+
+    if estimatedduration < 0.5:
+        estimatedduration = 0.5
 
     total_fee_response = {"Total Fee": int(estimatedfee), "Estimated Duration": round(estimatedduration,1)}
     fee_details_response.update(total_fee_response)
