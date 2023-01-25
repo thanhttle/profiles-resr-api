@@ -106,7 +106,8 @@ _PROPERTY_DETAIL_PRESET = {
             "estimated duration":{"min":6,"max":10},
             "recommended duration":8},
         "> 500m2":{
-            "message":"Notify admins so they can talk to customer directly!"}
+            "estimated duration":{"min":8,"max":16},
+            "recommended duration":12}
     },
     "office":{
         "< 50m2":{
@@ -121,8 +122,12 @@ _PROPERTY_DETAIL_PRESET = {
         "140m2 - 255m2":{
             "estimated duration":{"min":3,"max":5},
             "recommended duration":4},
-        "> 255m2":{
-            "message":"Notify admins so they can talk to customer directly!"}
+        "255m2 - 500m2":{
+            "estimated duration":{"min":5,"max":9},
+            "recommended duration":7},
+        "> 500m2":{
+            "estimated duration":{"min":7,"max":13},
+            "recommended duration":10}
     },
     "building/multi-storey house":{
         "1-Storey":{
@@ -192,7 +197,8 @@ _PROPERTY_DETAIL_PRESET = {
                 "estimated duration":{"min":10,"max":12},
                 "recommended duration":11},
             "> 500m2":{
-                "message":"Notify admins so they can talk to customer directly!"}
+                "estimated duration":{"min":11,"max":15},
+                "recommended duration":13}
         },
         "6-Storey":{
             "< 440m2":{
@@ -202,7 +208,8 @@ _PROPERTY_DETAIL_PRESET = {
                 "estimated duration":{"min":10,"max":12},
                 "recommended duration":11},
             "> 500m2":{
-                "message":"Notify admins so they can talk to customer directly!"}
+                "estimated duration":{"min":11,"max":15},
+                "recommended duration":13}
         },
     },
 }
@@ -243,17 +250,18 @@ _PROPERTY_DEEPHOME_PRESET = {
             "bathroom":{"min":1,"max":4},
             "livingroom":{"min":1,"max":2},
             "kitchen":{"min":1,"max":2},
-            "estimated duration":{"min":14,"max":18},
+            "estimated duration":{"min":12,"max":20},
             "recommended duration":16},
         "255m2 - 500m2":{
             "bedroom":{"min":3,"max":6},
             "bathroom":{"min":3,"max":8},
             "livingroom":{"min":1,"max":3},
             "kitchen":{"min":1,"max":3},
-            "estimated duration":{"min":30,"max":34},
+            "estimated duration":{"min":28,"max":36},
             "recommended duration":32},
         "> 500m2":{
-            "message":"Notify admins so they can talk to customer directly!"}
+            "estimated duration":{"min":32,"max":40},
+            "recommended duration":36}
     },
     "office":{
         "< 50m2":{
@@ -263,13 +271,17 @@ _PROPERTY_DEEPHOME_PRESET = {
             "estimated duration":{"min":8,"max":10},
             "recommended duration":8},
         "90m2 - 140m2":{
-            "estimated duration":{"min":10,"max":14},
-            "recommended duration":12},
+            "estimated duration":{"min":9,"max":13},
+            "recommended duration":11},
         "140m2 - 255m2":{
-            "estimated duration":{"min":14,"max":18},
-            "recommended duration":16},
-        "> 255m2":{
-            "message":"Notify admins so they can talk to customer directly!"}
+            "estimated duration":{"min":12,"max":16},
+            "recommended duration":14},
+        "255m2 - 500m2":{
+            "estimated duration":{"min":24,"max":32},
+            "recommended duration":28},
+        "> 500m2":{
+            "estimated duration":{"min":28,"max":36},
+            "recommended duration":32}
     },
     "building/multi-storey house":{
         "1-Storey":{
@@ -339,7 +351,8 @@ _PROPERTY_DEEPHOME_PRESET = {
                 "estimated duration":{"min":34,"max":38},
                 "recommended duration":36},
             "> 500m2":{
-                "message":"Notify admins so they can talk to customer directly!"}
+                "estimated duration":{"min":36,"max":44},
+                "recommended duration":40}
         },
         "6-Storey":{
             "< 440m2":{
@@ -349,7 +362,8 @@ _PROPERTY_DEEPHOME_PRESET = {
                 "estimated duration":{"min":34,"max":38},
                 "recommended duration":36},
             "> 500m2":{
-                "message":"Notify admins so they can talk to customer directly!"}
+                "estimated duration":{"min":36,"max":44},
+                "recommended duration":40}
         },
     },
 }
@@ -370,6 +384,7 @@ DUR_FOR_BIG_ROOM = 0.8
 DUR_FOR_NORMAL_BATHROOM = 0.3
 DUR_FOR_BIG_BATHROOM = 0.4
 DUR_FOR_IRONINGCLOTHES = 0.5
+DUR_FOR_HANDWASHCLOTHES = 0.5
 DUR_FOR_WITHPETS = 0.5
 _SERVICE_TYPE_FACTORS = {
     "O_Basic": 1,
@@ -511,9 +526,6 @@ def check_valid_input(city,area,servicename,duration,propertydetails,subscriptio
                     property_details_preset = _PROPERTY_DEEPHOME_PRESET.get(housetype)
                 else:
                     property_details_preset = _PROPERTY_DETAIL_PRESET.get(housetype)
-                if ((housetype == "villa" or housetype == "building/multi-storey house") and totalarea == "> 500m2") or (housetype == "office" and totalarea == "> 255m2"):
-                    error_messagge = "Notify admins so they can talk to customer directly!"
-                    return error_messagge
 
                 if housetype == "building/multi-storey house":
                     if propertydetails.get("numberoffloors") == None:
@@ -531,35 +543,6 @@ def check_valid_input(city,area,servicename,duration,propertydetails,subscriptio
                     for totalarea_key in property_details_preset.keys():
                         if totalarea == totalarea_key:
                             totalarea_key_found = True
-                            if totalarea != "< 50m2" and (housetype == "apartment/single-story house" or housetype =="villa"):
-                                if propertydetails.get("numberoffbedroom") == None:
-                                    numberoffbedroom = 0
-                                else:
-                                    numberoffbedroom = propertydetails.get("numberoffbedroom")
-                                if propertydetails.get("numberoffbathroom") == None:
-                                    numberoffbathroom = 0
-                                else:
-                                    numberoffbathroom = propertydetails.get("numberoffbathroom")
-                                number_of_rooms_preset = property_details_preset.get(totalarea)
-                                bedrooms_preset = number_of_rooms_preset.get("bedroom")
-                                bedrooms_min = bedrooms_preset.get("min")
-                                bedrooms_max = bedrooms_preset.get("max")
-                                bathrooms_preset = number_of_rooms_preset.get("bathroom")
-                                bathrooms_min = bathrooms_preset.get("min")
-                                bathrooms_max = bathrooms_preset.get("max")
-                                if numberoffbedroom < bedrooms_min or numberoffbedroom > bedrooms_max:
-                                    error_propertydetails = True
-                                    error_messagge_propertydetails  = error_messagge_propertydetails  + "INVALID number of bedroom (either < min  or > max) of " + housetype + " in propertydetails; "
-                                if numberoffbathroom < bathrooms_min or numberoffbathroom > bathrooms_max:
-                                    error_propertydetails = True
-                                    error_messagge_propertydetails  = error_messagge_propertydetails  + "INVALID number of bathroom (either < min  or > max) of " + housetype + " in propertydetails; "
-                                if servicename == "O_DeepHome":
-                                    livingrooms_preset = number_of_rooms_preset.get("livingroom")
-                                    livingrooms_min = livingrooms_preset.get("min")
-                                    livingrooms_max = livingrooms_preset.get("max")
-                                    livingrooms_preset = number_of_rooms_preset.get("livingroom")
-                                    livingrooms_min = livingrooms_preset.get("min")
-                                    livingrooms_max = livingrooms_preset.get("max")
                             break
                     if totalarea_key_found == False:
                         error_propertydetails = True
@@ -677,7 +660,7 @@ def check_valid_input(city,area,servicename,duration,propertydetails,subscriptio
     return error_messagge
 
 
-def get_estimated_duration_for_cleaning(ironingclothes, propertydetails):
+def get_estimated_duration_for_cleaning(extra_services, propertydetails):
     """Estimation for Cleaning Service"""
     estimatedduration = 0.0
 
@@ -726,8 +709,6 @@ def get_estimated_duration_for_cleaning(ironingclothes, propertydetails):
         estimatedduration = estimatedduration + numberoffbathroom * 0.3
         if housetype == "building/multi-storey house":
             estimatedduration = estimatedduration + 0.5
-        if ironingclothes:
-            estimatedduration = estimatedduration + 0.5
 
         # Check min for estimatedduration
         if estimatedduration < 12.0 and totalarea == "500m2 - 1000m2":
@@ -755,13 +736,21 @@ def get_estimated_duration_for_cleaning(ironingclothes, propertydetails):
     if withpets:
         estimatedduration = estimatedduration + 0.5
 
+    # EXTRA services
+    ironingclothes = extra_services.get("ironingclothes")
+    handwashclothes = extra_services.get("handwashclothes")
+    if ironingclothes:
+        estimatedduration = estimatedduration + DUR_FOR_IRONINGCLOTHES
+    if handwashclothes:
+        estimatedduration = estimatedduration + DUR_FOR_HANDWASHCLOTHES
+
     # Minimum serbvice is 2 hours
     if estimatedduration < 2.0:
         estimatedduration = 2.0
 
     return math.ceil(estimatedduration)
 
-def get_estimated_duration_for_DeepHome(ironingclothes, propertydetails):
+def get_estimated_duration_for_DeepHome(extra_services, propertydetails):
     """Estimation for Cleaning Service"""
     estimatedduration = 0.0
 
@@ -818,7 +807,15 @@ def get_estimated_duration_for_DeepHome(ironingclothes, propertydetails):
         elif estimatedduration < 6.0 and totalarea == "< 50m2":
             estimatedduration = 6.0
 
-    # Minimum serbvice is 2 hours
+    # EXTRA services
+    ironingclothes = extra_services.get("ironingclothes")
+    handwashclothes = extra_services.get("handwashclothes")
+    if ironingclothes:
+        estimatedduration = estimatedduration + DUR_FOR_IRONINGCLOTHES
+    if handwashclothes:
+        estimatedduration = estimatedduration + DUR_FOR_HANDWASHCLOTHES
+
+    # Minimum serbvice is 6 hours
     if estimatedduration < 6.0:
         estimatedduration = 6.0
 
@@ -1043,11 +1040,14 @@ def get_estimated_fee_sofacleaning(bookdate,starttime,propertydetails,urgentbook
         estimatedfee = estimatedfee + curtainswaterwashing_fee
         fee_details_response.update(curtainswaterwashing_response)
 
-    # Minimum serbvice is 2 hours
+    # Minimum serbvice is 500000 vnd and 0.5 hours
     if estimatedfee < 500000:
         estimatedfee = 500000
         minimum_response = {"Minimum Fee Applied": True}
         fee_details_response.update(minimum_response)
+
+    if estimatedduration < 0.5:
+        estimatedduration = 0.5
 
     total_fee_response = {"Total Fee": int(estimatedfee), "Estimated Duration": round(estimatedduration,1)}
     fee_details_response.update(total_fee_response)
@@ -1059,20 +1059,20 @@ def get_estimated_fee_sofacleaning(bookdate,starttime,propertydetails,urgentbook
     return fee_details_response
 
 
-def get_estimated_duration(ironingclothes, propertydetails,subscription_schedule_details, servicename):
+def get_estimated_duration(extra_services, propertydetails,subscription_schedule_details, servicename):
     estimatedduration = 0.0
 
     if servicename == "O_Basic":
-        estimatedduration  = get_estimated_duration_for_cleaning(ironingclothes, propertydetails)
+        estimatedduration  = get_estimated_duration_for_cleaning(extra_services, propertydetails)
     elif servicename == "S_Basic":
         if propertydetails != None and json.dumps(propertydetails) != "{}":
-            estimatedduration  = get_estimated_duration_for_cleaning(ironingclothes, propertydetails)
+            estimatedduration  = get_estimated_duration_for_cleaning(extra_services, propertydetails)
         elif subscription_schedule_details != None:
             estimatedduration = subscription_schedule_details.get("workingduration")
         else:
             estimatedduration = 0.0
     elif servicename == "O_DeepHome":
-        estimatedduration = get_estimated_duration_for_DeepHome(ironingclothes, propertydetails)
+        estimatedduration = get_estimated_duration_for_DeepHome(extra_services, propertydetails)
 
     return math.ceil(estimatedduration)
 
@@ -1150,7 +1150,7 @@ def  get_Oneday_Basic_fee_details(bookdate,starttime,service_fee_list,base_rate,
     return int(total_fee), index, final_rate
 
 
-def  get_O_Basic_fee_details_response(bookdate,starttime,service_fee_list,base_rate,duration,estimatedduration,usedduration,owntool,ironingclothes,urgentbooking,fee_detail):
+def  get_O_Basic_fee_details_response(bookdate,starttime,service_fee_list,base_rate,duration,estimatedduration,usedduration,owntool,extra_services,urgentbooking,fee_detail):
     """Get fee details of the service"""
     extra_fee_percent, extra_service_fee_details, index = extra_fee_special_day_new(bookdate,starttime,service_fee_list)
     final_rate = base_rate * (1 + extra_fee_percent)
@@ -1172,10 +1172,18 @@ def  get_O_Basic_fee_details_response(bookdate,starttime,service_fee_list,base_r
         urgentbooking_fee_response = {"Total Fee": int(total_fee),"Urgent Booking Fee": int(urgentbooking_fee)}
         fee_details_response.update(urgentbooking_fee_response)
 
+
+    # Extra Services
+    ironingclothes = extra_services.get("ironingclothes")
+    handwashclothes = extra_services.get("handwashclothes")
     if ironingclothes == True:
-        ironingclothes_fee = final_rate * 0.5
+        ironingclothes_fee = final_rate * DUR_FOR_IRONINGCLOTHES
         ironingclothes_fee_response = {"Ironing Clothes Fee": int(ironingclothes_fee)}
         fee_details_response.update(ironingclothes_fee_response)
+    if handwashclothes:
+        handwashclothes_fee = final_rate * DUR_FOR_HANDWASHCLOTHES
+        handwashclothes_fee_response = {"Hand-Washing Clothes Fee": int(handwashclothes_fee)}
+        fee_details_response.update(handwashclothes_fee_response)
 
     extra_service_fee_details.update(fee_detail)
     extra_service_fee_response = {"Extra Service Fee Details": extra_service_fee_details}
@@ -1189,7 +1197,7 @@ def  get_O_Basic_fee_details_response(bookdate,starttime,service_fee_list,base_r
     return fee_details_response
 
 
-def  get_O_DeepHome_fee_details_response(bookdate,starttime,service_fee_list,base_rate,duration,estimatedduration,usedduration,owntool,ironingclothes,urgentbooking,fee_detail):
+def  get_O_DeepHome_fee_details_response(bookdate,starttime,service_fee_list,base_rate,duration,estimatedduration,usedduration,owntool,extra_services,urgentbooking,fee_detail):
     """Get fee details of the DeepHome service"""
     extra_fee_percent, extra_service_fee_details, index = extra_fee_special_day_new(bookdate,starttime,service_fee_list)
     final_rate = base_rate * (1 + extra_fee_percent)
@@ -1205,10 +1213,17 @@ def  get_O_DeepHome_fee_details_response(bookdate,starttime,service_fee_list,bas
         urgentbooking_fee_response = {"Total Fee": int(total_fee),"Urgent Booking Fee": int(urgentbooking_fee)}
         fee_details_response.update(urgentbooking_fee_response)
 
+    # Extra Services
+    ironingclothes = extra_services.get("ironingclothes")
+    handwashclothes = extra_services.get("handwashclothes")
     if ironingclothes == True:
-        ironingclothes_fee = final_rate
+        ironingclothes_fee = final_rate * DUR_FOR_IRONINGCLOTHES
         ironingclothes_fee_response = {"Ironing Clothes Fee": int(ironingclothes_fee)}
         fee_details_response.update(ironingclothes_fee_response)
+    if handwashclothes:
+        handwashclothes_fee = final_rate * DUR_FOR_HANDWASHCLOTHES
+        handwashclothes_fee_response = {"Hand-Washing Clothes Fee": int(handwashclothes_fee)}
+        fee_details_response.update(handwashclothes_fee_response)
 
     extra_service_fee_details.update(fee_detail)
     extra_service_fee_response = {"Extra Service Fee Details": extra_service_fee_details}
@@ -1274,7 +1289,7 @@ def get_first_working_date(startdate_formatted,workingdays_weekday_value):
     return index, actual_start_date
 
 
-def  get_S_Basic_fee_details_response(subscription_schedule_details,service_fee_list,base_rate,duration,estimatedduration,usedduration,owntool,ironingclothes,urgentbooking,fee_detail):
+def  get_S_Basic_fee_details_response(subscription_schedule_details,service_fee_list,base_rate,duration,estimatedduration,usedduration,owntool,extra_services,urgentbooking,fee_detail):
     """Get fee details of the subscription service"""
     fee_details_response = {}
     workingdays = subscription_schedule_details.get("workingdays")
@@ -1298,6 +1313,8 @@ def  get_S_Basic_fee_details_response(subscription_schedule_details,service_fee_
     component_fee = [0,0,0,0,0,0,0,0,0,0]
     component_count = [0,0,0,0,0,0,0,0,0,0]
 
+    ironingclothes = extra_services.get("ironingclothes")
+    handwashclothes = extra_services.get("handwashclothes")
     Day_by_Day_Fee_Response = []
     while process_date <= enddate_formatted:
         oneday_fee, index, final_rate = get_Oneday_Basic_fee_details(process_date,workingtime,service_fee_list,base_rate,duration,estimatedduration,usedduration,owntool,ironingclothes,fee_detail)
@@ -1305,8 +1322,11 @@ def  get_S_Basic_fee_details_response(subscription_schedule_details,service_fee_
         if owntool == True:
             one_day_fee_response.update({"OwnTools Fee":service_fee_list["OwnTools"]})
         if ironingclothes == True:
-            ironingclothes_fee = final_rate * 0.5
+            ironingclothes_fee = final_rate * DUR_FOR_IRONINGCLOTHES
             one_day_fee_response.update({"Ironing Clothes Fee": int(ironingclothes_fee)})
+        if handwashclothes == True:
+            handwashclothes_fee = final_rate * DUR_FOR_HANDWASHCLOTHES
+            one_day_fee_response.update({"Hand-Washing Clothes Fee": int(handwashclothes_fee)})
         Day_by_Day_Fee_Response.append(one_day_fee_response)
         total_fee = total_fee + oneday_fee
         count = count + 1
@@ -1336,10 +1356,17 @@ def  get_S_Basic_fee_details_response(subscription_schedule_details,service_fee_
         total_owntool_fee = count * service_fee_list["OwnTools"]
         total_owntool_response = {"Total OwnTools Fee": total_owntool_fee}
         fee_details_response.update(total_owntool_response)
+
+    # Extra Services
     if ironingclothes == True:
-        ironingclothes_fee = count * final_rate * 0.5
-        ironingclothes_fee_response = {"Ironing Clothes Fee": int(ironingclothes_fee)}
+        ironingclothes_fee = count * final_rate * DUR_FOR_IRONINGCLOTHES
+        ironingclothes_fee_response = {"Total Ironing Clothes Fee": int(ironingclothes_fee)}
         fee_details_response.update(ironingclothes_fee_response)
+    if handwashclothes:
+        handwashclothes_fee = count * final_rate * DUR_FOR_HANDWASHCLOTHES
+        handwashclothes_fee_response = {"Total Hand-Washing Clothes Fee": int(handwashclothes_fee)}
+        fee_details_response.update(handwashclothes_fee_response)
+
     if count > 0:
         details_fee_type = {}
         for i in range(10):
@@ -1384,74 +1411,7 @@ def  get_S_Basic_fee_details_response(subscription_schedule_details,service_fee_
     return fee_details_response
 
 
-def get_estimated_duration_for_DeepHome_new(ironingclothes, propertydetails):
-    """Estimation for Cleaning Service"""
-    estimatedduration = 0.0
-
-    if propertydetails.get("housetype") != None:
-
-        housetype = propertydetails.get("housetype")
-
-        if propertydetails.get("numberoffloors") == None:
-            numberoffloors = 1
-        else:
-            numberoffloors = propertydetails.get("numberoffloors")
-
-        if propertydetails.get("numberoffbedroom") == None:
-            numberoffbedroom = 0
-        else:
-            numberoffbedroom = propertydetails.get("numberoffbedroom")
-
-        if propertydetails.get("numberofflivingroom") == None:
-            numberofflivingroom = 0
-        else:
-            numberofflivingroom = propertydetails.get("numberofflivingroom")
-
-        if propertydetails.get("numberoffkitchen") == None:
-            numberoffkitchen = 0
-        else:
-            numberoffkitchen = propertydetails.get("numberoffkitchen")
-
-        if propertydetails.get("numberoffofficeroom") == None:
-            numberoffofficeroom = 0
-        else:
-            numberoffofficeroom = propertydetails.get("numberoffofficeroom")
-
-        if propertydetails.get("numberoffbathroom") == None:
-            numberoffbathroom = 0
-        else:
-            numberoffbathroom = propertydetails.get("numberoffbathroom")
-
-        if propertydetails.get("totalarea") == None:
-            totalarea = "None"
-        else:
-            totalarea = propertydetails.get("totalarea")
-
-        # Check min for estimatedduration
-        if estimatedduration < 64.0 and totalarea == "500m2 - 1000m2":
-            estimatedduration = 64.0
-        elif estimatedduration < 32.0 and totalarea == "255m2 - 500m2":
-            estimatedduration = 32.0
-        elif estimatedduration < 16.0 and totalarea == "140m2 - 255m2":
-            estimatedduration = 16.0
-        elif estimatedduration < 12.0 and totalarea == "90m2 - 140m2":
-            estimatedduration = 12.0
-        elif estimatedduration < 8.0 and totalarea == "50m2 - 90m2":
-            estimatedduration = 8.0
-        elif estimatedduration < 6.0 and totalarea == "< 50m2":
-            estimatedduration = 6.0
-
-    # Minimum serbvice is 2 hours
-    if estimatedduration < 6.0:
-        estimatedduration = 6.0
-
-    estimatedduration = math.ceil(estimatedduration)
-    dur_min = estimatedduration
-    dur_max = estimatedduration
-
-    return dur_min, estimatedduration, dur_max
-
-def get_estimated_duration_for_cleaning_new(ironingclothes, propertydetails,servicename):
+def get_estimated_duration_for_cleaning_new(extra_services, propertydetails,servicename):
     """Estimation for Cleaning Service"""
     estimatedduration = 0.0
 
@@ -1541,8 +1501,13 @@ def get_estimated_duration_for_cleaning_new(ironingclothes, propertydetails,serv
         if estimatedduration > estimated_duration_max:
             estimatedduration = estimated_duration_max
 
+        # Extra Services
+        ironingclothes = extra_services.get("ironingclothes")
+        handwashclothes = extra_services.get("handwashclothes")
         if ironingclothes:
             estimatedduration = estimatedduration + DUR_FOR_IRONINGCLOTHES
+        if handwashclothes:
+            estimatedduration = estimatedduration + DUR_FOR_HANDWASHCLOTHES
         if withpets:
             estimatedduration = estimatedduration + DUR_FOR_WITHPETS * service_type_factor
 
@@ -1558,16 +1523,16 @@ def get_estimated_duration_for_cleaning_new(ironingclothes, propertydetails,serv
     return dur_min, estimatedduration, dur_max
 
 
-def get_estimated_duration_new(ironingclothes, propertydetails,subscription_schedule_details, servicename):
+def get_estimated_duration_new(extra_services, propertydetails,subscription_schedule_details, servicename):
     estimatedduration = 0.0
     dur_min = 0.0
     dur_max = 0.0
 
     if servicename == "O_Basic" or servicename == "O_DeepHome":
-        dur_min, estimatedduration, dur_max  = get_estimated_duration_for_cleaning_new(ironingclothes, propertydetails,servicename)
+        dur_min, estimatedduration, dur_max  = get_estimated_duration_for_cleaning_new(extra_services, propertydetails,servicename)
     elif servicename == "S_Basic":
         if propertydetails != None and json.dumps(propertydetails) != "{}":
-            dur_min, estimatedduration, dur_max  = get_estimated_duration_for_cleaning_new(ironingclothes, propertydetails,servicename)
+            dur_min, estimatedduration, dur_max  = get_estimated_duration_for_cleaning_new(extra_services, propertydetails,servicename)
         elif subscription_schedule_details != None:
             estimatedduration = subscription_schedule_details.get("workingduration")
             dur_min = estimatedduration

@@ -108,6 +108,7 @@ class One_Off_Fee(models.Model):
 	extra_hours_request = jsonfield.JSONField(blank=True)
 	premiumservices = models.BooleanField(default=False)
 	foreignlanguage = models.BooleanField(default=False)
+	handwashclothes = models.BooleanField(default=False)
 
 	def __str__(self):
 		"""Return the model as a string"""

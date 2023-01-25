@@ -190,6 +190,7 @@ class One_Off_Fee_View(viewsets.ModelViewSet):
             extra_hours_request = serializer.validated_data.get("extra_hours_request")
             premiumservices = serializer.validated_data.get("premiumservices")
             foreignlanguage = serializer.validated_data.get("foreignlanguage")
+            handwashclothes = serializer.validated_data.get("handwashclothes")
 
             feedatalist = models.Service_Fee_List.objects.values()
 
@@ -233,14 +234,21 @@ class One_Off_Fee_View(viewsets.ModelViewSet):
                     servicecode_response = {"Service Code Used": servicecode_used,"District":district_found}
                     fee_details_response.update(servicecode_response)
                 else:
+                    extra_services = {
+                        "ironingclothes":False,
+                        "handwashclothes":False}
+                    if ironingclothes:
+                        extra_services.update({"ironingclothes":True})
+                    if handwashclothes:
+                        extra_services.update({"handwashclothes":True})
                     if duration == 0:
-                        estimatedduration = sfc.get_estimated_duration(ironingclothes,propertydetails,subscription_schedule_details,servicename)
+                        estimatedduration = sfc.get_estimated_duration(extra_services,propertydetails,subscription_schedule_details,servicename)
                         if estimatedduration == 0:
                             content = {'error message': 'could not estimate duration'}
                             return Response(content, status=status.HTTP_400_BAD_REQUEST)
                         usedduration = estimatedduration
                     if duration == -1:
-                        dur_min, estimatedduration, dur_max = sfc.get_estimated_duration_new(ironingclothes,propertydetails,subscription_schedule_details,servicename)
+                        dur_min, estimatedduration, dur_max = sfc.get_estimated_duration_new(extra_services,propertydetails,subscription_schedule_details,servicename)
                         if estimatedduration == 0:
                             content = {'error message': 'could not estimate duration'}
                             return Response(content, status=status.HTTP_400_BAD_REQUEST)
@@ -252,12 +260,12 @@ class One_Off_Fee_View(viewsets.ModelViewSet):
                         return Response(content, status=status.HTTP_400_BAD_REQUEST)
 
                     if servicename == "O_Basic":
-                        fee_details_response = sfc.get_O_Basic_fee_details_response(bookdate,starttime,service_fee_list,base_rate,duration,estimatedduration,usedduration,owntool,ironingclothes,urgentbooking,fee_detail)
+                        fee_details_response = sfc.get_O_Basic_fee_details_response(bookdate,starttime,service_fee_list,base_rate,duration,estimatedduration,usedduration,owntool,extra_services,urgentbooking,fee_detail)
                     elif servicename == "S_Basic":
-                        fee_details_response = sfc.get_S_Basic_fee_details_response(subscription_schedule_details,service_fee_list,base_rate,duration,estimatedduration,usedduration,owntool,ironingclothes,urgentbooking,fee_detail)
+                        fee_details_response = sfc.get_S_Basic_fee_details_response(subscription_schedule_details,service_fee_list,base_rate,duration,estimatedduration,usedduration,owntool,extra_services,urgentbooking,fee_detail)
                     elif servicename == "O_DeepHome":
                         #fee_details_response  = {"owntool":str(owntool),"ironingclothes":str(ironingclothes),"fee_detail":str(fee_detail)}
-                        fee_details_response = sfc.get_O_DeepHome_fee_details_response(bookdate,starttime,service_fee_list,base_rate,duration,estimatedduration,usedduration,owntool,ironingclothes,urgentbooking,fee_detail)
+                        fee_details_response = sfc.get_O_DeepHome_fee_details_response(bookdate,starttime,service_fee_list,base_rate,duration,estimatedduration,usedduration,owntool,extra_services,urgentbooking,fee_detail)
                     else :
                         fee_details_response = {}
 
