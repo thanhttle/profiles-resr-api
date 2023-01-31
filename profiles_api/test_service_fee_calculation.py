@@ -76,140 +76,157 @@ _PROPERTY_DETAIL_PRESET = {
         "< 50m2":{
             "bedroom":{"min":0,"max":0},
             "bathroom":{"min":0,"max":0},
-            "estimated duration":{"min":2,"max":3},
+            "estimated duration":{"min":2,"max":8},
             "recommended duration":2},
         "50m2 - 90m2":{
             "bedroom":{"min":1,"max":3},
             "bathroom":{"min":1,"max":2},
-            "estimated duration":{"min":2,"max":4},
+            "estimated duration":{"min":2,"max":8},
             "recommended duration":3},
         "90m2 - 140m2":{
             "bedroom":{"min":1,"max":4},
             "bathroom":{"min":1,"max":3},
-            "estimated duration":{"min":3,"max":5},
+            "estimated duration":{"min":2,"max":8},
             "recommended duration":4},
         "140m2 - 200m2":{
             "bedroom":{"min":2,"max":5},
             "bathroom":{"min":1,"max":5},
-            "estimated duration":{"min":4,"max":6},
+            "estimated duration":{"min":2,"max":8},
             "recommended duration":5}
     },
     "villa":{
         "140m2 - 255m2":{
             "bedroom":{"min":2,"max":4},
             "bathroom":{"min":1,"max":4},
-            "estimated duration":{"min":4,"max":6},
+            "estimated duration":{"min":2,"max":8},
             "recommended duration":5},
         "255m2 - 500m2":{
             "bedroom":{"min":3,"max":6},
             "bathroom":{"min":3,"max":8},
-            "estimated duration":{"min":6,"max":10},
+            "estimated duration":{"min":2,"max":8},
             "recommended duration":8},
         "> 500m2":{
-            "estimated duration":{"min":8,"max":16},
-            "recommended duration":12}
+            "estimated duration":{"min":2,"max":8},
+            "recommended duration":8}
     },
     "office":{
         "< 50m2":{
-            "estimated duration":{"min":2,"max":3},
+            "estimated duration":{"min":2,"max":8},
             "recommended duration":2},
         "50m2 - 90m2":{
-            "estimated duration":{"min":2,"max":3},
+            "estimated duration":{"min":2,"max":8},
             "recommended duration":2},
         "90m2 - 140m2":{
-            "estimated duration":{"min":2,"max":4},
+            "estimated duration":{"min":2,"max":8},
             "recommended duration":3},
         "140m2 - 255m2":{
-            "estimated duration":{"min":3,"max":5},
+            "estimated duration":{"min":2,"max":8},
             "recommended duration":4},
         "255m2 - 500m2":{
-            "estimated duration":{"min":5,"max":9},
+            "estimated duration":{"min":2,"max":8},
             "recommended duration":7},
         "> 500m2":{
-            "estimated duration":{"min":7,"max":13},
-            "recommended duration":10}
+            "estimated duration":{"min":2,"max":8},
+            "recommended duration":8}
     },
     "building/multi-storey house":{
-        "1-Storey":{
+        "0-Storey":{
             "< 90m2":{
-                "estimated duration":{"min":2,"max":4},
+                "estimated duration":{"min":2,"max":8},
                 "recommended duration":3},
             "90m2 - 140m2":{
-                "estimated duration":{"min":3,"max":5},
+                "estimated duration":{"min":2,"max":8},
+                "recommended duration":4},
+            "140m2 - 255m2":{
+                "estimated duration":{"min":2,"max":8},
+                "recommended duration":6},
+            "255m2 - 500m2":{
+                "estimated duration":{"min":2,"max":8},
+                "recommended duration":8},
+            "> 500m2":{
+                "estimated duration":{"min":2,"max":8},
+                "recommended duration":8}
+        },
+        "1-Storey":{
+            "< 90m2":{
+                "estimated duration":{"min":2,"max":8},
+                "recommended duration":3},
+            "90m2 - 140m2":{
+                "estimated duration":{"min":2,"max":8},
                 "recommended duration":4},
             "140m2 - 200m2":{
-                "estimated duration":{"min":4,"max":6},
+                "estimated duration":{"min":2,"max":8},
                 "recommended duration":5},
             "> 200m2":{
-                "estimated duration":{"min":5,"max":7},
+                "estimated duration":{"min":2,"max":8},
                 "recommended duration":6}
         },
         "2-Storey":{
             "< 140m2":{
-                "estimated duration":{"min":4,"max":6},
+                "estimated duration":{"min":2,"max":8},
                 "recommended duration":5},
             "140m2 - 200m2":{
-                "estimated duration":{"min":5,"max":7},
+                "estimated duration":{"min":2,"max":8},
                 "recommended duration":6},
             "200m2 - 260m2":{
-                "estimated duration":{"min":6,"max":8},
+                "estimated duration":{"min":2,"max":8},
                 "recommended duration":7},
             "> 260m2":{
-                "estimated duration":{"min":7,"max":9},
+                "estimated duration":{"min":2,"max":8},
                 "recommended duration":8}
         },
         "3-Storey":{
             "< 200m2":{
-                "estimated duration":{"min":5,"max":7},
+                "estimated duration":{"min":2,"max":8},
                 "recommended duration":6},
             "200m2 - 260m2":{
-                "estimated duration":{"min":6,"max":8},
+                "estimated duration":{"min":2,"max":8},
                 "recommended duration":7},
             "260m2 - 320m2":{
-                "estimated duration":{"min":7,"max":9},
+                "estimated duration":{"min":2,"max":8},
                 "recommended duration":8},
             "> 320m2":{
-                "estimated duration":{"min":8,"max":10},
-                "recommended duration":9}
+                "estimated duration":{"min":2,"max":8},
+                "recommended duration":8}
         },
         "4-Storey":{
             "< 320m2":{
-                "estimated duration":{"min":7,"max":9},
+                "estimated duration":{"min":2,"max":8},
                 "recommended duration":8},
             "320m2 - 380m2":{
-                "estimated duration":{"min":8,"max":10},
-                "recommended duration":9},
+                "estimated duration":{"min":2,"max":8},
+                "recommended duration":8},
             "380m2 - 440m2":{
-                "estimated duration":{"min":9,"max":11},
-                "recommended duration":10},
+                "estimated duration":{"min":2,"max":8},
+                "recommended duration":8},
             "> 440m2":{
-                "estimated duration":{"min":10,"max":12},
-                "recommended duration":11}
+                "estimated duration":{"min":2,"max":8},
+                "recommended duration":8}
         },
         "5-Storey":{
             "< 380m2":{
-                "estimated duration":{"min":8,"max":10},
-                "recommended duration":9},
+                "estimated duration":{"min":2,"max":8},
+                "recommended duration":8},
             "380m2 - 440m2":{
-                "estimated duration":{"min":9,"max":11},
-                "recommended duration":10},
+                "estimated duration":{"min":2,"max":8},
+                "recommended duration":8},
             "440m2 - 500m2":{
-                "estimated duration":{"min":10,"max":12},
-                "recommended duration":11},
+                "estimated duration":{"min":2,"max":8},
+                "recommended duration":8},
             "> 500m2":{
-                "estimated duration":{"min":11,"max":15},
-                "recommended duration":13}
+                "estimated duration":{"min":2,"max":8},
+                "recommended duration":8}
         },
         "6-Storey":{
             "< 440m2":{
-                "estimated duration":{"min":9,"max":11},
-                "recommended duration":10},
+                "estimated duration":{"min":2,"max":8},
+                "recommended duration":8},
             "440m2 - 500m2":{
-                "estimated duration":{"min":10,"max":12},
-                "recommended duration":11},
+                "estimated duration":{"min":2,"max":8},
+                "recommended duration":8},
             "> 500m2":{
-                "estimated duration":{"min":11,"max":15},
-                "recommended duration":13}
+                "estimated duration":{"min":2,"max":8},
+                "recommended duration":8}
         },
     },
 }
@@ -284,6 +301,26 @@ _PROPERTY_DEEPHOME_PRESET = {
             "recommended duration":32}
     },
     "building/multi-storey house":{
+        "0-Storey":{
+            "< 90m2":{
+                "estimated duration":{"min":6,"max":10},
+                "recommended duration":8},
+            "90m2 - 140m2":{
+                "estimated duration":{"min":8,"max":16},
+                "recommended duration":12},
+            "140m2 - 255m2":{
+                "estimated duration":{"min":12,"max":22},
+                "recommended duration":18},
+            "255m2 - 380m2":{
+                "estimated duration":{"min":18,"max":28},
+                "recommended duration":24},
+            "380m2 - 500m2":{
+                "estimated duration":{"min":24,"max":38},
+                "recommended duration":32},
+            "> 500m2":{
+                "estimated duration":{"min":32,"max":46},
+                "recommended duration":40}
+        },
         "1-Storey":{
             "< 90m2":{
                 "estimated duration":{"min":8,"max":10},
@@ -532,12 +569,12 @@ def check_valid_input(city,area,servicename,duration,propertydetails,subscriptio
                         numberoffloors = 0
                     else:
                         numberoffloors = propertydetails.get("numberoffloors")
-                    if numberoffloors < 1 or numberoffloors > 6:
+                    if numberoffloors > 6:
                         error_propertydetails = True
                         error_messagge_propertydetails  = error_messagge_propertydetails  + "INVALID number of floors: " + str(numberoffloors) + " of building/multi-storey house in propertydetails; "
-                    else:
-                        floor_key = str(numberoffloors) + "-Storey"
-                        property_details_preset = property_details_preset.get(floor_key)
+
+                    floor_key = str(numberoffloors) + "-Storey"
+                    property_details_preset = property_details_preset.get(floor_key)
 
                 if error_propertydetails == False:
                     for totalarea_key in property_details_preset.keys():
@@ -1516,7 +1553,11 @@ def get_estimated_duration_for_cleaning_new(extra_services, propertydetails,serv
         if estimatedduration > estimated_duration_max:
             estimatedduration = estimated_duration_max
 
-        diff = estimatedduration - estimated_duration_recommended
+
+        if servicename == "O_DeepHome":
+            diff = estimatedduration - estimated_duration_recommended
+        else:
+            diff = 0
         dur_min = estimated_duration_min + diff
         dur_max = estimated_duration_max + diff
 
