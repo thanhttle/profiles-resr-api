@@ -88,24 +88,27 @@ _PROPERTY_DETAIL_PRESET = {
             "bathroom":{"min":1,"max":3},
             "estimated duration":{"min":2,"max":8},
             "recommended duration":4},
-        "140m2 - 200m2":{
+        "140m2 - 255m2":{
             "bedroom":{"min":2,"max":5},
             "bathroom":{"min":1,"max":5},
             "estimated duration":{"min":2,"max":8},
-            "recommended duration":5}
+            "recommended duration":5},
+        "> 255m2":{
+            "estimated duration":{"min":2,"max":8},
+            "recommended duration":6}
     },
     "villa":{
+        "< 140m2":{
+            "estimated duration":{"min":2,"max":8},
+            "recommended duration":4},
         "140m2 - 255m2":{
             "bedroom":{"min":2,"max":4},
             "bathroom":{"min":1,"max":4},
             "estimated duration":{"min":2,"max":8},
             "recommended duration":5},
-        "255m2 - 500m2":{
+        "> 255m2":{
             "bedroom":{"min":3,"max":6},
             "bathroom":{"min":3,"max":8},
-            "estimated duration":{"min":2,"max":8},
-            "recommended duration":8},
-        "> 500m2":{
             "estimated duration":{"min":2,"max":8},
             "recommended duration":8}
     },
@@ -122,12 +125,9 @@ _PROPERTY_DETAIL_PRESET = {
         "140m2 - 255m2":{
             "estimated duration":{"min":2,"max":8},
             "recommended duration":4},
-        "255m2 - 500m2":{
+        "> 255m2":{
             "estimated duration":{"min":2,"max":8},
-            "recommended duration":7},
-        "> 500m2":{
-            "estimated duration":{"min":2,"max":8},
-            "recommended duration":8}
+            "recommended duration":6}
     },
     "building/multi-storey house":{
         "0-Storey":{
@@ -140,10 +140,7 @@ _PROPERTY_DETAIL_PRESET = {
             "140m2 - 255m2":{
                 "estimated duration":{"min":2,"max":8},
                 "recommended duration":6},
-            "255m2 - 500m2":{
-                "estimated duration":{"min":2,"max":8},
-                "recommended duration":8},
-            "> 500m2":{
+            "> 255m2":{
                 "estimated duration":{"min":2,"max":8},
                 "recommended duration":8}
         },
