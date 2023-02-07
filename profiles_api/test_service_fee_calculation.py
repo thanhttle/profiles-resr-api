@@ -520,6 +520,8 @@ def is_weekend(bookdate):
 
 
 def is_OutOfWorkingHour(starttime, duration):
+    is_OOH = False
+    percent_OOH = 1.0
     hour_outOfWorkingHour = 0
     timelist = str(starttime).split(":")
     if duration > 0:
@@ -527,8 +529,14 @@ def is_OutOfWorkingHour(starttime, duration):
             time_formated = time(int(timelist[0])+i,int(timelist[1]),int(timelist[2]))
             if time_formated < time(8,0,0) or time_formated >= time(18,0,0):
                 hour_outOfWorkingHour = hour_outOfWorkingHour + 1
+        if hour_outOfWorkingHour > 0:
+            is_OOH = True
+            percent_OOH = hour_outOfWorkingHour / duration
+    else:
+        time_formated = time(int(timelist[0]),int(timelist[1]),int(timelist[2]))
+        is_OOH = time_formated < time(8,0,0) or time_formated >= time(18,0,0)
 
-    return hour_outOfWorkingHour
+    return is_OOH, percent_OOH, hour_outOfWorkingHour
 
 
 def is_UrgentBooking(bookdate, starttime):
@@ -1199,11 +1207,12 @@ def extra_fee_special_day_new(bookdate, starttime, feelist, duration):
         extra_fee += feelist["WKD"]
         index = 8
     else:
-        hour_outOfWorkingHour = is_OutOfWorkingHour(starttime, duration)
-        if hour_outOfWorkingHour > 0:
+        is_OOH, percent_OOH, hour_outOfWorkingHour = is_OutOfWorkingHour(starttime, duration)
+        if is_OOH:
             fee_detail["is_OutOfficeHours"] = True
-            fee_detail["OutOfficeHours"] = hour_outOfWorkingHour
-            extra_fee += feelist["OOH"] * hour_outOfWorkingHour / duration
+            if hour_outOfWorkingHour > 0:
+                fee_detail["OutOfficeHours"] = hour_outOfWorkingHour
+            extra_fee += feelist["OOH"] * percent_OOH
             index = 9
         else:
             index = 0
@@ -1272,7 +1281,7 @@ def  get_O_Basic_fee_details_response(bookdate,starttime,service_fee_list,base_r
 
 def  get_O_DeepHome_fee_details_response(bookdate,starttime,service_fee_list,base_rate,duration,estimatedduration,usedduration,owntool,extra_services,urgentbooking,fee_detail):
     """Get fee details of the DeepHome service"""
-    extra_fee_percent, extra_service_fee_details, index = extra_fee_special_day_new(bookdate,starttime,service_fee_list,usedduration)
+    extra_fee_percent, extra_service_fee_details, index = extra_fee_special_day_new(bookdate,starttime,service_fee_list,0)
     final_rate = base_rate * (1 + extra_fee_percent)
     total_fee = final_rate * usedduration
 
