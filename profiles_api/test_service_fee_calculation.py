@@ -519,10 +519,16 @@ def is_weekend(bookdate):
 	return d.weekday() > 4
 
 
-def is_OutOfWorkingHour(starttime):
-	timelist = str(starttime).split(":")
-	time_formated = time(int(timelist[0]),int(timelist[1]),int(timelist[2]))
-	return time_formated < time(8,0,0) or time_formated >= time(18,0,0)
+def is_OutOfWorkingHour(starttime, duration):
+    hour_outOfWorkingHour = 0
+    timelist = str(starttime).split(":")
+    if duration > 0:
+        for i in range(duration):
+            time_formated = time(int(timelist[0])+i,int(timelist[1]),int(timelist[2]))
+            if time_formated < time(8,0,0) or time_formated >= time(18,0,0):
+                hour_outOfWorkingHour = hour_outOfWorkingHour + 1
+
+    return hour_outOfWorkingHour
 
 
 def is_UrgentBooking(bookdate, starttime):
@@ -1061,7 +1067,7 @@ def get_estimated_fee_sofacleaning(bookdate,starttime,propertydetails,urgentbook
     estimatedduration = 0.0
     fee_details_response = {"Total Fee": int(estimatedfee), "Estimated Duration": math.ceil(estimatedduration)}
 
-    extra_fee_percent, extra_service_fee_details, index = extra_fee_special_day_new(bookdate,starttime,feelist)
+    extra_fee_percent, extra_service_fee_details, index = extra_fee_special_day_new(bookdate,starttime,feelist,0)
     adjust_rate = 1 + extra_fee_percent
 
     if urgentbooking == None:
@@ -1145,7 +1151,7 @@ def get_year(date):
     date_list = str(date).split('-')
     return str(date_list[0])
 
-def extra_fee_special_day_new(bookdate, starttime, feelist):
+def extra_fee_special_day_new(bookdate, starttime, feelist, duration):
     """Calculates additional fee based on date & time of booking"""
 
     fee_detail = {}
@@ -1192,19 +1198,22 @@ def extra_fee_special_day_new(bookdate, starttime, feelist):
         fee_detail["is_Weekend"] = True
         extra_fee += feelist["WKD"]
         index = 8
-    elif is_OutOfWorkingHour(starttime):
-        fee_detail["is_OutOfficeHours"] = True
-        extra_fee += feelist["OOH"]
-        index = 9
     else:
-        index = 0
+        hour_outOfWorkingHour = is_OutOfWorkingHour(starttime, duration)
+        if hour_outOfWorkingHour > 0:
+            fee_detail["is_OutOfficeHours"] = True
+            fee_detail["OutOfficeHours"] = hour_outOfWorkingHour
+            extra_fee += feelist["OOH"] * hour_outOfWorkingHour / duration
+            index = 9
+        else:
+            index = 0
 
     return extra_fee, fee_detail, index
 
 
 def  get_Oneday_Basic_fee_details(bookdate,starttime,service_fee_list,base_rate,duration,estimatedduration,usedduration,owntool,ironingclothes,fee_detail):
     """Get fee of the service"""
-    extra_fee_percent, extra_service_fee_details, index = extra_fee_special_day_new(bookdate,starttime,service_fee_list)
+    extra_fee_percent, extra_service_fee_details, index = extra_fee_special_day_new(bookdate,starttime,service_fee_list,usedduration)
     final_rate = base_rate * (1 + extra_fee_percent)
     total_fee = final_rate * usedduration
 
@@ -1216,7 +1225,7 @@ def  get_Oneday_Basic_fee_details(bookdate,starttime,service_fee_list,base_rate,
 
 def  get_O_Basic_fee_details_response(bookdate,starttime,service_fee_list,base_rate,duration,estimatedduration,usedduration,owntool,extra_services,urgentbooking,fee_detail):
     """Get fee details of the service"""
-    extra_fee_percent, extra_service_fee_details, index = extra_fee_special_day_new(bookdate,starttime,service_fee_list)
+    extra_fee_percent, extra_service_fee_details, index = extra_fee_special_day_new(bookdate,starttime,service_fee_list,usedduration)
     final_rate = base_rate * (1 + extra_fee_percent)
     total_fee = final_rate * usedduration
 
@@ -1263,7 +1272,7 @@ def  get_O_Basic_fee_details_response(bookdate,starttime,service_fee_list,base_r
 
 def  get_O_DeepHome_fee_details_response(bookdate,starttime,service_fee_list,base_rate,duration,estimatedduration,usedduration,owntool,extra_services,urgentbooking,fee_detail):
     """Get fee details of the DeepHome service"""
-    extra_fee_percent, extra_service_fee_details, index = extra_fee_special_day_new(bookdate,starttime,service_fee_list)
+    extra_fee_percent, extra_service_fee_details, index = extra_fee_special_day_new(bookdate,starttime,service_fee_list,usedduration)
     final_rate = base_rate * (1 + extra_fee_percent)
     total_fee = final_rate * usedduration
 
