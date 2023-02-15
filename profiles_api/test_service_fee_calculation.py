@@ -306,7 +306,7 @@ _PROPERTY_DEEPHOME_PRESET = {
             "estimated duration":{"min":6,"max":36},
             "recommended duration":16},
         "> 255m2":{
-            "estimated duration":{"min":32,"max":36},
+            "estimated duration":{"min":6,"max":36},
             "recommended duration":24}
     },
     "office":{
