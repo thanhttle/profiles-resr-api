@@ -526,7 +526,7 @@ def is_OutOfWorkingHour(starttime, duration):
     timelist = str(starttime).split(":")
     if duration > 0:
         for i in range(duration):
-            time_formated = time(int(timelist[0])+i,int(timelist[1]),int(timelist[2]))
+            time_formated = time((int(timelist[0])+i)%24,int(timelist[1]),int(timelist[2]))
             if time_formated < time(8,0,0) or time_formated >= time(18,0,0):
                 hour_outOfWorkingHour = hour_outOfWorkingHour + 1
         if hour_outOfWorkingHour > 0:
