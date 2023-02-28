@@ -65,6 +65,7 @@ class Test_One_Off_Fee_View(viewsets.ModelViewSet):
             premiumservices = serializer.validated_data.get("premiumservices")
             foreignlanguage = serializer.validated_data.get("foreignlanguage")
             handwashclothes = serializer.validated_data.get("handwashclothes")
+            numberofworkers = serializer.validated_data.get("numberofworkers")
 
             feedatalist = models.Service_Fee_List.objects.values()
 
@@ -85,6 +86,8 @@ class Test_One_Off_Fee_View(viewsets.ModelViewSet):
                 servicename, city, area, district_found = test_sfc.get_servicecode_details(servicecode,locationdetails)
                 if duration == None:
                     duration =  0
+                if numberofworkers == None:
+                    numberofworkers = 1
 
                 error_messagge = test_sfc.check_valid_input(city,area,servicename,duration,propertydetails,subscription_schedule_details)
                 #error_messagge = error_messagge + test_sfc.check_validBookingTime(bookdate, starttime)
@@ -101,6 +104,8 @@ class Test_One_Off_Fee_View(viewsets.ModelViewSet):
                 estimatedduration = 0
                 dur_min = 0
                 dur_max = 0
+                used_numberofworkers = numberofworkers
+                recommended_no_of_workers = 1
 
                 if servicename == "O_Sofa":
                     fee_details_response = test_sfc.get_estimated_fee_sofacleaning(bookdate,starttime,propertydetails,urgentbooking,service_fee_list)
@@ -122,11 +127,12 @@ class Test_One_Off_Fee_View(viewsets.ModelViewSet):
                             return Response(content, status=status.HTTP_400_BAD_REQUEST)
                         usedduration = estimatedduration
                     if duration == -1:
-                        dur_min, estimatedduration, dur_max = test_sfc.get_estimated_duration_new(extra_services,propertydetails,subscription_schedule_details,servicename)
+                        dur_min, estimatedduration, dur_max, recommended_no_of_workers = test_sfc.get_estimated_duration_new(extra_services,propertydetails,subscription_schedule_details,servicename)
                         if estimatedduration == 0:
                             content = {'error message': 'could not estimate duration'}
                             return Response(content, status=status.HTTP_400_BAD_REQUEST)
                         usedduration = estimatedduration
+                        used_numberofworkers = recommended_no_of_workers
                     base_rate, fee_detail, basename = test_sfc.get_base_rate(area,usedduration,service_fee_list)
                     servicecode_used = servicename + "_" + city + "_" + basename
                     if base_rate == 0:
@@ -134,7 +140,7 @@ class Test_One_Off_Fee_View(viewsets.ModelViewSet):
                         return Response(content, status=status.HTTP_400_BAD_REQUEST)
 
                     if servicename == "O_Basic":
-                        fee_details_response = test_sfc.get_O_Basic_fee_details_response(bookdate,starttime,service_fee_list,base_rate,duration,estimatedduration,usedduration,owntool,extra_services,urgentbooking,fee_detail)
+                        fee_details_response = test_sfc.get_O_Basic_fee_details_response(bookdate,starttime,service_fee_list,base_rate,duration,estimatedduration,usedduration,owntool,extra_services,urgentbooking,fee_detail,used_numberofworkers)
                     elif servicename == "S_Basic":
                         fee_details_response = test_sfc.get_S_Basic_fee_details_response(subscription_schedule_details,service_fee_list,base_rate,duration,estimatedduration,usedduration,owntool,extra_services,urgentbooking,fee_detail)
                     elif servicename == "O_DeepHome":
