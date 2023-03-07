@@ -1269,7 +1269,7 @@ def  get_O_Basic_fee_details_response(bookdate,starttime,service_fee_list,base_r
     if owntool == True:
         total_fee += service_fee_list["OwnTools"]
         extra_service_fee_details["is_OwnTools"] = True
-        owntool_fee_response = {"OwnTools Fee":service_fee_list["OwnTools"]}
+        owntool_fee_response = {"Total Fee": int(total_fee),"OwnTools Fee":service_fee_list["OwnTools"]}
         fee_details_response.update(owntool_fee_response)
 
     if urgentbooking == None:
