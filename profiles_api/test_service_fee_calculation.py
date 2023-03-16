@@ -1485,7 +1485,7 @@ def  get_S_Basic_fee_details_response(subscription_schedule_details,service_fee_
     total_workdays_response = {"Total Number of Work Days": count}
     fee_details_response.update(total_workdays_response)
     if duration == 0 or duration == -1:
-        estimatedduration_response = {"Total of Working hours per session": estimatedduration, "Number of Workers per session":numberofworkers,"Number of working hours per worker per session":int(estimatedduration/numberofworkers)}
+        estimatedduration_response = {"Duration per session": estimatedduration, "Number of Workers per session":numberofworkers,"Number of working hours per worker per session":int(estimatedduration/numberofworkers)}
         fee_details_response.update(estimatedduration_response)
     if owntool == True:
         total_owntool_fee = count * service_fee_list["OwnTools"]
