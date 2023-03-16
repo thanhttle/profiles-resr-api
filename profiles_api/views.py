@@ -142,10 +142,9 @@ class Test_One_Off_Fee_View(viewsets.ModelViewSet):
                     if servicename == "O_Basic":
                         fee_details_response = test_sfc.get_O_Basic_fee_details_response(bookdate,starttime,service_fee_list,base_rate,duration,estimatedduration,usedduration,owntool,extra_services,urgentbooking,fee_detail,used_numberofworkers)
                     elif servicename == "S_Basic":
-                        fee_details_response = test_sfc.get_S_Basic_fee_details_response(subscription_schedule_details,service_fee_list,base_rate,duration,estimatedduration,usedduration,owntool,extra_services,urgentbooking,fee_detail)
+                        fee_details_response = test_sfc.get_S_Basic_fee_details_response(subscription_schedule_details,service_fee_list,base_rate,duration,estimatedduration,usedduration,owntool,extra_services,urgentbooking,fee_detail,used_numberofworkers)
                     elif servicename == "O_DeepHome":
-                        #fee_details_response  = {"owntool":str(owntool),"ironingclothes":str(ironingclothes),"fee_detail":str(fee_detail)}
-                        fee_details_response = test_sfc.get_O_DeepHome_fee_details_response(bookdate,starttime,service_fee_list,base_rate,duration,estimatedduration,usedduration,owntool,extra_services,urgentbooking,fee_detail)
+                        fee_details_response = test_sfc.get_O_DeepHome_fee_details_response(bookdate,starttime,service_fee_list,base_rate,duration,estimatedduration,usedduration,owntool,extra_services,urgentbooking,fee_detail,used_numberofworkers)
                     else :
                         fee_details_response = {}
 

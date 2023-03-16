@@ -272,6 +272,28 @@ _PROPERTY_DETAIL_PRESET = {
     },
 }
 _PROPERTY_DEEPHOME_PRESET = {
+    "None":{
+        "< 50m2":{
+            "estimated duration":{"min":6,"max":32},
+            "recommended duration":6,
+            "recommended number of workers": 1},
+        "50m2 - 90m2":{
+            "estimated duration":{"min":6,"max":32},
+            "recommended duration":8,
+            "recommended number of workers": 2},
+        "90m2 - 140m2":{
+            "estimated duration":{"min":6,"max":32},
+            "recommended duration":12,
+            "recommended number of workers": 3},
+        "140m2 - 190m2":{
+            "estimated duration":{"min":6,"max":32},
+            "recommended duration":16,
+            "recommended number of workers": 4},
+        "190m2 - 255m2":{
+            "estimated duration":{"min":6,"max":32},
+            "recommended duration":20,
+            "recommended number of workers": 5}
+    },
     "apartment/single-story house":{
         "140m2 - 200m2":{
             "bedroom":{"min":2,"max":5},
@@ -681,7 +703,7 @@ def check_valid_input(city,area,servicename,duration,propertydetails,subscriptio
                 error_messagge  = error_messagge + "subscription_schedule_details: workingtime empty;  "
             if subscription_schedule_details.get("workingduration") == None:
                 if error_propertydetails == True:
-                    error_messagge  = error_messagge + "subscription_schedule_details: workingduration is required when propertydetails empty;  "
+                    error_messagge  = error_messagge + "subscription_schedule_details: workingduration is required when propertydetails empty or error;  "
             else:
                 workingduration = subscription_schedule_details.get("workingduration")
                 if workingduration == 0  or workingduration == -1:
@@ -1246,16 +1268,17 @@ def extra_fee_special_day_new(bookdate, starttime, feelist, duration):
     return extra_fee, fee_detail, index
 
 
-def  get_Oneday_Basic_fee_details(bookdate,starttime,service_fee_list,base_rate,duration,estimatedduration,usedduration,owntool,ironingclothes,fee_detail):
+def  get_Oneday_Basic_fee_details(bookdate,starttime,service_fee_list,base_rate,duration,estimatedduration,usedduration,owntool,ironingclothes,fee_detail,numberofworkers):
     """Get fee of the service"""
-    extra_fee_percent, extra_service_fee_details, index = extra_fee_special_day_new(bookdate,starttime,service_fee_list,usedduration)
+    workingduration = int(usedduration/numberofworkers)
+    extra_fee_percent, extra_service_fee_details, index = extra_fee_special_day_new(bookdate,starttime,service_fee_list,workingduration)
     final_rate = base_rate * (1 + extra_fee_percent)
     total_fee = final_rate * usedduration
 
     if owntool == True:
         total_fee += service_fee_list["OwnTools"]
 
-    return int(total_fee), index, final_rate
+    return int(total_fee), index, final_rate, extra_service_fee_details
 
 
 def  get_O_Basic_fee_details_response(bookdate,starttime,service_fee_list,base_rate,duration,estimatedduration,usedduration,owntool,extra_services,urgentbooking,fee_detail,numberofworkers):
@@ -1307,9 +1330,10 @@ def  get_O_Basic_fee_details_response(bookdate,starttime,service_fee_list,base_r
     return fee_details_response
 
 
-def  get_O_DeepHome_fee_details_response(bookdate,starttime,service_fee_list,base_rate,duration,estimatedduration,usedduration,owntool,extra_services,urgentbooking,fee_detail):
+def  get_O_DeepHome_fee_details_response(bookdate,starttime,service_fee_list,base_rate,duration,estimatedduration,usedduration,owntool,extra_services,urgentbooking,fee_detail,numberofworkers):
     """Get fee details of the DeepHome service"""
-    extra_fee_percent, extra_service_fee_details, index = extra_fee_special_day_new(bookdate,starttime,service_fee_list,0)
+    workingduration = int(usedduration/numberofworkers)
+    extra_fee_percent, extra_service_fee_details, index = extra_fee_special_day_new(bookdate,starttime,service_fee_list,workingduration)
     final_rate = base_rate * (1 + extra_fee_percent)
     total_fee = final_rate * usedduration
 
@@ -1339,11 +1363,10 @@ def  get_O_DeepHome_fee_details_response(bookdate,starttime,service_fee_list,bas
     extra_service_fee_response = {"Extra Service Fee Details": extra_service_fee_details}
 
     if duration == 0 or duration == -1:
-        sugggested_shift = 4
-        if estimatedduration != sugggested_shift * int(estimatedduration/sugggested_shift):
-            sugggested_shift = 3
-        estimatedduration_response = {"Estimated Duration": estimatedduration,"Suggested Number of hours per Shift":sugggested_shift,"Suggested Number of Workers":int(estimatedduration/sugggested_shift)}
-        fee_details_response.update(estimatedduration_response)
+        estimatedduration_response = {"Estimated Duration": estimatedduration,"Number of Workers":numberofworkers,"Number of hours per Shift":int(estimatedduration/numberofworkers)}
+    else:
+        estimatedduration_response = {"Duration": duration,"Number of Workers":numberofworkers,"Number of hours per Shift":int(duration/numberofworkers)}
+    fee_details_response.update(estimatedduration_response)
 
     fee_details_response.update(extra_service_fee_response)
     return fee_details_response
@@ -1399,7 +1422,7 @@ def get_first_working_date(startdate_formatted,workingdays_weekday_value):
     return index, actual_start_date
 
 
-def  get_S_Basic_fee_details_response(subscription_schedule_details,service_fee_list,base_rate,duration,estimatedduration,usedduration,owntool,extra_services,urgentbooking,fee_detail):
+def  get_S_Basic_fee_details_response(subscription_schedule_details,service_fee_list,base_rate,duration,estimatedduration,usedduration,owntool,extra_services,urgentbooking,fee_detail,numberofworkers):
     """Get fee details of the subscription service"""
     fee_details_response = {}
     workingdays = subscription_schedule_details.get("workingdays")
@@ -1427,8 +1450,10 @@ def  get_S_Basic_fee_details_response(subscription_schedule_details,service_fee_
     handwashclothes = extra_services.get("handwashclothes")
     Day_by_Day_Fee_Response = []
     while process_date <= enddate_formatted:
-        oneday_fee, index, final_rate = get_Oneday_Basic_fee_details(process_date,workingtime,service_fee_list,base_rate,duration,estimatedduration,usedduration,owntool,ironingclothes,fee_detail)
+        oneday_fee, index, final_rate, extra_service_fee_details = get_Oneday_Basic_fee_details(process_date,workingtime,service_fee_list,base_rate,duration,estimatedduration,usedduration,owntool,ironingclothes,fee_detail,numberofworkers)
         one_day_fee_response = {"Date":str(process_date),"Fee_Type":_SPECIAL_FEE_NAMES[index],"Session Fee":oneday_fee}
+        if index == 9:
+            one_day_fee_response.update({"OutOfficeHours":extra_service_fee_details.get("OutOfficeHours")})
         if owntool == True:
             one_day_fee_response.update({"OwnTools Fee":service_fee_list["OwnTools"]})
         if ironingclothes == True:
@@ -1460,7 +1485,7 @@ def  get_S_Basic_fee_details_response(subscription_schedule_details,service_fee_
     total_workdays_response = {"Total Number of Work Days": count}
     fee_details_response.update(total_workdays_response)
     if duration == 0 or duration == -1:
-        estimatedduration_response = {"Duration per session": estimatedduration}
+        estimatedduration_response = {"Total of Working hours per session": estimatedduration, "Number of Workers per session":numberofworkers,"Number of working hours per worker per session":int(estimatedduration/numberofworkers)}
         fee_details_response.update(estimatedduration_response)
     if owntool == True:
         total_owntool_fee = count * service_fee_list["OwnTools"]
