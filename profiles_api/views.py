@@ -174,8 +174,8 @@ class Test_One_Off_Fee_View(viewsets.ModelViewSet):
 			)
 
 class One_Off_Fee_View(viewsets.ModelViewSet):
-    queryset = models.One_Off_Fee.objects.all()
-    serializer_class = serializers.One_Off_Fee_Serializer
+    queryset = models.Test_One_Off_Fee.objects.all()
+    serializer_class = serializers.Test_One_Off_Fee_Serializer
 
     def create(self,request):
         """Create a fee calculation """
@@ -196,6 +196,7 @@ class One_Off_Fee_View(viewsets.ModelViewSet):
             premiumservices = serializer.validated_data.get("premiumservices")
             foreignlanguage = serializer.validated_data.get("foreignlanguage")
             handwashclothes = serializer.validated_data.get("handwashclothes")
+            numberofworkers = serializer.validated_data.get("numberofworkers")
 
             feedatalist = models.Service_Fee_List.objects.values()
 
@@ -216,6 +217,8 @@ class One_Off_Fee_View(viewsets.ModelViewSet):
                 servicename, city, area, district_found = sfc.get_servicecode_details(servicecode,locationdetails)
                 if duration == None:
                     duration =  0
+                if numberofworkers == None:
+                    numberofworkers = 1
 
                 error_messagge = sfc.check_valid_input(city,area,servicename,duration,propertydetails,subscription_schedule_details)
                 #error_messagge = error_messagge + sfc.check_validBookingTime(bookdate, starttime)
@@ -232,6 +235,8 @@ class One_Off_Fee_View(viewsets.ModelViewSet):
                 estimatedduration = 0
                 dur_min = 0
                 dur_max = 0
+                used_numberofworkers = numberofworkers
+                recommended_no_of_workers = 1
 
                 if servicename == "O_Sofa":
                     fee_details_response = sfc.get_estimated_fee_sofacleaning(bookdate,starttime,propertydetails,urgentbooking,service_fee_list)
@@ -253,11 +258,12 @@ class One_Off_Fee_View(viewsets.ModelViewSet):
                             return Response(content, status=status.HTTP_400_BAD_REQUEST)
                         usedduration = estimatedduration
                     if duration == -1:
-                        dur_min, estimatedduration, dur_max = sfc.get_estimated_duration_new(extra_services,propertydetails,subscription_schedule_details,servicename)
+                        dur_min, estimatedduration, dur_max, recommended_no_of_workers = sfc.get_estimated_duration_new(extra_services,propertydetails,subscription_schedule_details,servicename)
                         if estimatedduration == 0:
                             content = {'error message': 'could not estimate duration'}
                             return Response(content, status=status.HTTP_400_BAD_REQUEST)
                         usedduration = estimatedduration
+                        used_numberofworkers = recommended_no_of_workers
                     base_rate, fee_detail, basename = sfc.get_base_rate(area,usedduration,service_fee_list)
                     servicecode_used = servicename + "_" + city + "_" + basename
                     if base_rate == 0:
@@ -265,12 +271,11 @@ class One_Off_Fee_View(viewsets.ModelViewSet):
                         return Response(content, status=status.HTTP_400_BAD_REQUEST)
 
                     if servicename == "O_Basic":
-                        fee_details_response = sfc.get_O_Basic_fee_details_response(bookdate,starttime,service_fee_list,base_rate,duration,estimatedduration,usedduration,owntool,extra_services,urgentbooking,fee_detail)
+                        fee_details_response = sfc.get_O_Basic_fee_details_response(bookdate,starttime,service_fee_list,base_rate,duration,estimatedduration,usedduration,owntool,extra_services,urgentbooking,fee_detail,used_numberofworkers)
                     elif servicename == "S_Basic":
-                        fee_details_response = sfc.get_S_Basic_fee_details_response(subscription_schedule_details,service_fee_list,base_rate,duration,estimatedduration,usedduration,owntool,extra_services,urgentbooking,fee_detail)
+                        fee_details_response = sfc.get_S_Basic_fee_details_response(subscription_schedule_details,service_fee_list,base_rate,duration,estimatedduration,usedduration,owntool,extra_services,urgentbooking,fee_detail,used_numberofworkers)
                     elif servicename == "O_DeepHome":
-                        #fee_details_response  = {"owntool":str(owntool),"ironingclothes":str(ironingclothes),"fee_detail":str(fee_detail)}
-                        fee_details_response = sfc.get_O_DeepHome_fee_details_response(bookdate,starttime,service_fee_list,base_rate,duration,estimatedduration,usedduration,owntool,extra_services,urgentbooking,fee_detail)
+                        fee_details_response = sfc.get_O_DeepHome_fee_details_response(bookdate,starttime,service_fee_list,base_rate,duration,estimatedduration,usedduration,owntool,extra_services,urgentbooking,fee_detail,used_numberofworkers)
                     else :
                         fee_details_response = {}
 
