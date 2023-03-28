@@ -59,12 +59,12 @@ _PRODUCT_LIST = ('Shopping','PestControl','DeepConstruction','Elderly','Patient'
 _SERVICE_TYPE_LIST = ('O','S','Q')
 _DEFAUT_SERVICE_CODE_LIST = {
     "079":{
-        "Basic":["I_P4h","I_P3h","I_P2h","II_P4h","II_P3h","II_P2h","III_P4h","III_P3h","III_P2h","OOH","WKD","HOL","LNY","BLNY04","BLNY07","BLNY10","ALNY04","ALNY07","OwnTools","Urgent","Premium","ForeignLang"],
+        "Basic":["I_P4h","I_P3h","I_P2h","I_P1h","II_P4h","II_P3h","II_P2h","II_P1h","III_P4h","III_P3h","III_P2h","III_P1h","OOH","WKD","HOL","LNY","BLNY04","BLNY07","BLNY10","ALNY04","ALNY07","OwnTools","Urgent","Premium","ForeignLang"],
         "DeepHome":["I_P4h","II_P4h","III_P4h","OOH","WKD","HOL","LNY","BLNY04","BLNY07","BLNY10","ALNY04","ALNY07","Urgent","ForeignLang"],
         "Sofa":["Cotton1-Seat","Cotton2-Seat","Cotton3-Seat","CottonStool","Leather1-Seat","Leather2-Seat","Leather3-Seat","LeatherRecliner","LeatherStool","OOH","WKD","HOL","LNY","BLNY04","BLNY07","BLNY10","ALNY04","ALNY07","Urgent","Premium","ForeignLang"],
     },
     "others":{
-        "Basic":["I_P4h","I_P3h","I_P2h","OOH","WKD","HOL","LNY","BLNY04","BLNY07","BLNY10","ALNY04","ALNY07","OwnTools","Urgent","Premium","ForeignLang"],
+        "Basic":["I_P4h","I_P3h","I_P2h","I_P1h","OOH","WKD","HOL","LNY","BLNY04","BLNY07","BLNY10","ALNY04","ALNY07","OwnTools","Urgent","Premium","ForeignLang"],
         "DeepHome":["I_P4h","OOH","WKD","HOL","LNY","BLNY04","BLNY07","BLNY10","ALNY04","ALNY07","Urgent","ForeignLang"],
         "Sofa":["Cotton1-Seat","Cotton2-Seat","Cotton3-Seat","CottonStool","Leather1-Seat","Leather2-Seat","Leather3-Seat","LeatherRecliner","LeatherStool","OOH","WKD","HOL","LNY","BLNY04","BLNY07","BLNY10","ALNY04","ALNY07","BLNY04","BLNY07","BLNY10","ALNY04","ALNY07","Urgent","Premium","ForeignLang"],
     }
@@ -540,7 +540,10 @@ def get_base_rate(area, duration, feelist):
     fee_detail = {}
     base_rate = 0
     basename = ""
-    if duration == 2:
+    if duration == 1:
+        basename = area + "_" + "P1h"
+        fee_detail["is_P1h"] = True
+    elif duration == 2:
         basename = area + "_" + "P2h"
         fee_detail["is_P2h"] = True
     elif duration == 3:
@@ -687,8 +690,8 @@ def check_valid_input(city,area,servicename,duration,propertydetails,subscriptio
                 error_messagge  = error_messagge + error_messagge_propertydetails
         elif duration < 6 and servicename == "O_DeepHome":
             error_messagge  = error_messagge + "Minimun duration for DeepHome Service is 6 hours; "
-        elif duration < 2 and servicename == "O_Basic":
-            error_messagge  = error_messagge + "Minimun duration for Basic Service is 2 hours; "
+        #elif duration < 2 and servicename == "O_Basic":
+            #error_messagge  = error_messagge + "Minimun duration for Basic Service is 2 hours; "
 
     elif servicename == "S_Basic":
         if duration == -1:

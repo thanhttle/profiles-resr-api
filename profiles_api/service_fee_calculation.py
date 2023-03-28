@@ -59,12 +59,12 @@ _PRODUCT_LIST = ('Shopping','PestControl','DeepConstruction','Elderly','Patient'
 _SERVICE_TYPE_LIST = ('O','S','Q')
 _DEFAUT_SERVICE_CODE_LIST = {
     "079":{
-        "Basic":["I_P4h","I_P3h","I_P2h","II_P4h","II_P3h","II_P2h","III_P4h","III_P3h","III_P2h","OOH","WKD","HOL","LNY","BLNY04","BLNY07","BLNY10","ALNY04","ALNY07","OwnTools","Urgent","Premium","ForeignLang"],
+        "Basic":["I_P4h","I_P3h","I_P2h","I_P1h","II_P4h","II_P3h","II_P2h","II_P1h","III_P4h","III_P3h","III_P2h","III_P1h","OOH","WKD","HOL","LNY","BLNY04","BLNY07","BLNY10","ALNY04","ALNY07","OwnTools","Urgent","Premium","ForeignLang"],
         "DeepHome":["I_P4h","II_P4h","III_P4h","OOH","WKD","HOL","LNY","BLNY04","BLNY07","BLNY10","ALNY04","ALNY07","Urgent","ForeignLang"],
         "Sofa":["Cotton1-Seat","Cotton2-Seat","Cotton3-Seat","CottonStool","Leather1-Seat","Leather2-Seat","Leather3-Seat","LeatherRecliner","LeatherStool","OOH","WKD","HOL","LNY","BLNY04","BLNY07","BLNY10","ALNY04","ALNY07","Urgent","Premium","ForeignLang"],
     },
     "others":{
-        "Basic":["I_P4h","I_P3h","I_P2h","OOH","WKD","HOL","LNY","BLNY04","BLNY07","BLNY10","ALNY04","ALNY07","OwnTools","Urgent","Premium","ForeignLang"],
+        "Basic":["I_P4h","I_P3h","I_P2h","I_P1h","OOH","WKD","HOL","LNY","BLNY04","BLNY07","BLNY10","ALNY04","ALNY07","OwnTools","Urgent","Premium","ForeignLang"],
         "DeepHome":["I_P4h","OOH","WKD","HOL","LNY","BLNY04","BLNY07","BLNY10","ALNY04","ALNY07","Urgent","ForeignLang"],
         "Sofa":["Cotton1-Seat","Cotton2-Seat","Cotton3-Seat","CottonStool","Leather1-Seat","Leather2-Seat","Leather3-Seat","LeatherRecliner","LeatherStool","OOH","WKD","HOL","LNY","BLNY04","BLNY07","BLNY10","ALNY04","ALNY07","BLNY04","BLNY07","BLNY10","ALNY04","ALNY07","Urgent","Premium","ForeignLang"],
     }
