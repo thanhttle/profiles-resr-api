@@ -110,6 +110,7 @@ class One_Off_Fee(models.Model):
 	premiumservices = models.BooleanField(default=False)
 	foreignlanguage = models.BooleanField(default=False)
 	handwashclothes = models.BooleanField(default=False)
+	numberofworkers = models.IntegerField(default=0)
 
 	def __str__(self):
 		"""Return the model as a string"""
